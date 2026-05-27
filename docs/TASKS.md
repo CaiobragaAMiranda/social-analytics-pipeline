@@ -1,0 +1,138 @@
+# Tasks
+
+## Legenda
+
+- Pending: ainda nao iniciada.
+- In Progress: em execucao.
+- Review: aguardando avaliacao do Gemini ou do usuario.
+- Done: concluida e documentada.
+
+## TASK-001 - Criar documentacao base e protocolo de automacao
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: criar a estrutura documental e scripts iniciais que permitam acompanhar progresso sem depender de memoria da conversa.
+
+Critérios de aceite:
+
+- `README.md` descreve o fluxo de trabalho.
+- `docs/PLAN.md` contem fases do projeto.
+- `docs/TASKS.md` registra backlog e task atual.
+- `docs/PROGRESS.md` registra progresso inicial.
+- `docs/BOOTSTRAP.md` explica como preparar o ambiente.
+- `docs/ARCHITECTURE.md` registra arquitetura pretendida.
+- `docs/GEMINI_CONTRACT.md` define rubrica de avaliacao.
+- Scripts iniciais existem em `scripts/`.
+- `scripts/verify_docs.ps1` executa com sucesso.
+
+Evidencias:
+
+- Comando de verificacao: `.\scripts\verify_docs.ps1`
+- Resultado: verificacao documental concluida com sucesso.
+- Comando de status: `.\scripts\project_status.ps1`
+- Arquivos alterados: `README.md`, `docs/`, `scripts/`.
+
+## TASK-002 - Criar esqueleto tecnico do projeto
+
+Status: Pending
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: criar a estrutura inicial de codigo Python para providers, raw storage, transformacoes e testes.
+
+Critérios de aceite:
+
+- Estrutura `src/` e `tests/` criada.
+- Configuracao de projeto Python definida.
+- Teste inicial executavel.
+- README e bootstrap atualizados.
+
+## TASK-001C - Criar primeiro commit da governanca
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: consolidar a documentacao e scripts de governanca em um commit inicial rastreavel.
+
+Critérios de aceite:
+
+- `docs/TASKS.md` registra TASK-001C.
+- `docs/PROGRESS.md` registra a preparacao do primeiro commit.
+- `scripts/verify_docs.ps1` executa com sucesso.
+- Primeiro commit Git criado com a estrutura base.
+- `git status --short` nao mostra mudancas pendentes apos o commit.
+
+Evidencias:
+
+- Comando de verificacao: `.\scripts\verify_docs.ps1`
+- Resultado: verificacao documental concluida com sucesso.
+- Commit: `chore: add project governance foundation`
+
+## TASK-001B - Inicializar repositorio real em Programing
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: mover a estrutura base para o diretorio oficial do projeto e inicializar Git.
+
+Critérios de aceite:
+
+- Pasta `C:\Users\gamer\Desktop\Programing\social-analytics-pipeline` criada.
+- `README.md`, `docs/` e `scripts/` copiados para a pasta oficial.
+- Git inicializado na pasta oficial.
+- `scripts/verify_docs.ps1` executa com sucesso na pasta oficial.
+- `scripts/project_status.ps1` executa com sucesso na pasta oficial.
+
+Evidencias:
+
+- Comando de verificacao: `.\scripts\verify_docs.ps1`
+- Comando de status: `.\scripts\project_status.ps1`
+- Comando Git: `git status --short`
+
+## TASK-003 - Criar providers mockados
+
+Status: Pending
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: permitir desenvolvimento demonstravel sem depender de aprovacoes ou limites de APIs reais.
+
+Critérios de aceite:
+
+- Provider base definido.
+- Providers mockados para Instagram, YouTube e TikTok.
+- Fixtures de resposta raw.
+- Testes de contrato dos providers.
+
+## TASK-004 - Criar schema unico de metricas
+
+Status: Pending
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: normalizar dados de redes sociais em formato tabular unico.
+
+Critérios de aceite:
+
+- Modelo de metricas documentado.
+- Transformacoes por provider.
+- Testes cobrindo campos obrigatorios e dados invalidos.
+
+## TASK-005 - Criar carga local em PostgreSQL
+
+Status: Pending
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: persistir metricas normalizadas em banco relacional local.
+
+Critérios de aceite:
+
+- Docker Compose com PostgreSQL.
+- Script de migracao ou inicializacao.
+- Upsert idempotente por chave natural.
+- Teste ou verificacao local documentada.
