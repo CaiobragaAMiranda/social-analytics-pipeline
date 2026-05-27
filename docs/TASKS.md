@@ -101,9 +101,33 @@ Evidencias:
 - Comando de status: `.\scripts\project_status.ps1`
 - Comando Git: `git status --short`
 
+## TASK-001D - Automatizar revisao contratual com Gemini
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: configurar o Gemini CLI no terminal e criar um comando unico para revisar a task atual por contrato.
+
+Critérios de aceite:
+
+- Gemini CLI oficial instalado via `@google/gemini-cli`.
+- Login com Google concluido.
+- Wrapper local `scripts/gemini_cli.ps1` executa o CLI de forma reprodutivel.
+- `scripts/gemini_review.ps1` gera pacote, chama o Gemini e salva resposta em `docs/REVIEWS/`.
+- Gemini headless responde a uma chamada minima.
+
+Evidencias:
+
+- Versao validada: Gemini CLI `0.43.0`.
+- Teste headless: resposta `GEMINI_OK`.
+- Script criado: `scripts/gemini_review.ps1`.
+- Revisao corrigida: `docs/REVIEWS/review-20260527-104706.md`.
+- Resultado: aprovado / em conformidade.
+
 ## TASK-003 - Criar providers mockados
 
-Status: Pending
+Status: Done
 
 Fase: Fase 1 - Nucleo MVP e autenticacao
 
@@ -115,6 +139,14 @@ Critérios de aceite:
 - Providers mockados para Instagram, YouTube e TikTok.
 - Fixtures de resposta raw.
 - Testes de contrato dos providers.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 8 testes executados com sucesso.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Commit: `feat: add mock social providers`
 
 ## TASK-004 - Criar schema unico de metricas
 

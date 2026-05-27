@@ -43,5 +43,6 @@ src/social_analytics_pipeline/
   providers/   contratos de coleta por fonte social
   storage/     persistencia de payloads brutos
   transform/   schema normalizado inicial
+data/fixtures/ fixtures raw dos providers mockados
 tests/         testes automatizados
 ```

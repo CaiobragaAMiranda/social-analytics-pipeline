@@ -10,9 +10,12 @@ $requiredFiles = @(
     "docs/ARCHITECTURE.md",
     "docs/GEMINI_CONTRACT.md",
     "docs/DECISIONS/ADR-0001-repository-as-source-of-truth.md",
+    "docs/REVIEWS/.gitkeep",
+    "scripts/gemini_cli.ps1",
     "scripts/project_status.ps1",
     "scripts/verify_docs.ps1",
-    "scripts/gemini_packet.ps1"
+    "scripts/gemini_packet.ps1",
+    "scripts/gemini_review.ps1"
 )
 
 $missing = @()

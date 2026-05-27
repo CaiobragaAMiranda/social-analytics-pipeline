@@ -45,6 +45,15 @@ python -m unittest discover -s tests
 
 O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o bootstrap inicial simples e offline.
 
+## Validar providers mockados
+
+Os providers mockados usam fixtures locais e nao precisam de tokens:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_mock_providers
+```
+
 ## Gerar pacote para Gemini
 
 ```powershell
@@ -52,3 +61,11 @@ O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o boots
 ```
 
 O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase posterior, poderemos salvar esse pacote em `docs/REVIEWS/`.
+
+## Rodar revisao contratual com Gemini
+
+```powershell
+.\scripts\gemini_review.ps1
+```
+
+Esse comando gera o pacote de revisao, chama o Gemini CLI em modo headless e salva a resposta em `docs/REVIEWS/`.

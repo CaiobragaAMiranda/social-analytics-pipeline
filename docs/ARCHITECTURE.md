@@ -27,6 +27,16 @@ SocialProvider.collect_metrics(account_id, start_at, end_at) -> list[dict]
 
 Esse contrato ainda retorna payloads brutos. A normalizacao fica em `transform/`.
 
+Na TASK-003 foram criados providers mockados baseados em fixtures:
+
+```text
+data/fixtures/instagram_metrics.json
+data/fixtures/youtube_metrics.json
+data/fixtures/tiktok_metrics.json
+```
+
+Os mocks preservam formatos diferentes por plataforma. Isso e intencional: a proxima etapa de transformacao deve provar que consegue mapear essas formas distintas para `SocialMetric`.
+
 ## Raw Storage
 
 Toda resposta bruta sera preservada antes de qualquer transformacao.

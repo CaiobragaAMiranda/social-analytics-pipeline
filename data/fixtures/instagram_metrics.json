@@ -1,0 +1,28 @@
+[
+  {
+    "id": "ig-post-001",
+    "media_type": "IMAGE",
+    "timestamp": "2026-05-20T14:30:00Z",
+    "like_count": 120,
+    "comments_count": 14,
+    "impressions": 2300,
+    "reach": 1800,
+    "account": {
+      "id": "ig-account-1",
+      "followers_count": 5400
+    }
+  },
+  {
+    "id": "ig-reel-002",
+    "media_type": "REELS",
+    "timestamp": "2026-05-21T18:45:00Z",
+    "like_count": 240,
+    "comments_count": 31,
+    "plays": 7200,
+    "shares": 42,
+    "account": {
+      "id": "ig-account-1",
+      "followers_count": 5440
+    }
+  }
+]

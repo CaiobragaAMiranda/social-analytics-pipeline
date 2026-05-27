@@ -1,0 +1,30 @@
+[
+  {
+    "item_id": "tt-video-001",
+    "create_time": "2026-05-18T20:20:00Z",
+    "metrics": {
+      "digg_count": 430,
+      "comment_count": 29,
+      "share_count": 18,
+      "play_count": 12000
+    },
+    "author": {
+      "open_id": "tt-author-1",
+      "follower_count": 9100
+    }
+  },
+  {
+    "item_id": "tt-video-002",
+    "create_time": "2026-05-23T10:10:00Z",
+    "metrics": {
+      "digg_count": 770,
+      "comment_count": 63,
+      "share_count": 51,
+      "play_count": 26000
+    },
+    "author": {
+      "open_id": "tt-author-1",
+      "follower_count": 9180
+    }
+  }
+]

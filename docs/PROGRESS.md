@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-002 - Criar esqueleto tecnico do projeto
+Task atual: TASK-003 - Criar providers mockados
 
-Status geral: esqueleto tecnico Python criado e testado.
+Status geral: providers mockados criados para desenvolvimento sem APIs reais.
 
 ## Registro
 
@@ -38,8 +38,24 @@ Status geral: esqueleto tecnico Python criado e testado.
 - Executados 4 testes unitarios com sucesso.
 - Executada verificacao documental com sucesso.
 - TASK-002 marcada como Done.
+- Commit da TASK-002 publicado no GitHub: `bd29c8c feat: add python project skeleton`.
+- Iniciada TASK-003 para criar providers mockados.
+- Criadas fixtures raw para Instagram, YouTube e TikTok em `data/fixtures/`.
+- Criado `FixtureProvider` e factory `build_mock_providers`.
+- Criados testes de contrato em `tests/test_mock_providers.py`.
+- Executados 8 testes unitarios com sucesso.
+- Executada verificacao documental com sucesso.
+- TASK-003 marcada como Done.
+- Configurado Gemini CLI oficial `@google/gemini-cli`.
+- Login com Google concluido no Gemini CLI.
+- Criados `scripts/gemini_cli.ps1` e `scripts/gemini_review.ps1`.
+- Gemini headless validado com resposta `GEMINI_OK`.
+- TASK-001D marcada como Done.
+- Primeira tentativa de revisao Gemini falhou porque o agente tentou chamar `run_shell_command`, ferramenta indisponivel no ambiente.
+- Corrigido `scripts/gemini_review.ps1` para modo avaliador textual com `--approval-mode plan` e instrucao explicita para nao usar ferramentas.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260527-104706.md`.
+- Resultado Gemini: aprovado / em conformidade.
 
 ## Proximas acoes
 
-- Criar commit da TASK-002.
-- Iniciar TASK-003: criar providers mockados.
+- Criar commit da TASK-003 e da automacao Gemini.

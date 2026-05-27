@@ -1,0 +1,34 @@
+[
+  {
+    "videoId": "yt-video-001",
+    "snippet": {
+      "publishedAt": "2026-05-19T09:00:00Z",
+      "title": "Pipeline demo"
+    },
+    "statistics": {
+      "viewCount": "8500",
+      "likeCount": "620",
+      "commentCount": "48"
+    },
+    "channel": {
+      "id": "yt-channel-1",
+      "subscriberCount": "22000"
+    }
+  },
+  {
+    "videoId": "yt-short-002",
+    "snippet": {
+      "publishedAt": "2026-05-22T12:15:00Z",
+      "title": "Short analytics sample"
+    },
+    "statistics": {
+      "viewCount": "14300",
+      "likeCount": "980",
+      "commentCount": "77"
+    },
+    "channel": {
+      "id": "yt-channel-1",
+      "subscriberCount": "22120"
+    }
+  }
+]
