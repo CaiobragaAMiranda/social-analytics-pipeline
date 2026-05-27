@@ -19,6 +19,14 @@ Fontes planejadas:
 - TikTok.
 - Mock providers para desenvolvimento e demonstracao.
 
+Contrato inicial:
+
+```text
+SocialProvider.collect_metrics(account_id, start_at, end_at) -> list[dict]
+```
+
+Esse contrato ainda retorna payloads brutos. A normalizacao fica em `transform/`.
+
 ## Raw Storage
 
 Toda resposta bruta sera preservada antes de qualquer transformacao.
@@ -28,6 +36,8 @@ Formato inicial previsto:
 ```text
 data/raw/{provider}/{yyyy-mm-dd}/{entity_id}.json
 ```
+
+Na TASK-002 foi criada a classe `RawStorage`, responsavel por persistir payloads JSON em disco.
 
 Motivos:
 
@@ -54,6 +64,8 @@ Campos candidatos:
 - views.
 - followers.
 - raw_path.
+
+Na TASK-002 foi criado o dataclass `SocialMetric` com esses campos candidatos iniciais.
 
 ## Persistencia
 

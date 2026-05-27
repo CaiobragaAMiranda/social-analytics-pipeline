@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "social-analytics-pipeline"
+version = "0.1.0"
+description = "Pipeline de analytics social com extracao, normalizacao e orquestracao de metricas."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Caio Braga" }
+]
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.unittest]
+start-dir = "tests"

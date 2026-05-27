@@ -36,6 +36,15 @@ docker --version
 .\scripts\verify_docs.ps1
 ```
 
+## Rodar testes
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest discover -s tests
+```
+
+O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o bootstrap inicial simples e offline.
+
 ## Gerar pacote para Gemini
 
 ```powershell

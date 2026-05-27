@@ -36,7 +36,7 @@ Evidencias:
 
 ## TASK-002 - Criar esqueleto tecnico do projeto
 
-Status: Pending
+Status: Done
 
 Fase: Fase 1 - Nucleo MVP e autenticacao
 
@@ -48,6 +48,14 @@ Critérios de aceite:
 - Configuracao de projeto Python definida.
 - Teste inicial executavel.
 - README e bootstrap atualizados.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 4 testes executados com sucesso.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Commit: `feat: add python project skeleton`
 
 ## TASK-001C - Criar primeiro commit da governanca
 

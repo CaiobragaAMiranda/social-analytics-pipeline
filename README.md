@@ -21,16 +21,27 @@ Antes de codar uma task:
 .\scripts\project_status.ps1
 .\scripts\verify_docs.ps1
 .\scripts\gemini_packet.ps1
+python -m unittest discover -s tests
 ```
 
 ## Status
 
-Fase atual: Fase 0 - Governanca do projeto
+Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-001B - Inicializar repositorio real em Programing
+Task atual: TASK-002 - Criar esqueleto tecnico do projeto
 
 ## Caminho oficial
 
 ```text
 C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
+```
+
+## Estrutura inicial
+
+```text
+src/social_analytics_pipeline/
+  providers/   contratos de coleta por fonte social
+  storage/     persistencia de payloads brutos
+  transform/   schema normalizado inicial
+tests/         testes automatizados
 ```
