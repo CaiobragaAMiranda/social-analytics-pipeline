@@ -11,10 +11,4 @@ if (-not (Test-Path $gemini)) {
     throw "Gemini CLI nao encontrado em: $gemini"
 }
 
-$stdin = [Console]::In.ReadToEnd()
-
-if ([string]::IsNullOrWhiteSpace($stdin)) {
-    & $node $gemini @args
-} else {
-    $stdin | & $node $gemini @args
-}
+& $node $gemini @args

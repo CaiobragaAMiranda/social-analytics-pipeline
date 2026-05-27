@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-004 - Criar schema unico de metricas
+Task atual: TASK-005 - Criar carga local em PostgreSQL
 
-Status geral: iniciando normalizacao de payloads mockados para schema unico.
+Status geral: iniciando carga local idempotente em PostgreSQL.
 
 ## Registro
 
@@ -67,8 +67,28 @@ Status geral: iniciando normalizacao de payloads mockados para schema unico.
 - Revisao Gemini formal salva em `docs/REVIEWS/review-20260527-191357.md`.
 - Resultado Gemini: aprovado.
 - TASK-004 marcada como Done.
+- Commit da TASK-004 publicado no GitHub: `2b716f7 feat: add social metric normalizers`.
+- Iniciada TASK-005 para criar carga local em PostgreSQL.
+- Criado `docker-compose.yml` com servico PostgreSQL 16.
+- Criado schema inicial em `db/init/001_create_social_metrics.sql`.
+- Criado `PostgresMetricLoader` com upsert idempotente.
+- Criados testes unitarios em `tests/test_postgres_loader.py`.
+- Adicionada dependencia `psycopg[binary]` ao `pyproject.toml`.
+- Corrigido `raw_path` do loader para persistir paths em formato POSIX estavel.
+- Executados 17 testes unitarios com sucesso.
+- Executada verificacao documental com sucesso.
+- Revisao Gemini `docs/REVIEWS/review-20260527-192800.md` falhou porque `gemini_packet.ps1` imprimia cabecalhos com `Write-Host`, deixando o pacote vazio para o pipeline.
+- Corrigido `scripts/gemini_packet.ps1` para emitir conteudo com `Write-Output` e incluir diff completo do repositorio.
+- Revisao Gemini `docs/REVIEWS/review-20260527-192923.md` falhou porque `scripts/gemini_cli.ps1` nao recebia pipeline via `[Console]::In`.
+- Mantido `scripts/gemini_cli.ps1` como wrapper simples para chamadas diretas.
+- Corrigido `scripts/gemini_review.ps1` para enviar o pacote ao Gemini por arquivo temporario e `cmd /c type`, evitando perda de `stdin` em wrappers PowerShell.
+- Revisao Gemini `docs/REVIEWS/review-20260527-193101.md` aprovou a TASK-005, mas recomendou incluir arquivos novos ainda nao rastreados no pacote.
+- Corrigido `scripts/gemini_packet.ps1` para incluir diff staged e conteudo de arquivos untracked.
+- Revisao Gemini final salva em `docs/REVIEWS/review-20260527-193156.md`.
+- Resultado Gemini: aprovado.
+- TASK-005 marcada como Done.
 
 ## Proximas acoes
 
-- Criar commit da TASK-004.
-- Iniciar TASK-005: criar carga local em PostgreSQL.
+- Criar commit da TASK-005.
+- Planejar proxima task: integrar fluxo local completo mock -> raw -> normalize -> load.

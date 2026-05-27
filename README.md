@@ -41,8 +41,10 @@ C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
 ```text
 src/social_analytics_pipeline/
   providers/   contratos de coleta por fonte social
+  load/        carga idempotente em PostgreSQL
   storage/     persistencia de payloads brutos
   transform/   schema normalizado e normalizadores por provider
 data/fixtures/ fixtures raw dos providers mockados
+db/init/       schema inicial do PostgreSQL local
 tests/         testes automatizados
 ```

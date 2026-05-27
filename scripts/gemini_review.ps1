@@ -37,7 +37,18 @@ Pacote de revisao:
 "@
 
 $inputText = "$instruction`n`n$packet"
-$review = $inputText | & (Join-Path $PSScriptRoot "gemini_cli.ps1") --skip-trust --approval-mode plan --prompt "Revise o pacote recebido via stdin. Nao use ferramentas. Responda somente com a avaliacao contratual textual." --output-format text
+$node = "C:\Program Files\nodejs\node.exe"
+$gemini = "$env:APPDATA\npm\node_modules\@google\gemini-cli\bundle\gemini.js"
+$inputPath = Join-Path $env:TEMP "gemini-review-input-$timestamp.md"
+
+Set-Content -Path $inputPath -Value $inputText -Encoding UTF8
+
+try {
+    $command = 'type "{0}" | "{1}" "{2}" --skip-trust --approval-mode plan --prompt "Revise o pacote recebido via stdin. Nao use ferramentas. Responda somente com a avaliacao contratual textual." --output-format text' -f $inputPath, $node, $gemini
+    $review = cmd /c $command
+} finally {
+    Remove-Item -LiteralPath $inputPath -ErrorAction SilentlyContinue
+}
 
 $header = @"
 # Gemini Review

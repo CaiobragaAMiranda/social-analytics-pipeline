@@ -174,7 +174,7 @@ Evidencias:
 
 ## TASK-005 - Criar carga local em PostgreSQL
 
-Status: Pending
+Status: Done
 
 Fase: Fase 1 - Nucleo MVP e autenticacao
 
@@ -186,3 +186,13 @@ Critérios de aceite:
 - Script de migracao ou inicializacao.
 - Upsert idempotente por chave natural.
 - Teste ou verificacao local documentada.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 17 testes executados com sucesso.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260527-193156.md`
+- Resultado Gemini: aprovado.
+- Commit: `feat: add postgres metric loading`

@@ -114,6 +114,16 @@ O alvo inicial sera PostgreSQL via Docker Compose.
 
 SQLite fica fora do caminho principal porque o projeto pretende demonstrar praticas mais proximas de ambiente produtivo.
 
+Na TASK-005 foi criada a tabela `social_metrics` em `db/init/001_create_social_metrics.sql`.
+
+Chave natural idempotente:
+
+```text
+provider + account_id + content_id + collected_at
+```
+
+O loader `PostgresMetricLoader` usa `INSERT ... ON CONFLICT ... DO UPDATE`, evitando duplicidade quando a mesma janela de coleta for reprocessada.
+
 ## Orquestracao
 
 Airflow sera introduzido depois que extracao, transformacao e carga estiverem testadas localmente.

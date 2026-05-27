@@ -45,6 +45,28 @@ python -m unittest discover -s tests
 
 O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o bootstrap inicial simples e offline.
 
+## Subir PostgreSQL local
+
+```powershell
+docker compose up -d postgres
+docker compose ps
+```
+
+DSN local padrao:
+
+```text
+postgresql://social_analytics:social_analytics@localhost:5432/social_analytics
+```
+
+O schema inicial fica em `db/init/001_create_social_metrics.sql` e e aplicado automaticamente quando o volume do Postgres e criado pela primeira vez.
+
+Para reiniciar o banco do zero durante desenvolvimento:
+
+```powershell
+docker compose down -v
+docker compose up -d postgres
+```
+
 ## Validar providers mockados
 
 Os providers mockados usam fixtures locais e nao precisam de tokens:
@@ -59,6 +81,13 @@ python -m unittest tests.test_mock_providers
 ```powershell
 $env:PYTHONPATH = "src"
 python -m unittest tests.test_normalizer
+```
+
+## Validar carga PostgreSQL sem banco real
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_postgres_loader
 ```
 
 ## Gerar pacote para Gemini
