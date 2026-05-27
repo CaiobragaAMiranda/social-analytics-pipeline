@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
 import json
 import tempfile
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 
 from social_analytics_pipeline import __version__
@@ -26,7 +26,7 @@ class ProjectSkeletonTest(unittest.TestCase):
             record = RawRecord(
                 provider="mock",
                 account_id="account-1",
-                collected_at=datetime(2026, 5, 27, 12, 0, tzinfo=timezone.utc),
+                collected_at=datetime(2026, 5, 27, 12, 0, tzinfo=UTC),
                 payload={"likes": 10},
             )
 
@@ -41,7 +41,7 @@ class ProjectSkeletonTest(unittest.TestCase):
             account_id="account-1",
             content_id="post-1",
             content_type="post",
-            collected_at=datetime(2026, 5, 27, tzinfo=timezone.utc),
+            collected_at=datetime(2026, 5, 27, tzinfo=UTC),
             published_at=None,
             likes=1,
             comments=2,

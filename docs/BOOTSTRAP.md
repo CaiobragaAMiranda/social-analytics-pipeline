@@ -90,6 +90,31 @@ $env:PYTHONPATH = "src"
 python -m unittest tests.test_postgres_loader
 ```
 
+## Instalar ferramentas de desenvolvimento
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
+```
+
+## Rodar quality gates locais
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest discover -s tests
+ruff check .
+bandit -c pyproject.toml -r src
+pip-audit .
+```
+
+Secret scan local com Gitleaks depende do binario instalado na maquina:
+
+```powershell
+gitleaks detect --source . --config .gitleaks.toml
+```
+
+No GitHub, o workflow `.github/workflows/quality-gates.yml` executa testes, Ruff, Bandit, pip-audit e Gitleaks.
+
 ## Gerar pacote para Gemini
 
 ```powershell

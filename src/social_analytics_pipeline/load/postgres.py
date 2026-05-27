@@ -3,7 +3,6 @@ from typing import Any
 
 from social_analytics_pipeline.transform import SocialMetric
 
-
 SOCIAL_METRICS_UPSERT_SQL = """
 INSERT INTO social_metrics (
     provider,

@@ -1,23 +1,24 @@
-from datetime import datetime, timezone
-from pathlib import Path
 import unittest
+from datetime import UTC, datetime
+from pathlib import Path
 
 from social_analytics_pipeline.providers import build_mock_providers
 from social_analytics_pipeline.transform import SocialMetric, normalize_payload, normalize_payloads
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class NormalizerTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.start_at = datetime(2026, 5, 1, tzinfo=timezone.utc)
-        self.end_at = datetime(2026, 5, 27, tzinfo=timezone.utc)
+        self.start_at = datetime(2026, 5, 1, tzinfo=UTC)
+        self.end_at = datetime(2026, 5, 27, tzinfo=UTC)
         self.raw_path = Path("data/raw/mock/sample.json")
         self.providers = build_mock_providers(PROJECT_ROOT)
 
     def test_normalizes_instagram_payload(self) -> None:
-        payload = self.providers["instagram"].collect_metrics("ig-account-1", self.start_at, self.end_at)[0]
+        payload = self.providers["instagram"].collect_metrics(
+            "ig-account-1", self.start_at, self.end_at
+        )[0]
 
         metric = normalize_payload(payload, self.raw_path)
 
@@ -29,7 +30,7 @@ class NormalizerTest(unittest.TestCase):
                 content_id="ig-post-001",
                 content_type="post",
                 collected_at=self.end_at,
-                published_at=datetime(2026, 5, 20, 14, 30, tzinfo=timezone.utc),
+                published_at=datetime(2026, 5, 20, 14, 30, tzinfo=UTC),
                 likes=120,
                 comments=14,
                 shares=None,
@@ -40,7 +41,9 @@ class NormalizerTest(unittest.TestCase):
         )
 
     def test_normalizes_youtube_payload(self) -> None:
-        payload = self.providers["youtube"].collect_metrics("yt-channel-1", self.start_at, self.end_at)[0]
+        payload = self.providers["youtube"].collect_metrics(
+            "yt-channel-1", self.start_at, self.end_at
+        )[0]
 
         metric = normalize_payload(payload, self.raw_path)
 
@@ -55,7 +58,9 @@ class NormalizerTest(unittest.TestCase):
         self.assertEqual(metric.followers, 22000)
 
     def test_normalizes_tiktok_payload(self) -> None:
-        payload = self.providers["tiktok"].collect_metrics("tt-author-1", self.start_at, self.end_at)[0]
+        payload = self.providers["tiktok"].collect_metrics(
+            "tt-author-1", self.start_at, self.end_at
+        )[0]
 
         metric = normalize_payload(payload, self.raw_path)
 
@@ -69,7 +74,9 @@ class NormalizerTest(unittest.TestCase):
         self.assertEqual(metric.followers, 9100)
 
     def test_normalizes_multiple_payloads(self) -> None:
-        payloads = self.providers["instagram"].collect_metrics("ig-account-1", self.start_at, self.end_at)
+        payloads = self.providers["instagram"].collect_metrics(
+            "ig-account-1", self.start_at, self.end_at
+        )
 
         metrics = normalize_payloads(payloads, self.raw_path)
 

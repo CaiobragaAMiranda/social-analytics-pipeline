@@ -1,5 +1,5 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +23,10 @@ class FixtureProvider(SocialProvider):
             raise ValueError("start_at must be before or equal to end_at")
 
         payloads = json.loads(self.fixture_path.read_text(encoding="utf-8"))
-        return [self._with_collection_context(payload, account_id, start_at, end_at) for payload in payloads]
+        return [
+            self._with_collection_context(payload, account_id, start_at, end_at)
+            for payload in payloads
+        ]
 
     def _with_collection_context(
         self,

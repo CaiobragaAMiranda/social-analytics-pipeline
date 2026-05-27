@@ -136,3 +136,17 @@ Validacoes planejadas:
 - Validacao de schema.
 - Rejeicao ou DLQ para registros invalidos.
 - Idempotencia no load.
+
+## Quality Gates
+
+Na TASK-006 foram adicionados quality gates de seguranca e dependencias:
+
+```text
+Ruff       -> lint Python
+Bandit     -> security lint Python
+pip-audit  -> scan de vulnerabilidades em dependencias
+Gitleaks   -> secret scan
+GitHub Actions -> execucao automatizada em push, pull request e workflow_dispatch
+```
+
+Detectores de N+1, race condition e memory leak ficam registrados como futuras evolucoes. Eles passam a fazer sentido quando houver ORM/leitura relacional, execucao concorrente com Airflow/Celery ou cargas grandes o bastante para profiling de memoria.

@@ -1,8 +1,12 @@
-from datetime import datetime, timezone
-from pathlib import Path
 import unittest
+from datetime import UTC, datetime
+from pathlib import Path
 
-from social_analytics_pipeline.load import SOCIAL_METRICS_UPSERT_SQL, PostgresMetricLoader, metric_to_row
+from social_analytics_pipeline.load import (
+    SOCIAL_METRICS_UPSERT_SQL,
+    PostgresMetricLoader,
+    metric_to_row,
+)
 from social_analytics_pipeline.transform import SocialMetric
 
 
@@ -13,7 +17,7 @@ class PostgresLoaderTest(unittest.TestCase):
             account_id="ig-account-1",
             content_id="ig-post-001",
             content_type="post",
-            collected_at=datetime(2026, 5, 27, tzinfo=timezone.utc),
+            collected_at=datetime(2026, 5, 27, tzinfo=UTC),
             published_at=None,
             likes=10,
             comments=2,
@@ -43,7 +47,10 @@ class PostgresLoaderTest(unittest.TestCase):
         })
 
     def test_upsert_sql_uses_expected_natural_key(self) -> None:
-        self.assertIn("ON CONFLICT (provider, account_id, content_id, collected_at)", SOCIAL_METRICS_UPSERT_SQL)
+        self.assertIn(
+            "ON CONFLICT (provider, account_id, content_id, collected_at)",
+            SOCIAL_METRICS_UPSERT_SQL,
+        )
         self.assertIn("DO UPDATE SET", SOCIAL_METRICS_UPSERT_SQL)
         self.assertIn("updated_at = NOW()", SOCIAL_METRICS_UPSERT_SQL)
 

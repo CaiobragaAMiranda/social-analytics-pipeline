@@ -47,4 +47,5 @@ src/social_analytics_pipeline/
 data/fixtures/ fixtures raw dos providers mockados
 db/init/       schema inicial do PostgreSQL local
 tests/         testes automatizados
+.github/       quality gates de CI
 ```

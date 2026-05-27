@@ -1,9 +1,9 @@
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from social_analytics_pipeline.transform.schema import SocialMetric
-
 
 Normalizer = Callable[[dict[str, Any], Path], SocialMetric]
 

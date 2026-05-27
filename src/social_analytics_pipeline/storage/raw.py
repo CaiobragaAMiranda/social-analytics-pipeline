@@ -1,6 +1,6 @@
-from dataclasses import dataclass
-from datetime import datetime, timezone
 import json
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +20,7 @@ class RawStorage:
         self.root_dir = root_dir
 
     def save(self, record: RawRecord) -> Path:
-        collected_at = record.collected_at.astimezone(timezone.utc)
+        collected_at = record.collected_at.astimezone(UTC)
         day = collected_at.strftime("%Y-%m-%d")
         stamp = collected_at.strftime("%H%M%S")
         target_dir = self.root_dir / record.provider / day

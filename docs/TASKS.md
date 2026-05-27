@@ -196,3 +196,37 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260527-193156.md`
 - Resultado Gemini: aprovado.
 - Commit: `feat: add postgres metric loading`
+
+## TASK-006 - Adicionar quality gates de seguranca e CI
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: adicionar verificacoes automatizadas de qualidade, seguranca, dependencias e secrets para reduzir risco antes das proximas fases.
+
+Critérios de aceite:
+
+- Ruff configurado para lint local.
+- Bandit configurado para security lint.
+- pip-audit configurado para scan de dependencias.
+- Gitleaks configurado para secret scan.
+- GitHub Actions executa testes, lint, security lint, dependency audit e secret scan.
+- Bootstrap documenta comandos locais.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 17 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260527-194742.md`
+- Resultado Gemini: aprovado.
+- Commit: `ci: add security quality gates`

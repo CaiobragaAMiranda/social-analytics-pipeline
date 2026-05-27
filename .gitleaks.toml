@@ -1,0 +1,14 @@
+title = "Social Analytics Pipeline Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Local-only Docker Compose development credentials"
+paths = [
+  '''docker-compose\.yml''',
+  '''docs/BOOTSTRAP\.md'''
+]
+regexes = [
+  '''social_analytics'''
+]

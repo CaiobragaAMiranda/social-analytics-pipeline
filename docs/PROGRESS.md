@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-005 - Criar carga local em PostgreSQL
+Task atual: TASK-006 - Adicionar quality gates de seguranca e CI
 
-Status geral: iniciando carga local idempotente em PostgreSQL.
+Status geral: iniciando automacoes de qualidade, seguranca e CI.
 
 ## Registro
 
@@ -87,8 +87,30 @@ Status geral: iniciando carga local idempotente em PostgreSQL.
 - Revisao Gemini final salva em `docs/REVIEWS/review-20260527-193156.md`.
 - Resultado Gemini: aprovado.
 - TASK-005 marcada como Done.
+- Commit da TASK-005 publicado no GitHub: `59f9aa5 feat: add postgres metric loading`.
+- Iniciada TASK-006 para adicionar quality gates de seguranca e CI.
+- Versoes de GitHub Actions verificadas em fontes oficiais em 2026-05-27:
+  - `actions/checkout@v6`.
+  - `actions/setup-python@v6`.
+  - `gitleaks/gitleaks-action@v2`.
+  - `pypa/gh-action-pip-audit@v1.1.0`.
+- Adicionadas dependencias dev para `ruff`, `bandit` e `pip-audit`.
+- Adicionada configuracao `.gitleaks.toml`.
+- Criado workflow `.github/workflows/quality-gates.yml`.
+- Documentados comandos locais de quality gates no bootstrap.
+- Instaladas dependencias dev via `python -m pip install -r requirements-dev.txt`.
+- Primeira execucao do Ruff encontrou divida de formatacao/imports em codigo existente.
+- Aplicado `ruff check . --fix` e ajustes manuais de linhas longas.
+- Executados 17 testes unitarios com sucesso.
+- Ruff aprovado com `All checks passed!`.
+- Bandit aprovado sem issues.
+- pip-audit aprovado sem vulnerabilidades conhecidas.
+- Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260527-194742.md`.
+- Resultado Gemini: aprovado.
+- TASK-006 marcada como Done.
 
 ## Proximas acoes
 
-- Criar commit da TASK-005.
-- Planejar proxima task: integrar fluxo local completo mock -> raw -> normalize -> load.
+- Criar commit da TASK-006.
+- Aguardar resultado do GitHub Actions apos push.
