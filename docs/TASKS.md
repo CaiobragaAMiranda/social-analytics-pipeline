@@ -150,7 +150,7 @@ Evidencias:
 
 ## TASK-004 - Criar schema unico de metricas
 
-Status: Pending
+Status: Done
 
 Fase: Fase 1 - Nucleo MVP e autenticacao
 
@@ -161,6 +161,16 @@ Critérios de aceite:
 - Modelo de metricas documentado.
 - Transformacoes por provider.
 - Testes cobrindo campos obrigatorios e dados invalidos.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 14 testes executados com sucesso.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260527-191357.md`
+- Resultado Gemini: aprovado.
+- Commit: `feat: add social metric normalizers`
 
 ## TASK-005 - Criar carga local em PostgreSQL
 

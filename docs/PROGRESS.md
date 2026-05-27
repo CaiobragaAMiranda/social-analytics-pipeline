@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-003 - Criar providers mockados
+Task atual: TASK-004 - Criar schema unico de metricas
 
-Status geral: providers mockados criados para desenvolvimento sem APIs reais.
+Status geral: iniciando normalizacao de payloads mockados para schema unico.
 
 ## Registro
 
@@ -55,7 +55,20 @@ Status geral: providers mockados criados para desenvolvimento sem APIs reais.
 - Corrigido `scripts/gemini_review.ps1` para modo avaliador textual com `--approval-mode plan` e instrucao explicita para nao usar ferramentas.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260527-104706.md`.
 - Resultado Gemini: aprovado / em conformidade.
+- Commit da TASK-003 e automacao Gemini publicado no GitHub: `08bfeb4 feat: add mock providers and gemini review automation`.
+- Iniciada TASK-004 para criar normalizacao dos payloads mockados em `SocialMetric`.
+- Criado `src/social_analytics_pipeline/transform/normalizer.py`.
+- Criados normalizadores para Instagram, YouTube e TikTok.
+- Criados testes de transformacao em `tests/test_normalizer.py`.
+- Executados 14 testes unitarios com sucesso.
+- Executada verificacao documental com sucesso.
+- Primeira revisao Gemini da TASK-004 falhou porque o wrapper local nao encaminhou o pacote para `stdin`.
+- Corrigido `scripts/gemini_cli.ps1` para repassar entrada padrao ao CLI.
+- Revisao Gemini formal salva em `docs/REVIEWS/review-20260527-191357.md`.
+- Resultado Gemini: aprovado.
+- TASK-004 marcada como Done.
 
 ## Proximas acoes
 
-- Criar commit da TASK-003 e da automacao Gemini.
+- Criar commit da TASK-004.
+- Iniciar TASK-005: criar carga local em PostgreSQL.

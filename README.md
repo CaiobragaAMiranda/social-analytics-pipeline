@@ -42,7 +42,7 @@ C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
 src/social_analytics_pipeline/
   providers/   contratos de coleta por fonte social
   storage/     persistencia de payloads brutos
-  transform/   schema normalizado inicial
+  transform/   schema normalizado e normalizadores por provider
 data/fixtures/ fixtures raw dos providers mockados
 tests/         testes automatizados
 ```

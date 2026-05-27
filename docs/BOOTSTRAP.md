@@ -54,6 +54,13 @@ $env:PYTHONPATH = "src"
 python -m unittest tests.test_mock_providers
 ```
 
+## Validar normalizacao para schema unico
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_normalizer
+```
+
 ## Gerar pacote para Gemini
 
 ```powershell

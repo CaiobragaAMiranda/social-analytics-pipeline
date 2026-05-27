@@ -77,6 +77,37 @@ Campos candidatos:
 
 Na TASK-002 foi criado o dataclass `SocialMetric` com esses campos candidatos iniciais.
 
+Na TASK-004 foi criado `normalize_payload`, que converte payloads raw enriquecidos pelos providers mockados para `SocialMetric`.
+
+Mapeamento inicial:
+
+```text
+Instagram:
+  id -> content_id
+  media_type -> content_type
+  like_count -> likes
+  comments_count -> comments
+  plays ou impressions -> views
+  account.followers_count -> followers
+
+YouTube:
+  videoId -> content_id
+  statistics.likeCount -> likes
+  statistics.commentCount -> comments
+  statistics.viewCount -> views
+  channel.subscriberCount -> followers
+
+TikTok:
+  item_id -> content_id
+  metrics.digg_count -> likes
+  metrics.comment_count -> comments
+  metrics.share_count -> shares
+  metrics.play_count -> views
+  author.follower_count -> followers
+```
+
+Provider desconhecido ou payload sem `_collection` deve falhar explicitamente com `ValueError`.
+
 ## Persistencia
 
 O alvo inicial sera PostgreSQL via Docker Compose.
