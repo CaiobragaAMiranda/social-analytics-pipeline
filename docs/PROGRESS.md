@@ -134,7 +134,7 @@ Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 - CodeRabbit acionado manualmente no PR `#1` com `@coderabbitai review`.
 - CodeRabbit confirmou o fluxo sob demanda e gerou walkthrough, pre-merge checks e 2 comentarios acionaveis.
 - Aplicadas correcoes solicitadas pelo CodeRabbit em `docs/BOOTSTRAP.md` e `docs/PROGRESS.md`.
-- Verificacao documental concluida com sucesso apos ajustes do CodeRabbit.
+- Verificacao documental concluida com sucesso após ajustes do CodeRabbit.
 - Revisao Gemini final salva em `docs/REVIEWS/review-20260528-100314.md`.
 - Resultado Gemini: aprovado.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
@@ -236,4 +236,4 @@ Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 ## Proximas acoes
 
 - Atualizar o PR com as correcoes solicitadas pelo CodeRabbit.
-- Acompanhar checks do PR apos novo push.
+- Acompanhar checks do PR após novo push.

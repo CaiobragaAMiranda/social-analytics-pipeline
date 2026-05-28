@@ -456,7 +456,7 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Revisao Gemini: `docs/REVIEWS/review-20260528-094851.md`
 - Revisao Gemini complementar: `docs/REVIEWS/review-20260528-095307.md`
-- Revisao Gemini final apos CodeRabbit: `docs/REVIEWS/review-20260528-100314.md`
+- Revisao Gemini final após CodeRabbit: `docs/REVIEWS/review-20260528-100314.md`
 - Resultado Gemini: aprovado.
 - PR: `#1`
 - Commit: `docs: configure coderabbit on demand reviews`
