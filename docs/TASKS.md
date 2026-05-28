@@ -431,7 +431,7 @@ Evidencias:
 
 ## TASK-013 - Configurar CodeRabbit sob demanda em PRs
 
-Status: In Progress
+Status: Done
 
 Fase: Fase 0 - Governanca do projeto
 
@@ -459,4 +459,6 @@ Evidencias:
 - Revisao Gemini final após CodeRabbit: `docs/REVIEWS/review-20260528-100314.md`
 - Resultado Gemini: aprovado.
 - PR: `#1`
+- Resultado CodeRabbit: revisao manual executada, comentarios aplicados.
+- Resultado GitHub Actions no PR: aprovado.
 - Commit: `docs: configure coderabbit on demand reviews`

@@ -8,7 +8,7 @@ Fase atual: Fase 2 - Orquestracao e historico
 
 Task atual: TASK-013 - Configurar CodeRabbit sob demanda em PRs
 
-Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
+Status geral: TASK-013 concluida; PR com CodeRabbit sob demanda pronto para merge.
 
 ## Registro
 
@@ -137,6 +137,9 @@ Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 - Verificacao documental concluida com sucesso após ajustes do CodeRabbit.
 - Revisao Gemini final salva em `docs/REVIEWS/review-20260528-100314.md`.
 - Resultado Gemini: aprovado.
+- Ajustes ortograficos finais sugeridos pelo CodeRabbit aplicados.
+- GitHub Actions do PR `#1` concluiu com sucesso apos o ultimo push.
+- TASK-013 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -235,5 +238,4 @@ Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 
 ## Proximas acoes
 
-- Atualizar o PR com as correcoes solicitadas pelo CodeRabbit.
-- Acompanhar checks do PR após novo push.
+- Revisar e mesclar o PR `#1`.
