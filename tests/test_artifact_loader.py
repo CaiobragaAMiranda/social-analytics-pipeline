@@ -4,7 +4,11 @@ import unittest
 from datetime import UTC, datetime
 from pathlib import Path
 
-from social_analytics_pipeline.pipeline import JsonMetricArtifactLoader, metric_to_artifact_row
+from social_analytics_pipeline.pipeline import (
+    JsonMetricArtifactLoader,
+    build_interval_artifact_path,
+    metric_to_artifact_row,
+)
 from social_analytics_pipeline.transform import SocialMetric
 
 
@@ -39,6 +43,19 @@ class ArtifactLoaderTest(unittest.TestCase):
 
             self.assertEqual(loaded, 0)
             self.assertEqual(json.loads(output_path.read_text(encoding="utf-8")), [])
+
+    def test_build_interval_artifact_path_uses_provider_and_interval(self) -> None:
+        path = build_interval_artifact_path(
+            Path("data/processed/airflow"),
+            "youtube",
+            datetime(2026, 1, 1, tzinfo=UTC),
+            datetime(2026, 1, 16, tzinfo=UTC),
+        )
+
+        self.assertEqual(
+            path.as_posix(),
+            "data/processed/airflow/youtube-20260101T000000-20260116T000000.json",
+        )
 
     def _metric(self) -> SocialMetric:
         return SocialMetric(

@@ -10,20 +10,23 @@ AIRFLOW_SRC = AIRFLOW_PROJECT_ROOT / "src"
 if str(AIRFLOW_SRC) not in sys.path:
     sys.path.insert(0, str(AIRFLOW_SRC))
 
+from social_analytics_pipeline.orchestration import MOCK_PIPELINE_DAG  # noqa: E402
+
 
 @dag(
-    dag_id="social_analytics_mock_pipeline",
-    description="Run the local mock social analytics pipeline inside Airflow.",
-    schedule=None,
-    start_date=datetime(2026, 1, 1),
-    catchup=False,
-    tags=["social-analytics", "mock", "pipeline"],
+    dag_id=MOCK_PIPELINE_DAG.dag_id,
+    description=MOCK_PIPELINE_DAG.description,
+    schedule=MOCK_PIPELINE_DAG.schedule,
+    start_date=MOCK_PIPELINE_DAG.start_date,
+    catchup=MOCK_PIPELINE_DAG.catchup,
+    tags=list(MOCK_PIPELINE_DAG.tags),
 )
 def social_analytics_mock_pipeline() -> None:
     @task
     def run_mock_pipeline() -> list[dict[str, int | str]]:
         from social_analytics_pipeline.pipeline import (
             JsonMetricArtifactLoader,
+            build_interval_artifact_path,
             run_provider_pipeline,
         )
         from social_analytics_pipeline.providers import build_mock_providers
@@ -38,12 +41,11 @@ def social_analytics_mock_pipeline() -> None:
         results: list[dict[str, int | str]] = []
 
         for provider_name, provider in providers.items():
-            output_path = (
-                project_root
-                / "data"
-                / "processed"
-                / "airflow"
-                / f"{provider_name}-{end_at.strftime('%Y%m%dT%H%M%S')}.json"
+            output_path = build_interval_artifact_path(
+                project_root / "data" / "processed" / "airflow",
+                provider_name,
+                start_at,
+                end_at,
             )
             result = run_provider_pipeline(
                 provider=provider,

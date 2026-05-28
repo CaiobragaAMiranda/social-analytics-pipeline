@@ -172,6 +172,22 @@ build_mock_providers(...)
 
 A DAG usa `data_interval_start` e `data_interval_end` do Airflow quando disponiveis. A carga final ainda e um artefato JSON local; a troca para `PostgresMetricLoader` dentro do Airflow fica para uma task seguinte.
 
+Na TASK-010, a DAG mockada passou a usar agendamento quinzenal e catchup historico:
+
+```text
+schedule = 15 dias
+catchup = True
+start_date = 2026-01-01
+```
+
+Os metadados de orquestracao ficam em `src/social_analytics_pipeline/orchestration/airflow_settings.py`, para que a politica de schedule/catchup seja testada sem importar Airflow. Os artefatos processados incluem provider, inicio e fim do intervalo no nome:
+
+```text
+data/processed/airflow/{provider}-{interval_start}-{interval_end}.json
+```
+
+Isso deixa execucoes historicas mais rastreaveis e evita sobrescrever resultados de janelas diferentes durante catchup.
+
 ## Qualidade
 
 Validacoes planejadas:

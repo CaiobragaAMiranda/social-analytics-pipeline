@@ -15,7 +15,7 @@ Fase: Fase 0 - Governanca do projeto
 
 Objetivo: criar a estrutura documental e scripts iniciais que permitam acompanhar progresso sem depender de memoria da conversa.
 
-Critérios de aceite:
+Criterios de aceite:
 
 - `README.md` descreve o fluxo de trabalho.
 - `docs/PLAN.md` contem fases do projeto.
@@ -334,3 +334,39 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-085716.md`
 - Resultado Gemini: aprovado.
 - Commit: `feat: add airflow mock pipeline dag`
+
+## TASK-010 - Configurar agendamento quinzenal e catchup historico
+
+Status: Done
+
+Fase: Fase 2 - Orquestracao e historico
+
+Objetivo: configurar a DAG mockada para execucao quinzenal com catchup historico e artefatos identificaveis por intervalo de dados.
+
+Critérios de aceite:
+
+- DAG `social_analytics_mock_pipeline` usa agendamento quinzenal.
+- DAG habilita catchup historico controlado.
+- Configuracao de DAG e testavel sem importar Airflow.
+- Artefatos processados incluem provider e intervalo de dados no nome.
+- Bootstrap e arquitetura documentam schedule, catchup e backfill manual.
+- Quality gates locais passam.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando Docker Compose: `docker compose config`
+- Resultado Docker Compose: configuracao valida.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 24 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-091824.md`
+- Resultado Gemini: aprovado.
+- Commit: `feat: schedule airflow mock pipeline catchup`

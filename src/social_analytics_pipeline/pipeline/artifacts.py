@@ -6,6 +6,17 @@ from typing import Any
 from social_analytics_pipeline.transform import SocialMetric
 
 
+def build_interval_artifact_path(
+    base_dir: Path,
+    provider_name: str,
+    start_at: datetime,
+    end_at: datetime,
+) -> Path:
+    start_slug = _datetime_slug(start_at)
+    end_slug = _datetime_slug(end_at)
+    return base_dir / f"{provider_name}-{start_slug}-{end_slug}.json"
+
+
 def metric_to_artifact_row(metric: SocialMetric) -> dict[str, Any]:
     return {
         "provider": metric.provider,
@@ -43,3 +54,7 @@ def _serialize_datetime(value: datetime | None) -> str | None:
     if value is None:
         return None
     return value.isoformat()
+
+
+def _datetime_slug(value: datetime) -> str:
+    return value.strftime("%Y%m%dT%H%M%S")

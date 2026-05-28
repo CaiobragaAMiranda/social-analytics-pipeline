@@ -118,11 +118,31 @@ Executar a DAG mockada manualmente:
 docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
 ```
 
+Agendamento da DAG mockada:
+
+```text
+intervalo: 15 dias
+catchup: habilitado
+start_date: 2026-01-01
+```
+
+Por padrao, as DAGs nascem pausadas no ambiente local. Para permitir que o scheduler crie execucoes quinzenais e catchup historico a partir do `start_date`:
+
+```powershell
+docker compose exec airflow-api-server airflow dags unpause social_analytics_mock_pipeline
+```
+
 Saidas esperadas:
 
 ```text
 data/raw/
 data/processed/airflow/
+```
+
+Os artefatos processados da DAG usam o formato:
+
+```text
+data/processed/airflow/{provider}-{interval_start}-{interval_end}.json
 ```
 
 Limpar ambiente Airflow local:

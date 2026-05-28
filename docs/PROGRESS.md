@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-009 - Migrar fluxo local para DAG Airflow
+Task atual: TASK-010 - Configurar agendamento quinzenal e catchup historico
 
-Status geral: TASK-009 concluida; DAG Airflow do fluxo mockado pronta para commit.
+Status geral: TASK-010 concluida; DAG mockada com schedule quinzenal e catchup pronta para commit.
 
 ## Registro
 
@@ -106,9 +106,25 @@ Status geral: TASK-009 concluida; DAG Airflow do fluxo mockado pronta para commi
 - Bandit aprovado sem issues.
 - pip-audit aprovado sem vulnerabilidades conhecidas.
 - Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
+- Resultado Gemini: aprovado.
+- TASK-010 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-085716.md`.
 - Resultado Gemini: aprovado.
 - TASK-009 marcada como Done.
+- Commit da TASK-009 publicado no GitHub: `b41dde3 feat: add airflow mock pipeline dag`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Iniciada TASK-010 para configurar agendamento quinzenal e catchup historico da DAG mockada.
+- Criada configuracao testavel de DAG em `src/social_analytics_pipeline/orchestration/airflow_settings.py`.
+- DAG `social_analytics_mock_pipeline` ajustada para `timedelta(days=15)` e `catchup=True`.
+- Artefatos processados passam a incluir provider, inicio e fim do intervalo no nome.
+- Criados testes para configuracao Airflow e path de artefato por intervalo.
+- `docker compose config` validado com sucesso.
+- Executados 24 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- pip-audit aprovado sem vulnerabilidades conhecidas.
+- Verificacao documental concluida com sucesso.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-002654.md`.
 - Resultado Gemini: aprovado.
 - TASK-008 marcada como Done.
@@ -164,5 +180,5 @@ Status geral: TASK-009 concluida; DAG Airflow do fluxo mockado pronta para commi
 
 ## Proximas acoes
 
-- Criar commit da TASK-009.
+- Criar commit da TASK-010.
 - Publicar no GitHub e acompanhar GitHub Actions.
