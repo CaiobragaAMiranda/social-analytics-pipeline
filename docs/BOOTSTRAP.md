@@ -252,6 +252,8 @@ No GitHub, o workflow `.github/workflows/quality-gates.yml` executa testes, Ruff
 
 O job `secret-scan` define `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` para antecipar o runtime Node 24 em actions JavaScript, conforme recomendacao do GitHub durante a deprecacao do Node 20 nos runners.
 
+O workflow concede `pull-requests: read` ao `GITHUB_TOKEN` para que o Gitleaks consiga ler commits de pull requests durante o secret scan.
+
 ## Gerar pacote para Gemini
 
 ```powershell

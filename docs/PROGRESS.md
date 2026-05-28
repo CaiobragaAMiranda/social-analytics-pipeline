@@ -122,6 +122,15 @@ Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 - Verificacao documental concluida com sucesso.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-094851.md`.
 - Resultado Gemini: aprovado.
+- PR `#1` aberto para validar o fluxo com branch `feature/coderabbit-on-demand-review`.
+- CodeRabbit apareceu no PR com status `Review skipped`, confirmando que auto review ficou desabilitado.
+- Primeiro run do PR falhou no job `Secret scan` por `403 Resource not accessible by integration` ao listar commits do PR.
+- Confirmado no log que o Gitleaks estava rodando em Node 24 (`Node.js v24.15.0`).
+- Ajustado workflow para conceder `pull-requests: read` ao `GITHUB_TOKEN`.
+- Executados 24 testes unitarios com sucesso apos o ajuste.
+- Verificacao documental concluida com sucesso apos o ajuste.
+- Revisao Gemini complementar salva em `docs/REVIEWS/review-20260528-095307.md`.
+- Resultado Gemini: aprovado.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -220,5 +229,5 @@ Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 
 ## Proximas acoes
 
-- Criar commit da TASK-013 na branch `feature/coderabbit-on-demand-review`.
-- Publicar branch e abrir PR para validar fluxo com GitHub.
+- Rodar verificacao documental apos ajuste de permissao do PR.
+- Rodar revisao Gemini antes de atualizar o PR.

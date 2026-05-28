@@ -444,6 +444,7 @@ Criterios de aceite:
 - Template de PR orienta quando e como solicitar CodeRabbit manualmente.
 - Bootstrap documenta instalacao/autorizacao do GitHub App e uso manual.
 - README documenta fluxo com branches `feature/...`, `bugfix/...` e `hotfix/...`.
+- Workflow permite que Gitleaks leia commits de pull requests.
 - Verificacao documental passa.
 - Gemini revisa e aprova antes do commit.
 
@@ -454,5 +455,7 @@ Evidencias:
 - Comando de verificacao documental: `.\scripts\verify_docs.ps1`
 - Resultado documental: verificacao concluida com sucesso.
 - Revisao Gemini: `docs/REVIEWS/review-20260528-094851.md`
+- Revisao Gemini complementar: `docs/REVIEWS/review-20260528-095307.md`
 - Resultado Gemini: aprovado.
-- Commit: pendente.
+- PR: `#1`
+- Commit: `docs: configure coderabbit on demand reviews`
