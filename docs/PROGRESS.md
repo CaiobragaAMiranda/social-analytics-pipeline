@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-008 - Adicionar Airflow via Docker
+Task atual: TASK-009 - Migrar fluxo local para DAG Airflow
 
-Status geral: iniciando ambiente Airflow local via Docker Compose.
+Status geral: TASK-009 concluida; DAG Airflow do fluxo mockado pronta para commit.
 
 ## Registro
 
@@ -106,9 +106,27 @@ Status geral: iniciando ambiente Airflow local via Docker Compose.
 - Bandit aprovado sem issues.
 - pip-audit aprovado sem vulnerabilidades conhecidas.
 - Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-085716.md`.
+- Resultado Gemini: aprovado.
+- TASK-009 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-002654.md`.
 - Resultado Gemini: aprovado.
 - TASK-008 marcada como Done.
+- Commit da TASK-008 publicado no GitHub: `83f0abe feat: add airflow docker environment`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Iniciada TASK-009 para migrar o fluxo local mockado para DAG Airflow.
+- Criado `JsonMetricArtifactLoader` em `src/social_analytics_pipeline/pipeline/artifacts.py`.
+- Criados testes em `tests/test_artifact_loader.py`.
+- Criada DAG `dags/social_analytics_mock_pipeline_dag.py`.
+- Atualizado `dags/README.md`.
+- Atualizados `docs/ARCHITECTURE.md` e `docs/BOOTSTRAP.md` com a DAG `social_analytics_mock_pipeline`.
+- Executado `ruff check . --fix` para organizar imports.
+- `docker compose config` validado com sucesso.
+- Executados 22 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- pip-audit aprovado sem vulnerabilidades conhecidas.
+- Verificacao documental concluida com sucesso.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-000223.md`.
 - Resultado Gemini: aprovado.
 - TASK-007 marcada como Done.
@@ -146,5 +164,5 @@ Status geral: iniciando ambiente Airflow local via Docker Compose.
 
 ## Proximas acoes
 
-- Criar commit da TASK-008.
-- Iniciar TASK-009: migrar fluxo local para DAG Airflow.
+- Criar commit da TASK-009.
+- Publicar no GitHub e acompanhar GitHub Actions.

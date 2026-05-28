@@ -106,6 +106,25 @@ Validar containers:
 docker compose ps
 ```
 
+Listar DAGs:
+
+```powershell
+docker compose exec airflow-api-server airflow dags list
+```
+
+Executar a DAG mockada manualmente:
+
+```powershell
+docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
+```
+
+Saidas esperadas:
+
+```text
+data/raw/
+data/processed/airflow/
+```
+
 Limpar ambiente Airflow local:
 
 ```powershell
@@ -140,6 +159,13 @@ python -m unittest tests.test_postgres_loader
 ```powershell
 $env:PYTHONPATH = "src"
 python -m unittest tests.test_local_pipeline
+```
+
+## Validar loader de artefato JSON
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_artifact_loader
 ```
 
 ## Instalar ferramentas de desenvolvimento

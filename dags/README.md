@@ -5,3 +5,4 @@ This directory is mounted into the local Airflow containers at `/opt/airflow/dag
 Current DAGs:
 
 - `social_analytics_smoke`: validates that the local Airflow environment can parse and run a minimal DAG.
+- `social_analytics_mock_pipeline`: runs mock providers through raw storage, normalization and JSON artifact loading.

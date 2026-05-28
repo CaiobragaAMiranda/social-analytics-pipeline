@@ -158,6 +158,20 @@ airflow-redis
 
 A primeira DAG e `social_analytics_smoke`, criada apenas para validar parse/executabilidade do ambiente. A migracao do fluxo `mock -> raw -> normalize -> load` para uma DAG real fica para a proxima task.
 
+Na TASK-009 foi criada a DAG `social_analytics_mock_pipeline`.
+
+Fluxo da DAG:
+
+```text
+build_mock_providers(...)
+  -> run_provider_pipeline(...)
+  -> RawStorage(data/raw)
+  -> normalize_payload(...)
+  -> JsonMetricArtifactLoader(data/processed/airflow)
+```
+
+A DAG usa `data_interval_start` e `data_interval_end` do Airflow quando disponiveis. A carga final ainda e um artefato JSON local; a troca para `PostgresMetricLoader` dentro do Airflow fica para uma task seguinte.
+
 ## Qualidade
 
 Validacoes planejadas:

@@ -298,3 +298,39 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-002654.md`
 - Resultado Gemini: aprovado.
 - Commit: `feat: add airflow docker environment`
+
+## TASK-009 - Migrar fluxo local para DAG Airflow
+
+Status: Done
+
+Fase: Fase 2 - Orquestracao e historico
+
+Objetivo: criar uma DAG Airflow que execute o fluxo local com providers mockados, raw storage, normalizacao e load em artefato JSON.
+
+Critérios de aceite:
+
+- DAG Airflow do pipeline mockado criada.
+- DAG usa intervalo de dados do Airflow quando disponivel.
+- Fluxo executa provider -> raw storage -> normalizer -> loader.
+- Loader de artefato JSON e testavel sem Airflow.
+- Bootstrap documenta a DAG e como aciona-la.
+- Quality gates locais passam.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando Docker Compose: `docker compose config`
+- Resultado Docker Compose: configuracao valida.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 22 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-085716.md`
+- Resultado Gemini: aprovado.
+- Commit: `feat: add airflow mock pipeline dag`
