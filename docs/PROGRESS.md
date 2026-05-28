@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-010 - Configurar agendamento quinzenal e catchup historico
+Task atual: TASK-011 - Registrar propostas de mudanca antes da execucao
 
-Status geral: TASK-010 concluida; DAG mockada com schedule quinzenal e catchup pronta para commit.
+Status geral: TASK-011 concluida; regra de propostas diretas antes da implementacao pronta para commit.
 
 ## Registro
 
@@ -109,6 +109,18 @@ Status geral: TASK-010 concluida; DAG mockada com schedule quinzenal e catchup p
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
+- Commit da TASK-010 publicado no GitHub: `e650a4a feat: schedule airflow mock pipeline catchup`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Iniciada TASK-011 para registrar propostas de mudanca antes da execucao.
+- Criado `docs/TASK_PROPOSALS.md`.
+- Definido que o Codex deve sempre indicar mudancas propostas antes de codar.
+- Atualizado `README.md` para incluir propostas, escopo, exclusoes e plano de validacao no checkpoint pre-codigo.
+- Atualizado `docs/GEMINI_CONTRACT.md` para avaliar proposta explicitada e alinhamento com pedido do usuario.
+- Ajustado protocolo para deixar claro que propostas devem ser comunicadas diretamente ao usuario, e nao apenas registradas em Markdown.
+- Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-092656.md`.
+- Resultado Gemini: aprovado.
+- TASK-011 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-085716.md`.
 - Resultado Gemini: aprovado.
 - TASK-009 marcada como Done.
@@ -180,5 +192,5 @@ Status geral: TASK-010 concluida; DAG mockada com schedule quinzenal e catchup p
 
 ## Proximas acoes
 
-- Criar commit da TASK-010.
-- Publicar no GitHub e acompanhar GitHub Actions.
+- Criar commit da TASK-011.
+- Publicar no GitHub.

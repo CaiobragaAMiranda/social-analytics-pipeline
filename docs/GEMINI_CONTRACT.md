@@ -8,6 +8,7 @@ Para cada revisao, fornecer:
 
 - `docs/PLAN.md`
 - `docs/TASKS.md`
+- `docs/TASK_PROPOSALS.md`, quando houver proposta relacionada.
 - `docs/PROGRESS.md`
 - `docs/BOOTSTRAP.md`
 - `docs/ARCHITECTURE.md`
@@ -29,6 +30,8 @@ Resultado: Approved | Approved with notes | Changes requested
 6. Existem riscos tecnicos nao registrados?
 7. Existem testes ou justificativa para ausencia de testes?
 8. O progresso foi registrado de forma retomavel?
+9. As mudancas propostas foram comunicadas diretamente ao usuario antes da implementacao?
+10. A task executada corresponde a uma proposta aprovada ou a uma continuidade solicitada pelo usuario?
 ```
 
 ## Regras de aprovacao

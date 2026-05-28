@@ -10,10 +10,12 @@ Antes de codar uma task:
 
 1. Revisar `docs/PLAN.md`, `docs/TASKS.md` e `docs/PROGRESS.md`.
 2. Mostrar fase atual, task atual, riscos e conclusoes.
-3. Declarar criterios de aceite e plano de teste.
-4. Implementar somente depois desse checkpoint.
-5. Atualizar documentacao e progresso.
-6. Gerar pacote de revisao para o Gemini.
+3. Explicar diretamente ao usuario as mudancas propostas, escopo, exclusoes e plano de validacao.
+4. Registrar propostas relevantes em `docs/TASK_PROPOSALS.md`.
+5. Declarar criterios de aceite e plano de teste.
+6. Implementar somente depois desse checkpoint.
+7. Atualizar documentacao e progresso.
+8. Gerar pacote de revisao para o Gemini.
 
 ## Comandos uteis
 
@@ -26,9 +28,9 @@ python -m unittest discover -s tests
 
 ## Status
 
-Fase atual: Fase 1 - Nucleo MVP e autenticacao
+Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-002 - Criar esqueleto tecnico do projeto
+Task atual: TASK-011 - Registrar propostas de mudanca antes da execucao
 
 ## Caminho oficial
 

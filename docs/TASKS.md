@@ -370,3 +370,28 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-091824.md`
 - Resultado Gemini: aprovado.
 - Commit: `feat: schedule airflow mock pipeline catchup`
+
+## TASK-011 - Registrar propostas de mudanca antes da execucao
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: formalizar que o Codex deve sempre indicar mudancas propostas antes de codar e registrar propostas relevantes para decisao ou auditoria.
+
+Criterios de aceite:
+
+- Existe documento dedicado para propostas de tasks.
+- README descreve que mudancas propostas devem ser explicadas diretamente ao usuario antes da implementacao.
+- Contrato Gemini avalia se a proposta foi comunicada diretamente e se a task executada corresponde ao pedido do usuario.
+- Progresso registra a mudanca de governanca.
+- Verificacao documental passa.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-092656.md`
+- Resultado Gemini: aprovado.
+- Commit: `docs: add change proposal governance`
