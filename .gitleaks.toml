@@ -12,3 +12,13 @@ paths = [
 regexes = [
   '''social_analytics'''
 ]
+
+[[allowlists]]
+description = "Local-only Airflow Docker Compose development credentials"
+paths = [
+  '''docker-compose\.yml''',
+  '''docs/BOOTSTRAP\.md'''
+]
+regexes = [
+  '''airflow'''
+]

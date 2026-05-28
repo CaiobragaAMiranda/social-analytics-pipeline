@@ -141,6 +141,23 @@ Airflow sera introduzido depois que extracao, transformacao e carga estiverem te
 
 Antes do Airflow, `run_provider_pipeline` prova a integracao local das camadas. Isso reduz risco antes de migrar o fluxo para DAGs.
 
+Na TASK-008 foi adicionado um ambiente Airflow local via Docker Compose.
+
+Servicos principais:
+
+```text
+airflow-api-server
+airflow-scheduler
+airflow-dag-processor
+airflow-worker
+airflow-triggerer
+airflow-init
+airflow-postgres
+airflow-redis
+```
+
+A primeira DAG e `social_analytics_smoke`, criada apenas para validar parse/executabilidade do ambiente. A migracao do fluxo `mock -> raw -> normalize -> load` para uma DAG real fica para a proxima task.
+
 ## Qualidade
 
 Validacoes planejadas:

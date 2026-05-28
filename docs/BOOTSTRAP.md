@@ -67,6 +67,51 @@ docker compose down -v
 docker compose up -d postgres
 ```
 
+## Subir Airflow local
+
+Prepare o arquivo `.env` a partir do exemplo:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Inicialize o banco/metadados do Airflow:
+
+```powershell
+docker compose up airflow-init
+```
+
+Suba os servicos principais:
+
+```powershell
+docker compose up -d airflow-api-server airflow-scheduler airflow-dag-processor airflow-worker airflow-triggerer
+```
+
+A interface fica em:
+
+```text
+http://localhost:8080
+```
+
+Credenciais locais:
+
+```text
+usuario: airflow
+senha: airflow
+```
+
+Validar containers:
+
+```powershell
+docker compose ps
+```
+
+Limpar ambiente Airflow local:
+
+```powershell
+docker compose down --volumes --remove-orphans
+```
+
 ## Validar providers mockados
 
 Os providers mockados usam fixtures locais e nao precisam de tokens:

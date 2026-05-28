@@ -263,3 +263,38 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-000223.md`
 - Resultado Gemini: aprovado.
 - Commit: `feat: integrate local mock pipeline`
+
+## TASK-008 - Adicionar Airflow via Docker
+
+Status: Done
+
+Fase: Fase 2 - Orquestracao e historico
+
+Objetivo: adicionar ambiente local de Airflow via Docker Compose e uma DAG minima de smoke para validar a infraestrutura de orquestracao.
+
+Critérios de aceite:
+
+- Docker Compose contem servicos Airflow.
+- `dags/` existe e e montado no Airflow.
+- DAG minima de smoke criada.
+- Bootstrap documenta init, startup, acesso e cleanup do Airflow.
+- Quality gates locais passam.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando Docker Compose: `docker compose config`
+- Resultado Docker Compose: configuracao valida.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 19 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-002654.md`
+- Resultado Gemini: aprovado.
+- Commit: `feat: add airflow docker environment`

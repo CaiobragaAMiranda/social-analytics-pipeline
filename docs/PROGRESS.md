@@ -4,11 +4,11 @@
 
 Data: 2026-05-27
 
-Fase atual: Fase 1 - Nucleo MVP e autenticacao
+Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-007 - Integrar fluxo local mock raw normalize load
+Task atual: TASK-008 - Adicionar Airflow via Docker
 
-Status geral: iniciando integracao local do fluxo mock -> raw -> normalize -> load.
+Status geral: iniciando ambiente Airflow local via Docker Compose.
 
 ## Registro
 
@@ -106,9 +106,27 @@ Status geral: iniciando integracao local do fluxo mock -> raw -> normalize -> lo
 - Bandit aprovado sem issues.
 - pip-audit aprovado sem vulnerabilidades conhecidas.
 - Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-002654.md`.
+- Resultado Gemini: aprovado.
+- TASK-008 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-000223.md`.
 - Resultado Gemini: aprovado.
 - TASK-007 marcada como Done.
+- Commit da TASK-007 publicado no GitHub: `31b0795 feat: integrate local mock pipeline`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Consultada documentacao oficial do Apache Airflow 3.2.1 para Docker Compose.
+- Iniciada TASK-008 para adicionar Airflow via Docker.
+- Criados servicos Airflow em `docker-compose.yml`.
+- Criada DAG smoke em `dags/social_analytics_smoke_dag.py`.
+- Criado `.env.example` com `AIRFLOW_UID=50000`.
+- Primeira validacao `docker compose config` falhou porque o anchor comum estava como `airflow-common`; corrigido para `x-airflow-common`.
+- Atualizada allowlist do Gitleaks para credenciais locais documentadas do Airflow (`airflow/airflow`).
+- `docker compose config` validado com sucesso.
+- Executados 19 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- pip-audit aprovado sem vulnerabilidades conhecidas.
+- Verificacao documental concluida com sucesso.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260527-194742.md`.
 - Resultado Gemini: aprovado.
 - TASK-006 marcada como Done.
@@ -128,5 +146,5 @@ Status geral: iniciando integracao local do fluxo mock -> raw -> normalize -> lo
 
 ## Proximas acoes
 
-- Criar commit da TASK-007.
-- Planejar inicio da Fase 2: Airflow via Docker.
+- Criar commit da TASK-008.
+- Iniciar TASK-009: migrar fluxo local para DAG Airflow.
