@@ -33,6 +33,7 @@ class ProjectSkeletonTest(unittest.TestCase):
             path = storage.save(record)
 
             self.assertTrue(path.exists())
+            self.assertTrue(path.name.startswith("account-1-120000-"))
             self.assertEqual(json.loads(path.read_text(encoding="utf-8")), {"likes": 10})
 
     def test_social_metric_schema_is_constructible(self) -> None:

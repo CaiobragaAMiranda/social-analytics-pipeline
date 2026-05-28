@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-006 - Adicionar quality gates de seguranca e CI
+Task atual: TASK-007 - Integrar fluxo local mock raw normalize load
 
-Status geral: iniciando automacoes de qualidade, seguranca e CI.
+Status geral: iniciando integracao local do fluxo mock -> raw -> normalize -> load.
 
 ## Registro
 
@@ -106,11 +106,27 @@ Status geral: iniciando automacoes de qualidade, seguranca e CI.
 - Bandit aprovado sem issues.
 - pip-audit aprovado sem vulnerabilidades conhecidas.
 - Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-000223.md`.
+- Resultado Gemini: aprovado.
+- TASK-007 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260527-194742.md`.
 - Resultado Gemini: aprovado.
 - TASK-006 marcada como Done.
+- Commit da TASK-006 publicado no GitHub: `bd85b3d ci: add security quality gates`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Iniciada TASK-007 para integrar provider mockado, raw storage, normalizacao e loader.
+- Criado `src/social_analytics_pipeline/pipeline/local.py`.
+- Criado protocolo `MetricLoader` para desacoplar orquestracao do destino real.
+- Criado teste de integracao em `tests/test_local_pipeline.py`.
+- Teste de integracao encontrou colisao no nome de arquivos raw quando varios payloads eram salvos no mesmo segundo.
+- Corrigido `RawStorage` para incluir hash curto do payload no nome do arquivo.
+- Executados 19 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- pip-audit aprovado sem vulnerabilidades conhecidas.
+- Verificacao documental concluida com sucesso.
 
 ## Proximas acoes
 
-- Criar commit da TASK-006.
-- Aguardar resultado do GitHub Actions apos push.
+- Criar commit da TASK-007.
+- Planejar inicio da Fase 2: Airflow via Docker.

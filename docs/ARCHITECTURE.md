@@ -8,6 +8,17 @@ O projeto sera um pipeline de analytics social com quatro camadas principais:
 Providers -> Raw Storage -> Transformacao -> Load/Validation -> Orquestracao
 ```
 
+Na TASK-007 foi criado o primeiro orquestrador local:
+
+```text
+FixtureProvider
+  -> RawStorage.save(...)
+  -> normalize_payload(...)
+  -> MetricLoader.load(...)
+```
+
+Esse fluxo e propositalmente independente de Postgres real durante os testes. O loader e um protocolo; em producao local, pode ser `PostgresMetricLoader`, e em teste pode ser um fake.
+
 ## Providers
 
 Responsaveis por coletar dados de cada fonte social.
@@ -127,6 +138,8 @@ O loader `PostgresMetricLoader` usa `INSERT ... ON CONFLICT ... DO UPDATE`, evit
 ## Orquestracao
 
 Airflow sera introduzido depois que extracao, transformacao e carga estiverem testadas localmente.
+
+Antes do Airflow, `run_provider_pipeline` prova a integracao local das camadas. Isso reduz risco antes de migrar o fluxo para DAGs.
 
 ## Qualidade
 

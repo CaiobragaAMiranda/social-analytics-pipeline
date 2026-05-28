@@ -90,6 +90,13 @@ $env:PYTHONPATH = "src"
 python -m unittest tests.test_postgres_loader
 ```
 
+## Validar fluxo local integrado
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_local_pipeline
+```
+
 ## Instalar ferramentas de desenvolvimento
 
 ```powershell

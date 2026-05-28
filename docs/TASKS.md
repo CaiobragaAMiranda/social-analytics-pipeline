@@ -230,3 +230,36 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260527-194742.md`
 - Resultado Gemini: aprovado.
 - Commit: `ci: add security quality gates`
+
+## TASK-007 - Integrar fluxo local mock raw normalize load
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: conectar providers mockados, raw storage, normalizacao e loader em um fluxo local testavel.
+
+Critérios de aceite:
+
+- Orquestrador local executa provider -> raw storage -> normalizer -> loader.
+- Fluxo funciona com providers mockados.
+- Testes de integracao usam diretorio temporario e loader fake.
+- Testes confirmam arquivos raw persistidos e metricas carregadas.
+- Quality gates locais passam.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 19 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-000223.md`
+- Resultado Gemini: aprovado.
+- Commit: `feat: integrate local mock pipeline`
