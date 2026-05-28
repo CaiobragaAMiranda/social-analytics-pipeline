@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-011 - Registrar propostas de mudanca antes da execucao
+Task atual: TASK-012 - Preparar secret scan para Node 24 no GitHub Actions
 
-Status geral: TASK-011 concluida; regra de propostas diretas antes da implementacao pronta para commit.
+Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
 
 ## Registro
 
@@ -106,6 +106,9 @@ Status geral: TASK-011 concluida; regra de propostas diretas antes da implementa
 - Bandit aprovado sem issues.
 - pip-audit aprovado sem vulnerabilidades conhecidas.
 - Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-093357.md`.
+- Resultado Gemini: aprovado.
+- TASK-012 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -121,6 +124,18 @@ Status geral: TASK-011 concluida; regra de propostas diretas antes da implementa
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-092656.md`.
 - Resultado Gemini: aprovado.
 - TASK-011 marcada como Done.
+- Commit da TASK-011 publicado no GitHub: `30be366 docs: add change proposal governance`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Usuario aprovou seguir com a proposta de manutencao do secret scan.
+- Iniciada TASK-012 para preparar o job `secret-scan` para Node 24.
+- Consultada fonte oficial do GitHub sobre deprecacao do Node 20 em GitHub Actions.
+- Atualizado `.github/workflows/quality-gates.yml` com `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` no job `secret-scan`.
+- `PROP-001` marcada como Accepted em `docs/TASK_PROPOSALS.md`.
+- Executados 24 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- pip-audit aprovado sem vulnerabilidades conhecidas.
+- Verificacao documental concluida com sucesso.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-085716.md`.
 - Resultado Gemini: aprovado.
 - TASK-009 marcada como Done.
@@ -192,5 +207,5 @@ Status geral: TASK-011 concluida; regra de propostas diretas antes da implementa
 
 ## Proximas acoes
 
-- Criar commit da TASK-011.
-- Publicar no GitHub.
+- Criar commit da TASK-012.
+- Publicar no GitHub e acompanhar GitHub Actions.

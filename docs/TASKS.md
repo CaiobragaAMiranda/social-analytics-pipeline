@@ -395,3 +395,36 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-092656.md`
 - Resultado Gemini: aprovado.
 - Commit: `docs: add change proposal governance`
+
+## TASK-012 - Preparar secret scan para Node 24 no GitHub Actions
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: remover o risco futuro do secret scan associado a deprecacao do Node 20 nos runners do GitHub Actions.
+
+Criterios de aceite:
+
+- Proposta `PROP-001` marcada como aceita.
+- Workflow `quality-gates.yml` configura secret scan para usar Node 24 antecipadamente.
+- Documentacao registra a decisao e a fonte oficial consultada.
+- Quality gates locais relevantes passam.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Fonte oficial consultada: GitHub Changelog de deprecacao do Node 20 em GitHub Actions.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 24 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-093357.md`
+- Resultado Gemini: aprovado.
+- Commit: `ci: force node24 for secret scan action`

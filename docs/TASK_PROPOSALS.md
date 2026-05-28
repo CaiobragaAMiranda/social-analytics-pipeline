@@ -44,7 +44,7 @@ Notas:
 
 ## PROP-001 - Manutencao do Gitleaks Action por Node 20
 
-Status: Proposed
+Status: Accepted
 
 Motivacao:
 
@@ -67,3 +67,4 @@ Criterio para virar task:
 Notas:
 
 - Nao e bloqueante enquanto o workflow remoto continua passando.
+- Aceita pelo usuario em 2026-05-28 para virar TASK-012.

@@ -213,6 +213,8 @@ gitleaks detect --source . --config .gitleaks.toml
 
 No GitHub, o workflow `.github/workflows/quality-gates.yml` executa testes, Ruff, Bandit, pip-audit e Gitleaks.
 
+O job `secret-scan` define `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` para antecipar o runtime Node 24 em actions JavaScript, conforme recomendacao do GitHub durante a deprecacao do Node 20 nos runners.
+
 ## Gerar pacote para Gemini
 
 ```powershell
