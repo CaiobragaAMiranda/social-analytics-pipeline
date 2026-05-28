@@ -6,9 +6,9 @@ Data: 2026-05-27
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-012 - Preparar secret scan para Node 24 no GitHub Actions
+Task atual: TASK-013 - Configurar CodeRabbit sob demanda em PRs
 
-Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
+Status geral: configurando CodeRabbit para revisoes manuais em pull requests.
 
 ## Registro
 
@@ -109,6 +109,19 @@ Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-093357.md`.
 - Resultado Gemini: aprovado.
 - TASK-012 marcada como Done.
+- Commit da TASK-012 publicado no GitHub: `2fa79db ci: force node24 for secret scan action`.
+- GitHub Actions `Quality Gates` concluiu com sucesso.
+- Usuario pediu uso do CodeRabbit no GitHub para verificar codigo.
+- Ajustada proposta para CodeRabbit sob demanda, nao automatico em todo PR.
+- Criada branch `feature/coderabbit-on-demand-review`.
+- Iniciada TASK-013 para configurar CodeRabbit sob demanda em PRs.
+- Criado `.coderabbit.yaml` com `reviews.auto_review.enabled: false`.
+- Criado template de PR com campo de decisao para CodeRabbit.
+- Documentado uso de branches `feature/...`, `bugfix/...` e `hotfix/...`.
+- Documentados comandos manuais `@coderabbitai review` e `@coderabbitai full review`.
+- Verificacao documental concluida com sucesso.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-094851.md`.
+- Resultado Gemini: aprovado.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -207,5 +220,5 @@ Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
 
 ## Proximas acoes
 
-- Criar commit da TASK-012.
-- Publicar no GitHub e acompanhar GitHub Actions.
+- Criar commit da TASK-013 na branch `feature/coderabbit-on-demand-review`.
+- Publicar branch e abrir PR para validar fluxo com GitHub.

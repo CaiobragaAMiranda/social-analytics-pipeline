@@ -30,6 +30,43 @@ docker --version
 .\scripts\project_status.ps1
 ```
 
+## Fluxo com branches e PRs
+
+Criar branch por tipo de mudanca:
+
+```powershell
+git switch -c feature/nome-curto
+git switch -c bugfix/nome-curto
+git switch -c hotfix/nome-curto
+```
+
+Depois do commit, publicar a branch e abrir PR:
+
+```powershell
+git push -u origin feature/nome-curto
+gh pr create --fill
+```
+
+## CodeRabbit sob demanda
+
+Instale ou autorize o CodeRabbit no repositorio pelo GitHub App:
+
+```text
+https://github.com/apps/coderabbitai
+```
+
+O repositorio usa `.coderabbit.yaml` com revisao automatica desabilitada. Para pedir revisao manual em um PR, comente:
+
+```text
+@coderabbitai review
+```
+
+Para pedir revisao completa:
+
+```text
+@coderabbitai full review
+```
+
 ## Verificar documentacao minima
 
 ```powershell

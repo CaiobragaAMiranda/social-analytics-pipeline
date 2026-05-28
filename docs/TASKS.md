@@ -428,3 +428,31 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-093357.md`
 - Resultado Gemini: aprovado.
 - Commit: `ci: force node24 for secret scan action`
+
+## TASK-013 - Configurar CodeRabbit sob demanda em PRs
+
+Status: In Progress
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: preparar o repositorio para usar CodeRabbit em pull requests somente quando necessario, com estrategia de branches por tipo de mudanca.
+
+Criterios de aceite:
+
+- Proposta `PROP-002` marcada como aceita.
+- `.coderabbit.yaml` existe com auto review desabilitado.
+- Template de PR orienta quando e como solicitar CodeRabbit manualmente.
+- Bootstrap documenta instalacao/autorizacao do GitHub App e uso manual.
+- README documenta fluxo com branches `feature/...`, `bugfix/...` e `hotfix/...`.
+- Verificacao documental passa.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Fonte oficial consultada: documentacao CodeRabbit sobre `.coderabbit.yaml` e comandos manuais de review.
+- Branch de trabalho: `feature/coderabbit-on-demand-review`
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-094851.md`
+- Resultado Gemini: aprovado.
+- Commit: pendente.

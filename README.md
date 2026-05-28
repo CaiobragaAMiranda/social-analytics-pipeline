@@ -17,6 +17,26 @@ Antes de codar uma task:
 7. Atualizar documentacao e progresso.
 8. Gerar pacote de revisao para o Gemini.
 
+## Branches e Pull Requests
+
+Mudancas novas devem usar branches curtas por tipo:
+
+- `feature/nome-curto` para funcionalidades e evolucoes.
+- `bugfix/nome-curto` para correcoes comuns.
+- `hotfix/nome-curto` para correcoes urgentes.
+
+CodeRabbit deve ser usado sob demanda em pull requests. Quando a revisao for necessaria, comentar no PR:
+
+```text
+@coderabbitai review
+```
+
+Para uma revisao completa do PR:
+
+```text
+@coderabbitai full review
+```
+
 ## Comandos uteis
 
 ```powershell
@@ -28,9 +48,9 @@ python -m unittest discover -s tests
 
 ## Status
 
-Fase atual: Fase 2 - Orquestracao e historico
+Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-011 - Registrar propostas de mudanca antes da execucao
+Task atual: TASK-013 - Configurar CodeRabbit sob demanda em PRs
 
 ## Caminho oficial
 

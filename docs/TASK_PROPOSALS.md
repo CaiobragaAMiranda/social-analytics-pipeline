@@ -68,3 +68,31 @@ Notas:
 
 - Nao e bloqueante enquanto o workflow remoto continua passando.
 - Aceita pelo usuario em 2026-05-28 para virar TASK-012.
+
+## PROP-002 - CodeRabbit sob demanda em pull requests
+
+Status: Accepted
+
+Motivacao:
+
+- O usuario quer usar CodeRabbit no GitHub para revisar codigo quando fizer sentido, sem tornar toda mudanca dependente de revisao automatica.
+
+Escopo sugerido:
+
+- Adicionar `.coderabbit.yaml` com auto review desabilitado.
+- Adicionar template de pull request com campo de decisao sobre CodeRabbit.
+- Documentar estrategia de branches `feature/...`, `bugfix/...` e `hotfix/...`.
+- Documentar comandos manuais `@coderabbitai review` e `@coderabbitai full review`.
+
+Impacto esperado:
+
+- Permitir revisoes CodeRabbit em PRs escolhidos, mantendo o fluxo leve para mudancas documentais ou pequenas.
+
+Criterio para virar task:
+
+- Usuario aprovar configuracao sob demanda do CodeRabbit.
+
+Notas:
+
+- CodeRabbit precisa ser instalado/autorizado como GitHub App no repositorio pelo usuario.
+- Aceita pelo usuario em 2026-05-28 para virar TASK-013.
