@@ -43,7 +43,7 @@ git switch -c hotfix/nome-curto
 Depois do commit, publicar a branch e abrir PR:
 
 ```powershell
-git push -u origin feature/nome-curto
+git push -u origin <branch-name>
 gh pr create --fill
 ```
 
