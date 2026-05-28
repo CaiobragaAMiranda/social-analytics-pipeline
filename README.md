@@ -34,9 +34,6 @@ Task atual: TASK-011 - Registrar propostas de mudanca antes da execucao
 
 ## Caminho oficial
 
-```text
-C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
-```
 
 ## Estrutura inicial
 
