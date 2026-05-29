@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-028 - Adicionar destino Postgres opcional na carga local do YouTube.
+Task atual: TASK-029 - Validar carga real do YouTube no PostgreSQL local.
 
-Status geral: TASK-028 concluida localmente. A carga local do YouTube usa JSON por padrao e pode usar PostgreSQL quando configurada com DSN local.
+Status geral: TASK-029 concluida localmente. A carga real do YouTube foi validada no PostgreSQL local com 50 linhas carregadas e verificacao agregada segura.
 
 ## Registro
 
@@ -268,7 +268,14 @@ Status geral: TASK-028 concluida localmente. A carga local do YouTube usa JSON p
 - Verificacao documental concluida com sucesso.
 - Carga real segura no alvo `json` executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local.
 - TASK-028 marcada como Done.
+- Iniciada TASK-029 para validar a carga real do YouTube no PostgreSQL local.
+- Docker Desktop iniciado e servico `postgres` do Compose ficou healthy.
+- `.env` local ignorado pelo Git foi ajustado com porta alternativa de Postgres para evitar conflito com outro Postgres local.
+- Carga real segura no alvo `postgres` executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas.
+- Verificacao agregada no banco confirmou 50 linhas YouTube e 50 conteudos distintos, sem listar IDs ou payloads.
+- `PostgresMetricLoader` passou a sanitizar erros de banco para evitar impressao de detalhes de conexao.
+- TASK-029 marcada como Done.
 
 ## Proximas acoes
 
-- Validar carga real do YouTube no PostgreSQL local ou criar DAG Airflow dedicada para o provider real.
+- Criar DAG Airflow dedicada para o provider real do YouTube ou parametrizar a DAG existente para fonte real.

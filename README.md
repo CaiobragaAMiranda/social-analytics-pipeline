@@ -32,7 +32,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-028 - Adicionar destino Postgres opcional na carga local do YouTube
+Task atual: TASK-029 - Validar carga real do YouTube no PostgreSQL local
 
 ## Estrutura inicial
 
