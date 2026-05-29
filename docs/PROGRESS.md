@@ -209,8 +209,14 @@ Status geral: TASK-022 concluida localmente. O projeto agora usa governanca mult
 - Atualizados `docs/AGENT_CONTRACTS.md`, `scripts/gemini_review.ps1` e `scripts/chatgpt_review.ps1` com o novo formato de feedback (Severidade, Arquivo, Evidencia, Risco, Acao).
 - Validacao local concluida: 42 testes passaram, ruff e bandit verdes, verify_docs ok.
 - TASK-014 marcada como Done.
+- Iniciada TASK-023 para incluir o diff do ultimo commit no pacote de revisao quando a arvore Git estiver limpa.
+- `scripts/gemini_packet.ps1` passou a adicionar a secao `Git Last Commit Diff` quando nao houver diff aberto ou staged.
+- Validado que o pacote exibe `Git Last Commit Diff` quando a arvore Git esta limpa.
+- Executados 42 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- TASK-023 marcada como Done.
 
 ## Proximas acoes
 
-- Validar a consolidacao da governanca com `verify_docs`, status do projeto e varredura simples contra referencias vivas ao contrato antigo.
 - Executar o smoke command do YouTube com chave local e canal real controlado, sem commitar logs ou payloads sensiveis.
