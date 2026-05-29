@@ -32,7 +32,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-024 - Listar configuracoes ausentes no smoke do YouTube
+Task atual: TASK-025 - Sanitizar erros HTTP do smoke do YouTube
 
 ## Estrutura inicial
 

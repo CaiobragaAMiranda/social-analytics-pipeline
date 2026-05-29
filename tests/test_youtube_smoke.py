@@ -11,6 +11,7 @@ from social_analytics_pipeline.cli.youtube_smoke import (
     main,
     require_smoke_setting,
     require_smoke_settings,
+    require_youtube_channel_id,
 )
 
 
@@ -54,8 +55,11 @@ class YouTubeSmokeTest(unittest.TestCase):
         self.assertEqual(summary.normalized_records, 1)
 
     def test_main_reports_all_missing_required_settings_before_network(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY"):
-            main({})
+        with TemporaryDirectory() as tmpdir:
+            missing_env_path = Path(tmpdir) / ".env"
+
+            with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY"):
+                main({}, missing_env_path)
 
     def test_require_smoke_setting_explains_missing_env_file(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -111,6 +115,13 @@ class YouTubeSmokeTest(unittest.TestCase):
 
         self.assertEqual(values["YOUTUBE_CHANNEL_ID"], "yt-channel-1")
         self.assertEqual(values["YOUTUBE_API_KEY"], "test-api-key")
+
+    def test_require_youtube_channel_id_rejects_names_and_handles(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "starts with UC"):
+            require_youtube_channel_id("Channel Name")
+
+    def test_require_youtube_channel_id_accepts_public_channel_id(self) -> None:
+        self.assertEqual(require_youtube_channel_id("UCabc123"), "UCabc123")
 
     def test_load_env_file_reads_simple_values_without_logging_secrets(self) -> None:
         with TemporaryDirectory() as tmpdir:

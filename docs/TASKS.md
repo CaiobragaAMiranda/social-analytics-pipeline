@@ -786,3 +786,34 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Comando de smoke com `.env` local sem segredos preenchidos: `python -m social_analytics_pipeline.cli.youtube_smoke`
 - Resultado de smoke: falha segura antes de rede, listando `YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY` sem imprimir valores.
+
+## TASK-025 - Sanitizar erros HTTP do smoke do YouTube
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: impedir que erros HTTP da YouTube Data API imprimam URL completa com parametros de consulta, e validar o formato do canal antes de chamada real.
+
+Criterios de aceite:
+
+- Erros HTTP do cliente YouTube viram `RuntimeError` com status HTTP, sem URL e sem parametros.
+- O smoke rejeita `YOUTUBE_CHANNEL_ID` que pareca nome ou handle antes de chamar rede.
+- A mensagem orienta usar um ID publico de canal iniciado por `UC`.
+- Testes cobrem sanitizacao de erro HTTP e validacao de channel id.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de teste especifico: `python -m unittest tests.test_youtube_smoke tests.test_youtube_provider`
+- Resultado de teste especifico: 18 testes executados com sucesso.
+- Comando de teste completo: `python -m unittest discover -s tests`
+- Resultado de teste completo: 48 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Comando de smoke com canal em formato invalido: `python -m social_analytics_pipeline.cli.youtube_smoke`
+- Resultado de smoke: falha segura antes de rede, orientando `YOUTUBE_CHANNEL_ID` iniciado por `UC` sem imprimir URL, chave ou payload.

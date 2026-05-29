@@ -16,13 +16,21 @@ class HttpJsonClient:
         except ImportError as exc:
             raise RuntimeError("Install requests to use YouTubeDataApiProvider.") from exc
 
-        response = requests.get(
-            url,
-            params=params,
-            headers={"Accept": "application/json"},
-            timeout=30,
-        )
-        response.raise_for_status()
+        try:
+            response = requests.get(
+                url,
+                params=params,
+                headers={"Accept": "application/json"},
+                timeout=30,
+            )
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            status_code = getattr(getattr(exc, "response", None), "status_code", None)
+            if status_code:
+                message = f"YouTube API request failed with status {status_code}."
+                raise RuntimeError(message) from None
+            message = "YouTube API request failed before a response was returned."
+            raise RuntimeError(message) from None
         return response.json()
 
 

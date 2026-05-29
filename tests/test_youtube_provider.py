@@ -2,8 +2,10 @@ import unittest
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from social_analytics_pipeline.providers import YouTubeApiConfig, YouTubeDataApiProvider
+from social_analytics_pipeline.providers.youtube import HttpJsonClient
 from social_analytics_pipeline.transform import normalize_payload
 
 
@@ -44,6 +46,18 @@ class FakeHttpJsonClient:
         raise AssertionError(f"Unexpected URL: {url}")
 
 
+class FakeHttpErrorResponse:
+    status_code = 400
+
+    def raise_for_status(self) -> None:
+        try:
+            import requests
+        except ImportError as exc:  # pragma: no cover
+            raise AssertionError("requests is required for this test") from exc
+
+        raise requests.HTTPError("400 Client Error for url with key=secret", response=self)
+
+
 class YouTubeProviderTest(unittest.TestCase):
     def test_config_from_env_requires_api_key(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "YOUTUBE_API_KEY"):
@@ -67,6 +81,19 @@ class YouTubeProviderTest(unittest.TestCase):
                     "YOUTUBE_MAX_PAGES": "0",
                 }
             )
+
+    def test_http_json_client_sanitizes_http_errors(self) -> None:
+        with (
+            patch("requests.get", return_value=FakeHttpErrorResponse()),
+            self.assertRaisesRegex(RuntimeError, "status 400") as context,
+        ):
+            HttpJsonClient().get_json(
+                "https://www.googleapis.com/youtube/v3/search",
+                {"key": "secret", "channelId": "bad-channel"},
+            )
+
+        self.assertNotIn("secret", str(context.exception))
+        self.assertNotIn("googleapis", str(context.exception))
 
     def test_collect_metrics_uses_search_pagination_and_video_statistics(self) -> None:
         http_client = FakeHttpJsonClient()
