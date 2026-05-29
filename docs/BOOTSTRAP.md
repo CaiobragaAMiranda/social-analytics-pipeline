@@ -190,6 +190,7 @@ YOUTUBE_CHANNEL_ID=<id-publico-do-canal>
 YOUTUBE_CHANNEL_HANDLE=<handle-publico-opcional>
 YOUTUBE_MAX_PAGES=1
 YOUTUBE_SMOKE_LOOKBACK_DAYS=30
+YOUTUBE_LOCAL_LOAD_TARGET=json
 ```
 
 Nao commite `.env`, logs de resposta real ou payloads raw coletados de canais reais sem revisao de sensibilidade.
@@ -222,6 +223,21 @@ python -m social_analytics_pipeline.cli.youtube_local_pipeline
 ```
 
 Esse comando salva payloads raw em `data/raw/` e metricas normalizadas em `data/processed/youtube/`. Esses diretorios sao ignorados pelo Git. Nao commite payloads reais sem revisao de sensibilidade.
+
+Por padrao, a carga local usa:
+
+```text
+YOUTUBE_LOCAL_LOAD_TARGET=json
+```
+
+Para carregar metricas normalizadas no PostgreSQL local, ajuste o `.env`:
+
+```text
+YOUTUBE_LOCAL_LOAD_TARGET=postgres
+SOCIAL_ANALYTICS_POSTGRES_DSN=<dsn-local>
+```
+
+Mesmo com alvo PostgreSQL, os payloads raw continuam sendo salvos em `data/raw/`.
 
 ## Validar normalizacao para schema unico
 

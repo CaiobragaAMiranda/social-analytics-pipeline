@@ -882,3 +882,36 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Comando de carga real segura: `python -m social_analytics_pipeline.cli.youtube_local_pipeline`
 - Resultado de carga: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local, sem imprimir chave, channel id real ou payload.
+
+## TASK-028 - Adicionar destino Postgres opcional na carga local do YouTube
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: permitir que o comando local real do YouTube carregue metricas normalizadas em JSON por padrao ou PostgreSQL quando configurado, mantendo raw payloads reais em `data/raw/`.
+
+Criterios de aceite:
+
+- `.env.example` documenta `YOUTUBE_LOCAL_LOAD_TARGET=json`.
+- `youtube_local_pipeline` usa JSON por padrao.
+- `YOUTUBE_LOCAL_LOAD_TARGET=postgres` cria `PostgresMetricLoader` com `SOCIAL_ANALYTICS_POSTGRES_DSN`.
+- Se o alvo for `postgres` sem DSN, o comando falha antes da carga com erro seguro.
+- Alvos desconhecidos sao rejeitados.
+- Testes cobrem alvo JSON, alvo Postgres, DSN ausente e alvo invalido.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de teste especifico: `python -m unittest tests.test_youtube_local_pipeline`
+- Resultado de teste especifico: 5 testes executados com sucesso.
+- Comando de teste completo: `python -m unittest discover -s tests`
+- Resultado de teste completo: 57 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Comando de carga real segura: `python -m social_analytics_pipeline.cli.youtube_local_pipeline`
+- Resultado de carga: 50 payloads raw persistidos e 50 metricas normalizadas carregadas no alvo `json`, sem imprimir chave, channel id real ou payload.
