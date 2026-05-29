@@ -565,3 +565,37 @@ Evidencias:
 - Resultado de lint: aprovado.
 - Comando de security lint: `bandit -c pyproject.toml -r src`
 - Resultado de security lint: aprovado, sem issues.
+
+## TASK-018 - Criar provider real inicial do YouTube
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: iniciar a transicao de mocks para API real com um provider YouTube testavel, sem executar chamadas reais por padrao e sem registrar chave de API no repositorio.
+
+Criterios de aceite:
+
+- Existe provider `YouTubeDataApiProvider` usando `YOUTUBE_API_KEY` via ambiente.
+- Provider usa `requests` como cliente HTTP runtime, sem chamada real nos testes.
+- O provider busca videos por canal e intervalo usando paginacao controlada.
+- O provider busca `snippet` e `statistics` dos videos retornados.
+- Testes usam cliente HTTP fake, sem rede e sem chave real.
+- Normalizador YouTube aceita o formato real `id` e o formato fixture `videoId`.
+- `.env.example` documenta `YOUTUBE_API_KEY=` sem valor.
+
+Evidencias:
+
+- Documentacao oficial consultada: YouTube Data API `search.list`, `videos.list` e guia de paginacao.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 33 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando Docker Compose: `docker compose --env-file .env.example config --quiet`
+- Resultado Docker Compose: configuracao valida.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
