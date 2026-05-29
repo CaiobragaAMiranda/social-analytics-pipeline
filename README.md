@@ -32,7 +32,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-027 - Criar carga local segura do YouTube real
+Task atual: TASK-028 - Adicionar destino Postgres opcional na carga local do YouTube
 
 ## Estrutura inicial
 

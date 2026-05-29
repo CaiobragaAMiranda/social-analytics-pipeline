@@ -9,9 +9,11 @@ from social_analytics_pipeline.cli.youtube_smoke import (
     require_smoke_settings,
     resolve_smoke_channel_id,
 )
+from social_analytics_pipeline.load import PostgresMetricLoader
 from social_analytics_pipeline.pipeline import (
     JsonMetricArtifactLoader,
     LocalPipelineResult,
+    MetricLoader,
     build_interval_artifact_path,
     run_provider_pipeline,
 )
@@ -32,6 +34,7 @@ def run_youtube_local_pipeline(
     start_at: datetime,
     end_at: datetime,
     project_root: Path,
+    loader: MetricLoader | None = None,
 ) -> YouTubeLocalPipelineSummary:
     processed_path = build_interval_artifact_path(
         project_root / "data" / "processed" / "youtube",
@@ -47,7 +50,7 @@ def run_youtube_local_pipeline(
         start_at=start_at,
         end_at=end_at,
         raw_storage=RawStorage(raw_root),
-        loader=JsonMetricArtifactLoader(processed_path),
+        loader=loader or JsonMetricArtifactLoader(processed_path),
     )
 
     return YouTubeLocalPipelineSummary(
@@ -55,6 +58,36 @@ def run_youtube_local_pipeline(
         processed_path=processed_path,
         raw_root=raw_root,
     )
+
+
+def build_youtube_local_loader(
+    runtime_env: Mapping[str, str],
+    provider_name: str,
+    start_at: datetime,
+    end_at: datetime,
+    project_root: Path,
+) -> tuple[MetricLoader, Path]:
+    processed_path = build_interval_artifact_path(
+        project_root / "data" / "processed" / "youtube",
+        provider_name,
+        start_at,
+        end_at,
+    )
+    target = runtime_env.get("YOUTUBE_LOCAL_LOAD_TARGET", "json").lower()
+
+    if target == "json":
+        return JsonMetricArtifactLoader(processed_path), processed_path
+
+    if target == "postgres":
+        dsn = runtime_env.get("SOCIAL_ANALYTICS_POSTGRES_DSN", "")
+        if not dsn:
+            raise RuntimeError(
+                "SOCIAL_ANALYTICS_POSTGRES_DSN is required when "
+                "YOUTUBE_LOCAL_LOAD_TARGET=postgres."
+            )
+        return PostgresMetricLoader(dsn), processed_path
+
+    raise RuntimeError("YOUTUBE_LOCAL_LOAD_TARGET must be either 'json' or 'postgres'.")
 
 
 def main(env: Mapping[str, str] | None = None, project_root: Path | None = None) -> int:
@@ -78,14 +111,29 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
         provider,
         root / ".env",
     )
-    summary = run_youtube_local_pipeline(provider, channel_id, start_at, end_at, root)
+    loader, processed_path = build_youtube_local_loader(
+        runtime_env,
+        provider.name,
+        start_at,
+        end_at,
+        root,
+    )
+    summary = run_youtube_local_pipeline(
+        provider,
+        channel_id,
+        start_at,
+        end_at,
+        root,
+        loader,
+    )
 
     print("YouTube local pipeline summary")
     print(f"provider={summary.result.provider}")
     print("channel_id=<configured>")
     print(f"raw_records={summary.result.raw_records}")
     print(f"loaded_records={summary.result.loaded_records}")
-    print(f"processed_path={summary.processed_path.relative_to(root).as_posix()}")
+    print(f"load_target={runtime_env.get('YOUTUBE_LOCAL_LOAD_TARGET', 'json').lower()}")
+    print(f"processed_path={processed_path.relative_to(root).as_posix()}")
     print(f"raw_root={summary.raw_root.relative_to(root).as_posix()}")
     return 0
 

@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-027 - Criar carga local segura do YouTube real.
+Task atual: TASK-028 - Adicionar destino Postgres opcional na carga local do YouTube.
 
-Status geral: TASK-027 concluida localmente. O YouTube real ja possui comando de carga local segura salvando raw e processed em diretorios ignorados pelo Git.
+Status geral: TASK-028 concluida localmente. A carga local do YouTube usa JSON por padrao e pode usar PostgreSQL quando configurada com DSN local.
 
 ## Registro
 
@@ -259,7 +259,16 @@ Status geral: TASK-027 concluida localmente. O YouTube real ja possui comando de
 - Carga real segura executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local, sem imprimir chave, channel id real ou payload.
 - Confirmado que `data/raw/` e `data/processed/` continuam ignorados pelo Git.
 - TASK-027 marcada como Done.
+- Iniciada TASK-028 para permitir destino `json` ou `postgres` na carga local do YouTube.
+- `youtube_local_pipeline` passou a usar `YOUTUBE_LOCAL_LOAD_TARGET`, com JSON como padrao e Postgres via `SOCIAL_ANALYTICS_POSTGRES_DSN`.
+- `.env.example` e bootstrap documentam o novo alvo da carga local.
+- Executados 57 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- Verificacao documental concluida com sucesso.
+- Carga real segura no alvo `json` executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local.
+- TASK-028 marcada como Done.
 
 ## Proximas acoes
 
-- Avaliar se a carga real do YouTube deve ser conectada ao PostgreSQL local ou a uma DAG Airflow dedicada.
+- Validar carga real do YouTube no PostgreSQL local ou criar DAG Airflow dedicada para o provider real.
