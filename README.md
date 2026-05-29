@@ -32,7 +32,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-022 - Governanca multi-agente consolidada
+Task atual: TASK-023 - Pacote de revisao com diff do ultimo commit
 
 ## Estrutura inicial
 

@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-022 - Governanca multi-agente consolidada.
+Task atual: TASK-023 - Pacote de revisao com diff do ultimo commit.
 
-Status geral: TASK-022 concluida localmente. O projeto agora usa governanca multi-agente como padrao: quem desenvolve nao revisa, e o Revisor pode ser Gemini ou ChatGPT conforme o canal definido em `docs/AGENT_CONTRACTS.md`.
+Status geral: TASK-023 concluida e mergeada. O pacote de revisao agora permite auditoria contratual mesmo quando a revisao for rodada depois do commit local.
 
 ## Registro
 
