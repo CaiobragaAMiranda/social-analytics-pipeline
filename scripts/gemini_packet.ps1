@@ -35,12 +35,27 @@ Write-Output ""
 if (Get-Command git -ErrorAction SilentlyContinue) {
     Push-Location $root
     try {
-        git diff -- .
+        $workingDiff = git diff -- .
+        $workingDiff
 
         Write-Output ""
         Write-Output "## Git Staged Diff"
         Write-Output ""
-        git diff --cached -- .
+        $stagedDiff = git diff --cached -- .
+        $stagedDiff
+
+        if ([string]::IsNullOrWhiteSpace(($workingDiff | Out-String)) -and [string]::IsNullOrWhiteSpace(($stagedDiff | Out-String))) {
+            Write-Output ""
+            Write-Output "## Git Last Commit Diff"
+            Write-Output ""
+
+            git rev-parse --verify HEAD *> $null
+            if ($LASTEXITCODE -eq 0) {
+                git show --format=medium --stat --patch --find-renames --no-ext-diff HEAD -- .
+            } else {
+                Write-Output "No commits found."
+            }
+        }
 
         Write-Output ""
         Write-Output "## Git Untracked Files"

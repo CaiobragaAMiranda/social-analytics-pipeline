@@ -281,6 +281,8 @@ O job `secret-scan` define `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` para anteci
 
 O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase posterior, poderemos salvar esse pacote em `docs/REVIEWS/`.
 
+Quando a arvore Git estiver limpa, o pacote inclui o diff do ultimo commit para permitir revisao contratual logo depois de um commit local.
+
 Arquivos de review em `docs/REVIEWS/*.md` nao sao despejados automaticamente dentro do pacote quando ainda estao untracked, para evitar repetir logs extensos ou informacoes sensiveis. Novos reviews tambem ficam ignorados por padrao no Git; force o commit apenas depois de revisar o conteudo.
 
 ## Rodar revisao contratual com Gemini

@@ -726,3 +726,32 @@ Criterios de aceite:
 Notas:
 
 - Mantida como melhoria futura. A governanca atual aceita revisao automatizada quando disponivel e pacote manual quando houver limite de cota, auth ou CLI ausente.
+
+## TASK-023 - Incluir diff do ultimo commit no pacote de revisao
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: permitir que o Revisor contratual audite a mudanca exata mesmo quando a revisao for rodada logo depois do commit e a arvore Git estiver limpa.
+
+Criterios de aceite:
+
+- `scripts/gemini_packet.ps1` continua incluindo diff aberto e diff staged.
+- Quando ambos estiverem vazios, o pacote inclui uma secao com o diff do ultimo commit.
+- O comportamento evita incluir automaticamente conteudo de novos arquivos `docs/REVIEWS/*.md`.
+- Documentacao registra o motivo operacional da melhoria.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Comando de pacote com arvore limpa: `.\scripts\gemini_packet.ps1`
+- Resultado do pacote: secao `Git Last Commit Diff` exibida com o commit da TASK-023.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 42 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
