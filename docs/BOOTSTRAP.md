@@ -186,6 +186,9 @@ O provider real do YouTube usa a YouTube Data API v3 e espera uma chave local no
 
 ```text
 YOUTUBE_API_KEY=<sua-chave-local>
+YOUTUBE_CHANNEL_ID=<canal-controlado>
+YOUTUBE_MAX_PAGES=1
+YOUTUBE_SMOKE_LOOKBACK_DAYS=30
 ```
 
 Nao commite `.env`, logs de resposta real ou payloads raw coletados de canais reais sem revisao de sensibilidade.
@@ -196,6 +199,15 @@ Validar o provider YouTube sem rede e sem chave real:
 $env:PYTHONPATH = "src"
 python -m unittest tests.test_youtube_provider
 ```
+
+Executar smoke manual com chave e canal locais:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_smoke
+```
+
+O smoke command imprime apenas um resumo seguro. Ele nao salva payload raw, nao imprime a chave e mascara o canal real como `<configured>`.
 
 ## Validar normalizacao para schema unico
 

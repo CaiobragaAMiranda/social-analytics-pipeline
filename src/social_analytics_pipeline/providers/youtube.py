@@ -39,7 +39,12 @@ class YouTubeApiConfig:
         api_key = runtime_env.get("YOUTUBE_API_KEY", "")
         if not api_key:
             raise RuntimeError("YOUTUBE_API_KEY is required to use YouTubeDataApiProvider.")
-        return cls(api_key=api_key)
+
+        max_pages = int(runtime_env.get("YOUTUBE_MAX_PAGES", "1"))
+        if max_pages < 1:
+            raise RuntimeError("YOUTUBE_MAX_PAGES must be greater than or equal to 1.")
+
+        return cls(api_key=api_key, max_pages=max_pages)
 
 
 class YouTubeDataApiProvider(SocialProvider):
