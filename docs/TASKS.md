@@ -507,3 +507,4 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Gitleaks local: pendente porque o binario nao esta instalado neste ambiente; CI do GitHub mantem o secret scan.
 - pip-audit local: pendente porque a execucao ficou presa neste ambiente.
+- GitHub Actions: permissao `pull-requests: read` adicionada ao workflow para permitir secret scan em PR.
