@@ -28,9 +28,9 @@ python -m unittest discover -s tests
 
 ## Status
 
-Fase atual: Fase 0 - Governanca do projeto
+Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-015 - Generalizar configuracoes sensiveis e hardcoded
+Task atual: TASK-016 - Carregar DAG mockada no PostgreSQL
 
 ## Estrutura inicial
 

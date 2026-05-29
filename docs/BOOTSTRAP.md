@@ -122,6 +122,22 @@ Executar a DAG mockada manualmente:
 docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
 ```
 
+Por padrao, a DAG mockada grava artefatos JSON para facilitar smoke runs:
+
+```text
+SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=json
+```
+
+Para carregar no PostgreSQL local, ajuste o `.env` antes de subir o Airflow:
+
+```text
+SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=postgres
+```
+
+O DSN usado pelo Airflow e montado pelo Docker Compose com as variaveis `POSTGRES_*` do `.env`; nao registre valores expandidos ou senhas em arquivos versionados.
+
+O Compose instala `psycopg[binary]` nos containers Airflow para que o `PostgresMetricLoader` funcione quando esse alvo estiver habilitado.
+
 Agendamento da DAG mockada:
 
 ```text
@@ -190,6 +206,13 @@ python -m unittest tests.test_local_pipeline
 ```powershell
 $env:PYTHONPATH = "src"
 python -m unittest tests.test_artifact_loader
+```
+
+## Validar selecao de loader no Airflow
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_airflow_loaders
 ```
 
 ## Instalar ferramentas de desenvolvimento

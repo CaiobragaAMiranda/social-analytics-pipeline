@@ -24,11 +24,8 @@ from social_analytics_pipeline.orchestration import MOCK_PIPELINE_DAG  # noqa: E
 def social_analytics_mock_pipeline() -> None:
     @task
     def run_mock_pipeline() -> list[dict[str, int | str]]:
-        from social_analytics_pipeline.pipeline import (
-            JsonMetricArtifactLoader,
-            build_interval_artifact_path,
-            run_provider_pipeline,
-        )
+        from social_analytics_pipeline.orchestration.loaders import build_airflow_metric_loader
+        from social_analytics_pipeline.pipeline import run_provider_pipeline
         from social_analytics_pipeline.providers import build_mock_providers
         from social_analytics_pipeline.storage import RawStorage
 
@@ -41,19 +38,18 @@ def social_analytics_mock_pipeline() -> None:
         results: list[dict[str, int | str]] = []
 
         for provider_name, provider in providers.items():
-            output_path = build_interval_artifact_path(
-                project_root / "data" / "processed" / "airflow",
-                provider_name,
-                start_at,
-                end_at,
-            )
             result = run_provider_pipeline(
                 provider=provider,
                 account_id=f"{provider_name}-mock-account",
                 start_at=start_at,
                 end_at=end_at,
                 raw_storage=RawStorage(project_root / "data" / "raw"),
-                loader=JsonMetricArtifactLoader(output_path),
+                loader=build_airflow_metric_loader(
+                    provider_name,
+                    start_at,
+                    end_at,
+                    project_root,
+                ),
             )
             results.append(
                 {
