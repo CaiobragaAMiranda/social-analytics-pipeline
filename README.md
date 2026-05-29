@@ -28,12 +28,9 @@ python -m unittest discover -s tests
 
 ## Status
 
-Fase atual: Fase 2 - Orquestracao e historico
+Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-011 - Registrar propostas de mudanca antes da execucao
-
-## Caminho oficial
-
+Task atual: TASK-015 - Generalizar configuracoes sensiveis e hardcoded
 
 ## Estrutura inicial
 
