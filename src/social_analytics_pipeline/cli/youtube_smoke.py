@@ -30,6 +30,33 @@ class YouTubeSmokeSummary:
     normalized_records: int
 
 
+def load_env_file(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+
+    values: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+
+        key, value = stripped.split("=", 1)
+        key = key.strip()
+        if key:
+            values[key] = _strip_env_value(value.strip())
+
+    return values
+
+
+def build_runtime_env(
+    env: Mapping[str, str] | None = None,
+    env_path: Path | None = None,
+) -> dict[str, str]:
+    current_env = dict(env or os.environ)
+    file_env = load_env_file(env_path or Path(".env"))
+    return {**file_env, **current_env}
+
+
 def build_youtube_smoke_summary(
     provider: YouTubeCollector,
     channel_id: str,
@@ -52,7 +79,7 @@ def build_youtube_smoke_summary(
 
 
 def main(env: Mapping[str, str] | None = None) -> int:
-    runtime_env = env or os.environ
+    runtime_env = build_runtime_env(env)
     channel_id = runtime_env.get("YOUTUBE_CHANNEL_ID", "")
     if not channel_id:
         raise RuntimeError("YOUTUBE_CHANNEL_ID is required for the YouTube smoke command.")
@@ -74,6 +101,12 @@ def main(env: Mapping[str, str] | None = None) -> int:
     print(f"raw_records={summary.raw_records}")
     print(f"normalized_records={summary.normalized_records}")
     return 0
+
+
+def _strip_env_value(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        return value[1:-1]
+    return value
 
 
 if __name__ == "__main__":

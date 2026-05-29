@@ -1,8 +1,15 @@
 import unittest
 from datetime import UTC, datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
-from social_analytics_pipeline.cli.youtube_smoke import build_youtube_smoke_summary, main
+from social_analytics_pipeline.cli.youtube_smoke import (
+    build_runtime_env,
+    build_youtube_smoke_summary,
+    load_env_file,
+    main,
+)
 
 
 class FakeYouTubeCollector:
@@ -47,6 +54,37 @@ class YouTubeSmokeTest(unittest.TestCase):
     def test_main_requires_channel_id_before_network_or_api_key(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID"):
             main({})
+
+    def test_load_env_file_reads_simple_values_without_logging_secrets(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text(
+                "\n".join(
+                    [
+                        "# local only",
+                        "YOUTUBE_API_KEY='test-api-key'",
+                        'YOUTUBE_CHANNEL_ID="yt-channel-1"',
+                        "YOUTUBE_MAX_PAGES=2",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            values = load_env_file(env_path)
+
+        self.assertEqual(values["YOUTUBE_API_KEY"], "test-api-key")
+        self.assertEqual(values["YOUTUBE_CHANNEL_ID"], "yt-channel-1")
+        self.assertEqual(values["YOUTUBE_MAX_PAGES"], "2")
+
+    def test_build_runtime_env_prefers_explicit_environment_over_env_file(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text("YOUTUBE_MAX_PAGES=1", encoding="utf-8")
+
+            values = build_runtime_env({"YOUTUBE_MAX_PAGES": "3"}, env_path)
+
+        self.assertEqual(values["YOUTUBE_MAX_PAGES"], "3")
 
 
 if __name__ == "__main__":
