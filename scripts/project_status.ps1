@@ -44,7 +44,7 @@ Write-Host "---------------------"
     "docs/PROGRESS.md",
     "docs/BOOTSTRAP.md",
     "docs/ARCHITECTURE.md",
-    "docs/GEMINI_CONTRACT.md"
+    "docs/AGENT_CONTRACTS.md"
 ) | ForEach-Object {
     $path = Join-Path $root $_
     $marker = if (Test-Path $path) { "ok" } else { "missing" }

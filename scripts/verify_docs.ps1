@@ -8,14 +8,15 @@ $requiredFiles = @(
     "docs/PROGRESS.md",
     "docs/BOOTSTRAP.md",
     "docs/ARCHITECTURE.md",
-    "docs/GEMINI_CONTRACT.md",
+    "docs/AGENT_CONTRACTS.md",
     "docs/DECISIONS/ADR-0001-repository-as-source-of-truth.md",
     "docs/REVIEWS/.gitkeep",
     "scripts/gemini_cli.ps1",
     "scripts/project_status.ps1",
     "scripts/verify_docs.ps1",
     "scripts/gemini_packet.ps1",
-    "scripts/gemini_review.ps1"
+    "scripts/gemini_review.ps1",
+    "scripts/chatgpt_review.ps1"
 )
 
 $missing = @()
@@ -35,7 +36,7 @@ if ($missing.Count -gt 0) {
 
 $tasks = Get-Content (Join-Path $root "docs/TASKS.md") -Raw
 $progress = Get-Content (Join-Path $root "docs/PROGRESS.md") -Raw
-$contract = Get-Content (Join-Path $root "docs/GEMINI_CONTRACT.md") -Raw
+$contract = Get-Content (Join-Path $root "docs/AGENT_CONTRACTS.md") -Raw
 
 if ($tasks -notmatch "TASK-001") {
     throw "TASK-001 nao encontrada em docs/TASKS.md"
@@ -46,7 +47,7 @@ if ($progress -notmatch "Fase atual:") {
 }
 
 if ($contract -notmatch "Approved \| Approved with notes \| Changes requested") {
-    throw "Rubrica do Gemini nao encontrada ou incompleta."
+    throw "Rubrica de agentes nao encontrada ou incompleta."
 }
 
 Write-Host "Verificacao documental concluida com sucesso."

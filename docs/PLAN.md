@@ -9,7 +9,7 @@ Construir um pipeline de analytics social capaz de extrair dados de plataformas 
 - O repositorio e a fonte da verdade.
 - Toda task deve ter criterios de aceite.
 - Toda mudanca relevante deve atualizar documentacao.
-- O Gemini avalia por contrato: plano, task, diff, testes e progresso.
+- O Revisor avalia por contrato: plano, task, diff, testes e progresso.
 - O projeto deve permanecer demonstravel mesmo quando APIs reais bloquearem acesso.
 
 ## Fase 0 - Governanca do projeto
@@ -22,7 +22,7 @@ Entregaveis:
 - Backlog inicial.
 - Script de status.
 - Script de verificacao documental.
-- Script para gerar pacote de revisao do Gemini.
+- Scripts para gerar pacotes de revisao contratual para Gemini ou ChatGPT.
 
 ## Fase 1 - Nucleo MVP e autenticacao
 

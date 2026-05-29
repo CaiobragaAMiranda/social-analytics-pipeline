@@ -281,6 +281,8 @@ O job `secret-scan` define `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` para anteci
 
 O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase posterior, poderemos salvar esse pacote em `docs/REVIEWS/`.
 
+Arquivos de review em `docs/REVIEWS/*.md` nao sao despejados automaticamente dentro do pacote quando ainda estao untracked, para evitar repetir logs extensos ou informacoes sensiveis. Novos reviews tambem ficam ignorados por padrao no Git; force o commit apenas depois de revisar o conteudo.
+
 ## Rodar revisao contratual com Gemini
 
 ```powershell
@@ -289,6 +291,14 @@ O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase poste
 
 Esse comando gera o pacote de revisao, chama o Gemini CLI em modo headless e salva a resposta em `docs/REVIEWS/`.
 
-O prompt do Gemini tambem valida vazamentos de informacao sensivel em repositorios publicos, como caminhos absolutos locais, chaves, tokens, IPs, portas, credenciais, hosts internos e dados reais.
+## Rodar revisao contratual com ChatGPT (Codex)
+
+```powershell
+.\scripts\chatgpt_review.ps1
+```
+
+Esse comando gera o pacote de revisao e tenta envia-lo automaticamente ao ChatGPT via Codex CLI. Se houver limite de cota ou o CLI nao estiver instalado, o pacote sera salvo em `docs/REVIEWS/` para copia manual para a interface do ChatGPT.
+
+Os prompts de revisao tambem validam vazamentos de informacao sensivel em repositorios publicos, como caminhos absolutos locais, chaves, tokens, IPs, portas, credenciais, hosts internos e dados reais.
 
 Nao registre em commits a saida expandida de `docker compose config`, porque ela pode conter caminhos absolutos e valores locais resolvidos a partir do `.env`.
