@@ -39,8 +39,9 @@ def social_analytics_youtube_pipeline() -> None:
         )
 
         context = get_current_context()
-        start_at = context.get("data_interval_start") or datetime.now(UTC)
-        end_at = context.get("data_interval_end") or datetime.now(UTC)
+        fallback_now = datetime.now(UTC)
+        start_at = context.get("data_interval_start") or fallback_now
+        end_at = context.get("data_interval_end") or fallback_now
 
         project_root = AIRFLOW_PROJECT_ROOT
         runtime_env = build_runtime_env(os.environ, project_root / ".env")
