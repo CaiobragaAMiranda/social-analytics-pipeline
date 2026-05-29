@@ -12,6 +12,7 @@ from social_analytics_pipeline.cli.youtube_smoke import (
     require_smoke_setting,
     require_smoke_settings,
     require_youtube_channel_id,
+    resolve_smoke_channel_id,
 )
 
 
@@ -37,6 +38,15 @@ class FakeYouTubeCollector:
         ]
 
 
+class FakeYouTubeResolver:
+    def __init__(self) -> None:
+        self.handles: list[str] = []
+
+    def resolve_channel_id(self, handle: str) -> str:
+        self.handles.append(handle)
+        return "UCresolved123"
+
+
 class YouTubeSmokeTest(unittest.TestCase):
     def test_build_youtube_smoke_summary_counts_raw_and_normalized_records(self) -> None:
         start_at = datetime(2026, 5, 1, tzinfo=UTC)
@@ -54,11 +64,11 @@ class YouTubeSmokeTest(unittest.TestCase):
         self.assertEqual(summary.raw_records, 1)
         self.assertEqual(summary.normalized_records, 1)
 
-    def test_main_reports_all_missing_required_settings_before_network(self) -> None:
+    def test_main_reports_missing_api_key_before_network(self) -> None:
         with TemporaryDirectory() as tmpdir:
             missing_env_path = Path(tmpdir) / ".env"
 
-            with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY"):
+            with self.assertRaisesRegex(RuntimeError, "YOUTUBE_API_KEY"):
                 main({}, missing_env_path)
 
     def test_require_smoke_setting_explains_missing_env_file(self) -> None:
@@ -122,6 +132,40 @@ class YouTubeSmokeTest(unittest.TestCase):
 
     def test_require_youtube_channel_id_accepts_public_channel_id(self) -> None:
         self.assertEqual(require_youtube_channel_id("UCabc123"), "UCabc123")
+
+    def test_resolve_smoke_channel_id_prefers_channel_id(self) -> None:
+        resolver = FakeYouTubeResolver()
+
+        channel_id = resolve_smoke_channel_id(
+            {
+                "YOUTUBE_CHANNEL_ID": "UCabc123",
+                "YOUTUBE_CHANNEL_HANDLE": "@public-handle",
+            },
+            resolver,
+        )
+
+        self.assertEqual(channel_id, "UCabc123")
+        self.assertEqual(resolver.handles, [])
+
+    def test_resolve_smoke_channel_id_uses_handle_when_channel_id_missing(self) -> None:
+        resolver = FakeYouTubeResolver()
+
+        channel_id = resolve_smoke_channel_id(
+            {"YOUTUBE_CHANNEL_HANDLE": "@public-handle"},
+            resolver,
+        )
+
+        self.assertEqual(channel_id, "UCresolved123")
+        self.assertEqual(resolver.handles, ["@public-handle"])
+
+    def test_resolve_smoke_channel_id_requires_id_or_handle(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text("", encoding="utf-8")
+
+            expected_error = "YOUTUBE_CHANNEL_ID or YOUTUBE_CHANNEL_HANDLE"
+            with self.assertRaisesRegex(RuntimeError, expected_error):
+                resolve_smoke_channel_id({}, FakeYouTubeResolver(), env_path)
 
     def test_load_env_file_reads_simple_values_without_logging_secrets(self) -> None:
         with TemporaryDirectory() as tmpdir:

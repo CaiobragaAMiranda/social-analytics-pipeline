@@ -186,7 +186,8 @@ O provider real do YouTube usa a YouTube Data API v3 e espera uma chave local no
 
 ```text
 YOUTUBE_API_KEY=<sua-chave-local>
-YOUTUBE_CHANNEL_ID=<canal-controlado>
+YOUTUBE_CHANNEL_ID=<id-publico-do-canal>
+YOUTUBE_CHANNEL_HANDLE=<handle-publico-opcional>
 YOUTUBE_MAX_PAGES=1
 YOUTUBE_SMOKE_LOOKBACK_DAYS=30
 ```
@@ -194,6 +195,8 @@ YOUTUBE_SMOKE_LOOKBACK_DAYS=30
 Nao commite `.env`, logs de resposta real ou payloads raw coletados de canais reais sem revisao de sensibilidade.
 
 O smoke command le `.env` automaticamente quando o arquivo existir. Variaveis ja exportadas no terminal tem prioridade sobre o `.env`.
+
+Use `YOUTUBE_CHANNEL_ID` quando voce ja tiver o ID publico iniciado por `UC`. Como alternativa, deixe `YOUTUBE_CHANNEL_ID` vazio e preencha `YOUTUBE_CHANNEL_HANDLE` com um handle publico; o smoke resolve o ID em memoria sem imprimir o valor resolvido.
 
 Validar o provider YouTube sem rede e sem chave real:
 

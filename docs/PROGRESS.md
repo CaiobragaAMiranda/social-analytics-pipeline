@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-025 - Sanitizar erros HTTP do smoke do YouTube.
+Task atual: TASK-026 - Resolver handle publico do YouTube no smoke.
 
-Status geral: TASK-025 concluida localmente. Erros HTTP do YouTube agora sao sanitizados e o smoke valida o formato do channel id antes de rede.
+Status geral: TASK-026 concluida localmente. O smoke command aceita handle publico como alternativa ao channel id e o smoke real segue coletando dados publicos com saida segura.
 
 ## Registro
 
@@ -239,7 +239,17 @@ Status geral: TASK-025 concluida localmente. Erros HTTP do YouTube agora sao san
 - Verificacao documental concluida com sucesso.
 - Revisao Gemini tentada antes do commit, mas bloqueada por credenciais invalidas do CLI; seguiremos com CI e CodeRabbit no PR.
 - TASK-025 marcada como Done.
+- Smoke real do YouTube executado com configuracao local segura: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.
+- Iniciada TASK-026 para permitir `YOUTUBE_CHANNEL_HANDLE` como alternativa a `YOUTUBE_CHANNEL_ID`.
+- Provider YouTube passou a resolver handle publico via endpoint de canais.
+- Smoke command passou a usar `YOUTUBE_CHANNEL_ID` com prioridade e fallback para `YOUTUBE_CHANNEL_HANDLE`.
+- Executados 52 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- Verificacao documental concluida com sucesso.
+- Smoke real seguro executado: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.
+- TASK-026 marcada como Done.
 
 ## Proximas acoes
 
-- Depois, preencher `YOUTUBE_CHANNEL_ID` com ID publico iniciado por `UC` e executar o smoke real sem commitar logs ou payloads sensiveis.
+- Criar carga segura dos resultados reais do YouTube em artefato local ou PostgreSQL, mantendo raw payloads reais fora do Git.

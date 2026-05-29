@@ -817,3 +817,35 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Comando de smoke com canal em formato invalido: `python -m social_analytics_pipeline.cli.youtube_smoke`
 - Resultado de smoke: falha segura antes de rede, orientando `YOUTUBE_CHANNEL_ID` iniciado por `UC` sem imprimir URL, chave ou payload.
+
+## TASK-026 - Resolver handle publico do YouTube no smoke
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: permitir que o smoke command aceite um handle publico do YouTube quando `YOUTUBE_CHANNEL_ID` nao estiver configurado, resolvendo o ID em memoria sem imprimir chave, handle resolvido, channel id real ou payload.
+
+Criterios de aceite:
+
+- `.env.example` documenta `YOUTUBE_CHANNEL_HANDLE=` sem valor.
+- `YOUTUBE_CHANNEL_ID` continua tendo prioridade quando estiver configurado.
+- Quando `YOUTUBE_CHANNEL_ID` estiver vazio e `YOUTUBE_CHANNEL_HANDLE` estiver configurado, o provider resolve o canal via YouTube Data API.
+- O smoke continua imprimindo `channel_id=<configured>`.
+- Testes cobrem prioridade do channel id, fallback por handle e normalizacao de handle/URL publica.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de teste especifico: `python -m unittest tests.test_youtube_smoke tests.test_youtube_provider`
+- Resultado de teste especifico: 22 testes executados com sucesso.
+- Comando de teste completo: `python -m unittest discover -s tests`
+- Resultado de teste completo: 52 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Comando de smoke real seguro: `python -m social_analytics_pipeline.cli.youtube_smoke`
+- Resultado de smoke: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.

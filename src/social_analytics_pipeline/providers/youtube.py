@@ -66,6 +66,25 @@ class YouTubeDataApiProvider(SocialProvider):
         self.config = config
         self.http_client = http_client or HttpJsonClient()
 
+    def resolve_channel_id(self, handle: str) -> str:
+        response = self.http_client.get_json(
+            f"{self.config.base_url}/channels",
+            {
+                "part": "id",
+                "forHandle": _normalize_handle(handle),
+                "key": self.config.api_key,
+            },
+        )
+        items = response.get("items", [])
+        if not items:
+            raise RuntimeError("YOUTUBE_CHANNEL_HANDLE did not resolve to a public channel.")
+
+        channel_id = str(items[0].get("id", ""))
+        if not channel_id.startswith("UC"):
+            raise RuntimeError("Resolved YouTube channel id did not match the expected format.")
+
+        return channel_id
+
     def collect_metrics(
         self,
         account_id: str,
@@ -150,6 +169,15 @@ class YouTubeDataApiProvider(SocialProvider):
 
 def _chunks(values: list[str], size: int) -> list[list[str]]:
     return [values[index : index + size] for index in range(0, len(values), size)]
+
+
+def _normalize_handle(value: str) -> str:
+    handle = value.strip()
+    if "/@" in handle:
+        handle = handle.rsplit("/@", 1)[1]
+    if handle.startswith("@"):
+        handle = handle[1:]
+    return handle
 
 
 def _rfc3339_utc(value: datetime) -> str:
