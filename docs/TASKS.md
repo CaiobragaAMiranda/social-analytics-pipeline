@@ -509,3 +509,32 @@ Evidencias:
 - Gitleaks local: pendente porque o binario nao esta instalado neste ambiente; CI do GitHub mantem o secret scan.
 - pip-audit local: pendente porque a execucao ficou presa neste ambiente.
 - GitHub Actions: permissao `pull-requests: read` adicionada ao workflow para permitir secret scan em PR.
+
+## TASK-016 - Carregar DAG mockada no PostgreSQL
+
+Status: Done
+
+Fase: Fase 2 - Orquestracao e historico
+
+Objetivo: permitir que a DAG `social_analytics_mock_pipeline` carregue metricas normalizadas no PostgreSQL local quando configurada para isso, mantendo JSON como alvo padrao e fallback de desenvolvimento.
+
+Criterios de aceite:
+
+- A DAG escolhe o loader por variavel de ambiente, sem senha ou host local hardcoded.
+- O alvo padrao continua sendo JSON para smoke runs simples.
+- O alvo PostgreSQL usa `PostgresMetricLoader` e DSN vindo de variavel de ambiente.
+- Docker Compose injeta a configuracao no Airflow a partir do `.env` local.
+- Docker Compose instala a dependencia runtime do loader PostgreSQL nos containers Airflow.
+- Testes cobrem selecao JSON, selecao PostgreSQL, ausencia de DSN e alvo invalido.
+- Documentacao registra como ativar a carga PostgreSQL.
+
+Evidencias:
+
+- Comando Docker Compose: `docker compose --env-file .env.example config --quiet`
+- Resultado Docker Compose: configuracao valida.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 29 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado apos correcao automatica de ordenacao de imports.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.

@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-015 - Generalizar configuracoes sensiveis e hardcoded
+Task atual: TASK-016 - Carregar DAG mockada no PostgreSQL
 
-Status geral: TASK-015 concluida localmente; configuracoes sensiveis do Compose foram parametrizadas e a varredura nao encontrou segredo literal real nos arquivos versionados.
+Status geral: TASK-016 concluida localmente; a DAG mockada agora pode carregar no PostgreSQL por configuracao de ambiente, mantendo JSON como padrao.
 
 ## Registro
 
@@ -140,6 +140,16 @@ Status geral: TASK-015 concluida localmente; configuracoes sensiveis do Compose 
 - GitHub Actions `Secret scan` falhou inicialmente por falta de permissao `pull-requests: read`; workflow atualizado para permitir leitura dos commits do PR.
 - CodeRabbit apontou melhoria valida no wrapper Gemini; `scripts/gemini_review.ps1` passou a localizar o Gemini CLI via `npm root -g` e avisar quando credenciais OAuth locais nao puderem ser carregadas.
 - CodeRabbit apontou melhoria de permissao no Gitleaks; comentarios automaticos do Gitleaks foram desativados e `pull-requests: read` ficou restrito ao job `secret-scan`.
+- Iniciada TASK-016 para conectar a DAG mockada ao `PostgresMetricLoader` quando habilitado por configuracao.
+- Criado seletor `build_airflow_metric_loader`, com alvo padrao JSON e alvo PostgreSQL por `SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=postgres`.
+- Docker Compose passou a injetar `SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET` e `SOCIAL_ANALYTICS_POSTGRES_DSN` nos servicos Airflow sem senha hardcoded.
+- Docker Compose passou a instalar `psycopg[binary]` nos containers Airflow para suportar o loader PostgreSQL.
+- Criados testes para selecao do loader JSON/PostgreSQL, DSN ausente e alvo invalido.
+- Executados 29 testes unitarios com sucesso.
+- `docker compose --env-file .env.example config --quiet` validado com sucesso.
+- Bandit aprovado sem issues.
+- Ruff aprovado apos correcao automatica de ordenacao de imports.
+- TASK-016 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -239,4 +249,4 @@ Status geral: TASK-015 concluida localmente; configuracoes sensiveis do Compose 
 ## Proximas acoes
 
 - Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
-- Acompanhar o secret scan no GitHub Actions apos publicacao.
+- Abrir PR da TASK-016 e acionar CodeRabbit apenas se quisermos revisao sob demanda.
