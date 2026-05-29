@@ -122,6 +122,14 @@ Executar a DAG mockada manualmente:
 docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
 ```
 
+Executar a DAG real do YouTube manualmente:
+
+```powershell
+docker compose exec airflow-api-server airflow dags trigger social_analytics_youtube_pipeline
+```
+
+A DAG real do YouTube usa as mesmas variaveis locais do comando `youtube_local_pipeline`: `YOUTUBE_API_KEY`, `YOUTUBE_CHANNEL_ID` ou `YOUTUBE_CHANNEL_HANDLE`, `YOUTUBE_MAX_PAGES` e `YOUTUBE_LOCAL_LOAD_TARGET`. O Docker Compose repassa esses nomes aos containers Airflow sem registrar valores no repositorio.
+
 Por padrao, a DAG mockada grava artefatos JSON para facilitar smoke runs:
 
 ```text
@@ -150,6 +158,7 @@ Por padrao, as DAGs nascem pausadas no ambiente local. Para permitir que o sched
 
 ```powershell
 docker compose exec airflow-api-server airflow dags unpause social_analytics_mock_pipeline
+docker compose exec airflow-api-server airflow dags unpause social_analytics_youtube_pipeline
 ```
 
 Saidas esperadas:
@@ -157,6 +166,7 @@ Saidas esperadas:
 ```text
 data/raw/
 data/processed/airflow/
+data/processed/youtube/
 ```
 
 Os artefatos processados da DAG usam o formato:

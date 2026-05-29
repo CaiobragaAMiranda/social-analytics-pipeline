@@ -4,11 +4,11 @@
 
 Data: 2026-05-29
 
-Fase atual: Fase 1 - Nucleo MVP e autenticacao
+Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-029 - Validar carga real do YouTube no PostgreSQL local.
+Task atual: TASK-030 - Criar DAG Airflow para YouTube real.
 
-Status geral: TASK-029 concluida localmente. A carga real do YouTube foi validada no PostgreSQL local com 50 linhas carregadas e verificacao agregada segura.
+Status geral: TASK-030 concluida localmente. A DAG real do YouTube foi adicionada ao Airflow com configuracao por variaveis de ambiente e validacoes locais aprovadas.
 
 ## Registro
 
@@ -275,7 +275,14 @@ Status geral: TASK-029 concluida localmente. A carga real do YouTube foi validad
 - Verificacao agregada no banco confirmou 50 linhas YouTube e 50 conteudos distintos, sem listar IDs ou payloads.
 - `PostgresMetricLoader` passou a sanitizar erros de banco para evitar impressao de detalhes de conexao.
 - TASK-029 marcada como Done.
+- Iniciada TASK-030 para criar uma DAG Airflow dedicada ao YouTube real.
+- Proposta comunicada antes de codar: manter a DAG mockada, adicionar uma segunda DAG real, repassar variaveis YouTube pelo Docker Compose e validar sem importar Airflow nos testes.
+- Criada DAG `social_analytics_youtube_pipeline` usando intervalo de dados do Airflow e o provider real do YouTube.
+- Docker Compose passou a repassar `YOUTUBE_API_KEY`, canal, paginacao e alvo de carga para os servicos Airflow sem valores hardcoded.
+- Criados testes para configuracao da DAG real e injecao dos nomes de variaveis no Compose.
+- Validacoes locais aprovadas: 60 testes, Ruff, Bandit, Docker Compose config e verificacao documental.
+- TASK-030 marcada como Done.
 
 ## Proximas acoes
 
-- Criar DAG Airflow dedicada para o provider real do YouTube ou parametrizar a DAG existente para fonte real.
+- Validar a DAG real do YouTube no Airflow local com ambiente Docker ativo e abrir PR para revisao automatizada.

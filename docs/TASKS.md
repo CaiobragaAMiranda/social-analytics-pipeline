@@ -943,3 +943,34 @@ Evidencias:
 - Verificacao agregada no banco: 50 linhas YouTube e 50 conteudos distintos.
 - Comando de teste especifico: `python -m unittest tests.test_postgres_loader tests.test_youtube_local_pipeline`
 - Resultado de teste especifico: 10 testes executados com sucesso.
+
+## TASK-030 - Criar DAG Airflow para YouTube real
+
+Status: Done
+
+Fase: Fase 2 - Orquestracao e historico
+
+Objetivo: executar o provider real do YouTube pelo Airflow usando intervalo de dados, raw storage e destino configuravel, sem hardcode de chave, canal, DSN ou payload real.
+
+Criterios de aceite:
+
+- Existe DAG `social_analytics_youtube_pipeline`.
+- A DAG usa `data_interval_start` e `data_interval_end` do Airflow.
+- A DAG usa `YOUTUBE_API_KEY` e `YOUTUBE_CHANNEL_ID` ou `YOUTUBE_CHANNEL_HANDLE` via ambiente.
+- Docker Compose injeta as variaveis YouTube nos servicos Airflow sem valores hardcoded.
+- A carga usa `YOUTUBE_LOCAL_LOAD_TARGET=json` ou `postgres`.
+- A saida da task nao imprime chave, canal real, DSN ou payload.
+- Testes cobrem a configuracao da DAG e a injecao de nomes de variaveis no Compose sem importar Airflow.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 60 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando Docker Compose: `docker compose --env-file .env.example config --quiet`
+- Resultado Docker Compose: configuracao valida.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
