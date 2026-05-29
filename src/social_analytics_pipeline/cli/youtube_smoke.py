@@ -57,6 +57,23 @@ def build_runtime_env(
     return {**file_env, **current_env}
 
 
+def require_smoke_setting(
+    runtime_env: Mapping[str, str],
+    key: str,
+    env_path: Path | None = None,
+) -> str:
+    value = runtime_env.get(key, "")
+    if value:
+        return value
+
+    if not (env_path or Path(".env")).exists():
+        raise RuntimeError(
+            f"{key} is required. Create a local .env from .env.example and fill YouTube settings."
+        )
+
+    raise RuntimeError(f"{key} is required in environment or local .env.")
+
+
 def build_youtube_smoke_summary(
     provider: YouTubeCollector,
     channel_id: str,
@@ -80,9 +97,7 @@ def build_youtube_smoke_summary(
 
 def main(env: Mapping[str, str] | None = None) -> int:
     runtime_env = build_runtime_env(env)
-    channel_id = runtime_env.get("YOUTUBE_CHANNEL_ID", "")
-    if not channel_id:
-        raise RuntimeError("YOUTUBE_CHANNEL_ID is required for the YouTube smoke command.")
+    channel_id = require_smoke_setting(runtime_env, "YOUTUBE_CHANNEL_ID")
 
     lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
     if lookback_days < 1:

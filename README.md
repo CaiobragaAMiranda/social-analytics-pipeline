@@ -30,7 +30,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-020 - Carregar `.env` no smoke command do YouTube
+Task atual: TASK-021 - Melhorar orientacao de setup do smoke command
 
 ## Estrutura inicial
 

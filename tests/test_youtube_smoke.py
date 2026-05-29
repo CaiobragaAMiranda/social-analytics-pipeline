@@ -9,6 +9,7 @@ from social_analytics_pipeline.cli.youtube_smoke import (
     build_youtube_smoke_summary,
     load_env_file,
     main,
+    require_smoke_setting,
 )
 
 
@@ -54,6 +55,26 @@ class YouTubeSmokeTest(unittest.TestCase):
     def test_main_requires_channel_id_before_network_or_api_key(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID"):
             main({})
+
+    def test_require_smoke_setting_explains_missing_env_file(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            missing_env_path = Path(tmpdir) / ".env"
+
+            with self.assertRaisesRegex(RuntimeError, "Create a local .env"):
+                require_smoke_setting({}, "YOUTUBE_CHANNEL_ID", missing_env_path)
+
+    def test_require_smoke_setting_explains_empty_existing_env_file(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text("", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "environment or local .env"):
+                require_smoke_setting({}, "YOUTUBE_CHANNEL_ID", env_path)
+
+    def test_require_smoke_setting_returns_configured_value(self) -> None:
+        value = require_smoke_setting({"YOUTUBE_CHANNEL_ID": "yt-channel-1"}, "YOUTUBE_CHANNEL_ID")
+
+        self.assertEqual(value, "yt-channel-1")
 
     def test_load_env_file_reads_simple_values_without_logging_secrets(self) -> None:
         with TemporaryDirectory() as tmpdir:
