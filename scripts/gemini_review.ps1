@@ -49,7 +49,15 @@ Pacote de revisao:
 
 $inputText = "$instruction`n`n$packet"
 $node = (Get-Command node -ErrorAction Stop).Source
-$gemini = Join-Path $env:APPDATA "npm\node_modules\@google\gemini-cli\bundle\gemini.js"
+$npmCommand = Get-Command npm.cmd -ErrorAction SilentlyContinue
+if (-not $npmCommand) {
+    $npmCommand = Get-Command npm -ErrorAction Stop
+}
+$npmRoot = & $npmCommand.Source root -g
+if (-not $npmRoot) {
+    throw "Nao foi possivel localizar o diretorio global do npm."
+}
+$gemini = Join-Path $npmRoot "@google\gemini-cli\bundle\gemini.js"
 $inputPath = Join-Path $env:TEMP "gemini-review-input-$timestamp.md"
 $previousNoRelaunch = $env:GEMINI_CLI_NO_RELAUNCH
 $previousUseGca = $env:GOOGLE_GENAI_USE_GCA
@@ -65,6 +73,7 @@ if (Test-Path $oauthCredsPath) {
             $env:GOOGLE_CLOUD_ACCESS_TOKEN = $oauthCreds.access_token
         }
     } catch {
+        Write-Warning "Nao foi possivel carregar as credenciais OAuth locais do Gemini: $($_.Exception.Message)"
     }
 }
 

@@ -505,6 +505,7 @@ Evidencias:
 - Resultado de security lint: aprovado, sem issues.
 - Comando de verificacao documental: `.\scripts\verify_docs.ps1`
 - Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: pendente por reautenticacao do CLI.
 - Gitleaks local: pendente porque o binario nao esta instalado neste ambiente; CI do GitHub mantem o secret scan.
 - pip-audit local: pendente porque a execucao ficou presa neste ambiente.
 - GitHub Actions: permissao `pull-requests: read` adicionada ao workflow para permitir secret scan em PR.

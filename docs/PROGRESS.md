@@ -138,6 +138,7 @@ Status geral: TASK-015 concluida localmente; configuracoes sensiveis do Compose 
 - TASK-015 marcada como Done.
 - PR da TASK-015 abriu com conflito porque `master` avancou; branch foi rebaseada e conflito no `README.md` resolvido removendo a secao de caminho oficial.
 - GitHub Actions `Secret scan` falhou inicialmente por falta de permissao `pull-requests: read`; workflow atualizado para permitir leitura dos commits do PR.
+- CodeRabbit apontou melhoria valida no wrapper Gemini; `scripts/gemini_review.ps1` passou a localizar o Gemini CLI via `npm root -g` e avisar quando credenciais OAuth locais nao puderem ser carregadas.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
