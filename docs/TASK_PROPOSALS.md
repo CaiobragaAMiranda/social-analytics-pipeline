@@ -2,7 +2,7 @@
 
 Este arquivo registra propostas de alteracao de backlog antes de abrir uma task executavel.
 
-O Codex deve sempre comunicar as mudancas propostas diretamente ao usuario, de forma simples, antes de codar. Quando a proposta for relevante para decisao futura, priorizacao, escopo ou auditoria, ela tambem deve ser registrada aqui.
+O Codex deve sempre comunicar as mudancas propostas diretamente ao usuario, de forma simples, antes de codar. Quando a mudanca envolver risco tecnico, decisao de design ou manutencao de longo prazo, ela deve ser registrada aqui.
 
 ## Regras
 
@@ -21,50 +21,54 @@ O Codex deve sempre comunicar as mudancas propostas diretamente ao usuario, de f
 Status: Proposed | Accepted | Deferred | Rejected
 
 Motivacao:
-
 - Por que essa mudanca foi sugerida.
 
-Escopo sugerido:
-
+Escopo:
 - O que entraria.
 - O que ficaria fora.
 
 Impacto esperado:
-
 - Beneficio pratico para o projeto.
 
 Criterio para virar task:
-
 - Condicao objetiva para mover a proposta para `docs/TASKS.md`.
 
 Notas:
-
 - Riscos, alternativas ou dependencias.
 ```
 
-## PROP-001 - Manutencao do Gitleaks Action por Node 20
+## PROP-001 - Forcar Node 24 no GitHub Actions para Secret Scan
 
 Status: Accepted
 
 Motivacao:
+- O GitHub Actions esta depreciando o Node 20 nos runners.
+- O Gitleaks Action pode falhar se o runner nao for forcado a usar um runtime mais recente.
 
-- O GitHub Actions esta verde, mas emite aviso de deprecacao porque `gitleaks/gitleaks-action@v2` ainda roda em Node 20.
-
-Escopo sugerido:
-
-- Verificar versao atual recomendada da action.
-- Atualizar `.github/workflows/quality-gates.yml` se houver versao compativel.
-- Rodar quality gates e Gemini antes do commit.
-
-Impacto esperado:
-
-- Reduzir risco de falha futura do CI quando GitHub Actions remover suporte a Node 20.
+Escopo:
+- Adicionar `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` ao workflow `quality-gates.yml`.
 
 Criterio para virar task:
-
 - Usuario aprovar manutencao do CI ou pedir continuidade nessa frente.
 
 Notas:
-
-- Nao e bloqueante enquanto o workflow remoto continua passando.
 - Aceita pelo usuario em 2026-05-28 para virar TASK-012.
+
+## PROP-002 - Padronizacao de Feedback (TASK-014)
+
+Status: Accepted
+
+Motivacao:
+- TASK-014: O feedback do Gemini precisa ser mais acionavel, seguindo uma estrutura de severidade, arquivo, evidencia, risco e acao.
+
+Escopo:
+- Atualizar `scripts/gemini_review.ps1`, `scripts/chatgpt_review.ps1` e `docs/AGENT_CONTRACTS.md` para exigir o novo formato de feedback (TASK-014).
+
+Impacto esperado:
+- Revisoes mais claras e acionaveis.
+
+Criterio para virar task:
+- Aprovacao do usuario para consolidar essa melhoria de governanca.
+
+Notas:
+- Aceito pelo usuario em 2026-05-29 para virar TASK-014.

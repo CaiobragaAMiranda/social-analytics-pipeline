@@ -4,11 +4,11 @@
 
 Data: 2026-05-29
 
-Fase atual: Fase 2 - Orquestracao e historico
+Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-021 - Melhorar orientacao de setup do smoke command
+Task atual: TASK-022 - Governanca multi-agente consolidada.
 
-Status geral: TASK-021 concluida localmente; smoke command do YouTube agora orienta criacao de `.env` quando configuracao local ainda nao existe.
+Status geral: TASK-022 concluida localmente. O projeto agora usa governanca multi-agente como padrao: quem desenvolve nao revisa, e o Revisor pode ser Gemini ou ChatGPT conforme o canal definido em `docs/AGENT_CONTRACTS.md`.
 
 ## Registro
 
@@ -193,103 +193,24 @@ Status geral: TASK-021 concluida localmente; smoke command do YouTube agora orie
 - Smoke command diferencia `.env` ausente de `.env` existente porem incompleto.
 - Criados testes para erro de `.env` ausente, `.env` incompleto e valor configurado.
 - TASK-021 marcada como Done.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
-- Resultado Gemini: aprovado.
-- TASK-010 marcada como Done.
-- Commit da TASK-010 publicado no GitHub: `e650a4a feat: schedule airflow mock pipeline catchup`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-011 para registrar propostas de mudanca antes da execucao.
-- Criado `docs/TASK_PROPOSALS.md`.
-- Definido que o Codex deve sempre indicar mudancas propostas antes de codar.
-- Atualizado `README.md` para incluir propostas, escopo, exclusoes e plano de validacao no checkpoint pre-codigo.
-- Atualizado `docs/GEMINI_CONTRACT.md` para avaliar proposta explicitada e alinhamento com pedido do usuario.
-- Ajustado protocolo para deixar claro que propostas devem ser comunicadas diretamente ao usuario, e nao apenas registradas em Markdown.
+
+### 2026-05-29
+
+- Identificada necessidade de governanca hibrida para suportar Gemini e ChatGPT.
+- Iniciada TASK-022 para implementar governanca multi-agente.
+- `docs/GEMINI_CONTRACT.md` renomeado para `docs/AGENT_CONTRACTS.md`.
+- `docs/AGENT_CONTRACTS.md` atualizado para definir papeis de Desenvolvedor e Revisor baseados no canal (Codex vs Gemini CLI).
+- Criado `scripts/chatgpt_review.ps1` para suportar o fluxo de revisao via ChatGPT.
+- `scripts/verify_docs.ps1` e `README.md` atualizados para refletir a nova estrutura de agentes.
 - Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-092656.md`.
-- Resultado Gemini: aprovado.
-- TASK-011 marcada como Done.
-- Commit da TASK-011 publicado no GitHub: `30be366 docs: add change proposal governance`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Usuario aprovou seguir com a proposta de manutencao do secret scan.
-- Iniciada TASK-012 para preparar o job `secret-scan` para Node 24.
-- Consultada fonte oficial do GitHub sobre deprecacao do Node 20 em GitHub Actions.
-- Atualizado `.github/workflows/quality-gates.yml` com `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` no job `secret-scan`.
-- `PROP-001` marcada como Accepted em `docs/TASK_PROPOSALS.md`.
-- Executados 24 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-085716.md`.
-- Resultado Gemini: aprovado.
-- TASK-009 marcada como Done.
-- Commit da TASK-009 publicado no GitHub: `b41dde3 feat: add airflow mock pipeline dag`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-010 para configurar agendamento quinzenal e catchup historico da DAG mockada.
-- Criada configuracao testavel de DAG em `src/social_analytics_pipeline/orchestration/airflow_settings.py`.
-- DAG `social_analytics_mock_pipeline` ajustada para `timedelta(days=15)` e `catchup=True`.
-- Artefatos processados passam a incluir provider, inicio e fim do intervalo no nome.
-- Criados testes para configuracao Airflow e path de artefato por intervalo.
-- `docker compose config` validado com sucesso.
-- Executados 24 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-002654.md`.
-- Resultado Gemini: aprovado.
-- TASK-008 marcada como Done.
-- Commit da TASK-008 publicado no GitHub: `83f0abe feat: add airflow docker environment`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-009 para migrar o fluxo local mockado para DAG Airflow.
-- Criado `JsonMetricArtifactLoader` em `src/social_analytics_pipeline/pipeline/artifacts.py`.
-- Criados testes em `tests/test_artifact_loader.py`.
-- Criada DAG `dags/social_analytics_mock_pipeline_dag.py`.
-- Atualizado `dags/README.md`.
-- Atualizados `docs/ARCHITECTURE.md` e `docs/BOOTSTRAP.md` com a DAG `social_analytics_mock_pipeline`.
-- Executado `ruff check . --fix` para organizar imports.
-- `docker compose config` validado com sucesso.
-- Executados 22 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-000223.md`.
-- Resultado Gemini: aprovado.
-- TASK-007 marcada como Done.
-- Commit da TASK-007 publicado no GitHub: `31b0795 feat: integrate local mock pipeline`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Consultada documentacao oficial do Apache Airflow 3.2.1 para Docker Compose.
-- Iniciada TASK-008 para adicionar Airflow via Docker.
-- Criados servicos Airflow em `docker-compose.yml`.
-- Criada DAG smoke em `dags/social_analytics_smoke_dag.py`.
-- Criado `.env.example` com `AIRFLOW_UID=50000`.
-- Primeira validacao `docker compose config` falhou porque o anchor comum estava como `airflow-common`; corrigido para `x-airflow-common`.
-- Atualizada allowlist do Gitleaks para credenciais locais documentadas do Airflow (`airflow/airflow`).
-- `docker compose config` validado com sucesso.
-- Executados 19 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260527-194742.md`.
-- Resultado Gemini: aprovado.
-- TASK-006 marcada como Done.
-- Commit da TASK-006 publicado no GitHub: `bd85b3d ci: add security quality gates`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-007 para integrar provider mockado, raw storage, normalizacao e loader.
-- Criado `src/social_analytics_pipeline/pipeline/local.py`.
-- Criado protocolo `MetricLoader` para desacoplar orquestracao do destino real.
-- Criado teste de integracao em `tests/test_local_pipeline.py`.
-- Teste de integracao encontrou colisao no nome de arquivos raw quando varios payloads eram salvos no mesmo segundo.
-- Corrigido `RawStorage` para incluir hash curto do payload no nome do arquivo.
-- Executados 19 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
+- TASK-022 marcada como Done.
+- Identificada falha de cota no Codex CLI para automacao direta; mantido fluxo hibrido com pacote gerado para copia manual se necessario.
+- Iniciada TASK-014 para padronizar o feedback dos revisores (Gemini e ChatGPT).
+- Atualizados `docs/AGENT_CONTRACTS.md`, `scripts/gemini_review.ps1` e `scripts/chatgpt_review.ps1` com o novo formato de feedback (Severidade, Arquivo, Evidencia, Risco, Acao).
+- Validacao local concluida: 42 testes passaram, ruff e bandit verdes, verify_docs ok.
+- TASK-014 marcada como Done.
 
 ## Proximas acoes
 
-- Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
+- Validar a consolidacao da governanca com `verify_docs`, status do projeto e varredura simples contra referencias vivas ao contrato antigo.
 - Executar o smoke command do YouTube com chave local e canal real controlado, sem commitar logs ou payloads sensiveis.

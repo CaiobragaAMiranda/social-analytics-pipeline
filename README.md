@@ -15,7 +15,7 @@ Antes de codar uma task:
 5. Declarar criterios de aceite e plano de teste.
 6. Implementar somente depois desse checkpoint.
 7. Atualizar documentacao e progresso.
-8. Gerar pacote de revisao para o Gemini.
+8. Gerar pacote de revisao para o Revisor (Gemini ou ChatGPT conforme `docs/AGENT_CONTRACTS.md`).
 
 ## Comandos uteis
 
@@ -23,14 +23,16 @@ Antes de codar uma task:
 .\scripts\project_status.ps1
 .\scripts\verify_docs.ps1
 .\scripts\gemini_packet.ps1
+.\scripts\gemini_review.ps1
+.\scripts\chatgpt_review.ps1
 python -m unittest discover -s tests
 ```
 
 ## Status
 
-Fase atual: Fase 2 - Orquestracao e historico
+Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-021 - Melhorar orientacao de setup do smoke command
+Task atual: TASK-022 - Governanca multi-agente consolidada
 
 ## Estrutura inicial
 

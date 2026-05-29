@@ -23,7 +23,7 @@ Criterios de aceite:
 - `docs/PROGRESS.md` registra progresso inicial.
 - `docs/BOOTSTRAP.md` explica como preparar o ambiente.
 - `docs/ARCHITECTURE.md` registra arquitetura pretendida.
-- `docs/GEMINI_CONTRACT.md` define rubrica de avaliacao.
+- `docs/AGENT_CONTRACTS.md` define rubrica de avaliacao de agentes.
 - Scripts iniciais existem em `scripts/`.
 - `scripts/verify_docs.ps1` executa com sucesso.
 
@@ -456,16 +456,17 @@ Evidencias:
 
 ## TASK-014 - Padronizar severidade no feedback do Gemini
 
-Status: In Progress
+Status: Done
 
 Fase: Fase 0 - Governanca do projeto
 
-Objetivo: deixar o feedback do Gemini mais acionavel exigindo severidade, arquivo afetado, evidencia objetiva, risco pratico e acao recomendada em cada problema encontrado.
+Objetivo: deixar o feedback do Revisor (Gemini ou ChatGPT) mais acionavel exigindo severidade, arquivo afetado, evidencia objetiva, risco pratico e acao recomendada em cada problema encontrado.
 
 Criterios de aceite:
 
 - O prompt do Gemini exige formato padronizado para cada problema.
-- O contrato do Gemini registra o mesmo formato.
+- O prompt do ChatGPT exige formato padronizado para cada problema.
+- O contrato de agentes registra o mesmo formato.
 - O feedback continua proibido de repetir valores sensiveis.
 - Verificacao documental passa.
 
@@ -473,7 +474,9 @@ Evidencias:
 
 - Comando de verificacao documental: `.\scripts\verify_docs.ps1`
 - Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: pendente por reautenticacao do CLI.
+- Scripts atualizados: `scripts/gemini_review.ps1` e `scripts/chatgpt_review.ps1`.
+- Documentacao atualizada: `docs/AGENT_CONTRACTS.md`.
+- Quality gates locais: 42 testes, ruff e bandit aprovados.
 
 ## TASK-015 - Generalizar configuracoes sensiveis e hardcoded
 
@@ -683,3 +686,43 @@ Evidencias:
 - Resultado de teste: 7 testes executados com sucesso.
 - Comando de smoke sem `.env`: `python -m social_analytics_pipeline.cli.youtube_smoke`
 - Resultado de smoke sem `.env`: falha controlada com orientacao para criar `.env`.
+
+## TASK-022 - Implementar governanca multi-agente (Gemini & ChatGPT)
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: permitir que o projeto seja desenvolvido de forma hibrida por Gemini e ChatGPT, definindo papeis claros de desenvolvedor e revisor contratual baseados no canal de comunicacao.
+
+Criterios de aceite:
+
+- `docs/GEMINI_CONTRACT.md` renomeado para `docs/AGENT_CONTRACTS.md`.
+- `docs/AGENT_CONTRACTS.md` define papeis para Codex (ChatGPT) e Gemini CLI (Gemini).
+- `scripts/chatgpt_review.ps1` criado para preparar pacote de revisao para ChatGPT.
+- `scripts/verify_docs.ps1` atualizado para validar a nova estrutura.
+- `README.md` atualizado com o novo fluxo de trabalho.
+- Progresso registrado.
+
+Evidencias:
+
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Arquivos criados/alterados: `docs/AGENT_CONTRACTS.md`, `scripts/chatgpt_review.ps1`, `scripts/verify_docs.ps1`, `README.md`.
+
+## TASK-TEST - Teste de governanca multi-agente automatizado
+
+Status: Pending
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: validar a conversa direta entre Gemini e ChatGPT via Codex CLI, sem substituir o fluxo hibrido aprovado como governanca oficial.
+
+Criterios de aceite:
+- O Gemini chama o Codex CLI automaticamente.
+- O ChatGPT processa o pacote e responde seguindo a rubrica.
+- O resultado e salvo em `docs/REVIEWS/`.
+
+Notas:
+
+- Mantida como melhoria futura. A governanca atual aceita revisao automatizada quando disponivel e pacote manual quando houver limite de cota, auth ou CLI ausente.

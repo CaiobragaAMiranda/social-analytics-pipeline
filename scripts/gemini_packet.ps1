@@ -7,10 +7,10 @@ $files = @(
     "docs/PROGRESS.md",
     "docs/BOOTSTRAP.md",
     "docs/ARCHITECTURE.md",
-    "docs/GEMINI_CONTRACT.md"
+    "docs/AGENT_CONTRACTS.md"
 )
 
-Write-Output "# Pacote de Revisao para Gemini"
+Write-Output "# Pacote de Revisao Contratual"
 Write-Output ""
 Write-Output "Gerado em: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Output ""
@@ -50,9 +50,16 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
             Write-Output "No untracked files."
         } else {
             foreach ($file in $untracked) {
+                $normalizedPath = $file -replace "\\", "/"
                 Write-Output ""
                 Write-Output "### $file"
                 Write-Output ""
+
+                if ($normalizedPath -like "docs/REVIEWS/*.md") {
+                    Write-Output "Arquivo de review nao incluido automaticamente no pacote para evitar repetir logs extensos ou informacoes sensiveis. Revise manualmente antes de commitar."
+                    continue
+                }
+
                 if (Test-Path $file) {
                     Get-Content $file
                 } else {

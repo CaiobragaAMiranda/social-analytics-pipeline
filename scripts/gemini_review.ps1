@@ -28,7 +28,7 @@ Como o repositorio e publico, verifique explicitamente se o diff, a documentacao
 
 Se identificar algum vazamento sensivel, reporte o problema sem repetir o valor exato. Cite apenas o tipo de informacao, o arquivo e, se necessario, use placeholders como `<caminho-local>`, `<token>`, `<ip-interno>` ou `<porta-local>`.
 
-Use a rubrica de docs/GEMINI_CONTRACT.md.
+Use a rubrica de docs/AGENT_CONTRACTS.md.
 
 Responda em Markdown com:
 - Resultado: Approved | Approved with notes | Changes requested
@@ -37,12 +37,12 @@ Responda em Markdown com:
 - Recomendacoes
 - Decisao final
 
-Para cada problema encontrado, inclua:
+Para cada problema encontrado, inclua obrigatoriamente:
 - Severidade: baixa | media | alta | critica
-- Arquivo afetado
-- Evidencia objetiva
-- Risco pratico
-- Acao recomendada
+- Arquivo afetado: <caminho-relativo>
+- Evidencia objetiva: <trecho-ou-log>
+- Risco pratico: <impacto-real>
+- Acao recomendada: <como-corrigir>
 
 Pacote de revisao:
 "@
