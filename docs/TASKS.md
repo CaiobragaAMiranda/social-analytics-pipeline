@@ -915,3 +915,31 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Comando de carga real segura: `python -m social_analytics_pipeline.cli.youtube_local_pipeline`
 - Resultado de carga: 50 payloads raw persistidos e 50 metricas normalizadas carregadas no alvo `json`, sem imprimir chave, channel id real ou payload.
+
+## TASK-029 - Validar carga real do YouTube no PostgreSQL local
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: validar a carga real do YouTube no PostgreSQL local usando `YOUTUBE_LOCAL_LOAD_TARGET=postgres`, sem expor DSN, senha, channel id real ou payload.
+
+Criterios de aceite:
+
+- PostgreSQL local sobe via Docker Compose.
+- Conexao host -> PostgreSQL local e validada sem imprimir DSN.
+- Carga real do YouTube executa com `load_target=postgres`.
+- A carga retorna 50 registros carregados no PostgreSQL.
+- Consulta de verificacao mostra apenas contagens agregadas.
+- Erros do loader PostgreSQL sao sanitizados para nao imprimir host, usuario, senha ou DSN.
+- Testes cobrem sanitizacao de erro do loader PostgreSQL.
+
+Evidencias:
+
+- Docker Desktop iniciado e servico `postgres` do Compose ficou healthy.
+- Porta local do PostgreSQL ajustada no `.env` ignorado pelo Git para evitar conflito com outro Postgres local.
+- Comando de carga real segura: `python -m social_analytics_pipeline.cli.youtube_local_pipeline`
+- Resultado de carga: 50 payloads raw persistidos e 50 metricas normalizadas carregadas no alvo `postgres`.
+- Verificacao agregada no banco: 50 linhas YouTube e 50 conteudos distintos.
+- Comando de teste especifico: `python -m unittest tests.test_postgres_loader tests.test_youtube_local_pipeline`
+- Resultado de teste especifico: 10 testes executados com sucesso.

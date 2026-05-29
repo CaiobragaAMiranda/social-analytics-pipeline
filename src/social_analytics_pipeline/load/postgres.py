@@ -78,9 +78,13 @@ class PostgresMetricLoader:
         except ImportError as exc:
             raise RuntimeError("Install psycopg to load metrics into PostgreSQL.") from exc
 
-        with psycopg.connect(self.dsn) as connection:
-            with connection.cursor() as cursor:
-                cursor.executemany(SOCIAL_METRICS_UPSERT_SQL, rows)
-            connection.commit()
+        try:
+            with psycopg.connect(self.dsn) as connection:
+                with connection.cursor() as cursor:
+                    cursor.executemany(SOCIAL_METRICS_UPSERT_SQL, rows)
+                connection.commit()
+        except psycopg.Error as exc:
+            message = exc.__class__.__name__
+            raise RuntimeError(f"PostgreSQL metric load failed: {message}.") from None
 
         return len(rows)
