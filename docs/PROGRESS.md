@@ -150,6 +150,7 @@ Status geral: TASK-016 concluida localmente; a DAG mockada agora pode carregar n
 - Bandit aprovado sem issues.
 - Ruff aprovado apos correcao automatica de ordenacao de imports.
 - TASK-016 marcada como Done.
+- PR da TASK-016 mergeado no `master`.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -249,4 +250,4 @@ Status geral: TASK-016 concluida localmente; a DAG mockada agora pode carregar n
 ## Proximas acoes
 
 - Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
-- Abrir PR da TASK-016 e acionar CodeRabbit apenas se quisermos revisao sob demanda.
+- Definir a proxima task de produto depois da carga PostgreSQL na DAG mockada.
