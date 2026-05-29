@@ -32,7 +32,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 0 - Governanca do projeto
 
-Task atual: TASK-026 - Resolver handle publico do YouTube no smoke
+Task atual: TASK-027 - Criar carga local segura do YouTube real
 
 ## Estrutura inicial
 

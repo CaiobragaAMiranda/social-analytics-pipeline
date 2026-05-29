@@ -849,3 +849,36 @@ Evidencias:
 - Resultado documental: verificacao concluida com sucesso.
 - Comando de smoke real seguro: `python -m social_analytics_pipeline.cli.youtube_smoke`
 - Resultado de smoke: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.
+
+## TASK-027 - Criar carga local segura do YouTube real
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: criar um comando local que execute o provider real do YouTube, persista payloads raw e salve metricas normalizadas em artefato JSON local ignorado pelo Git.
+
+Criterios de aceite:
+
+- Existe comando `python -m social_analytics_pipeline.cli.youtube_local_pipeline`.
+- O comando usa `.env` local e aceita `YOUTUBE_CHANNEL_ID` ou `YOUTUBE_CHANNEL_HANDLE`.
+- Payloads raw reais sao salvos em `data/raw/`, diretorio ignorado pelo Git.
+- Metricas normalizadas sao salvas em `data/processed/youtube/`, diretorio ignorado pelo Git.
+- Saida do terminal mostra apenas resumo seguro com contagens e caminhos relativos.
+- Testes offline cobrem persistencia raw e artefato processed sem rede e sem chave real.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de teste especifico: `python -m unittest tests.test_youtube_local_pipeline`
+- Resultado de teste especifico: 1 teste executado com sucesso.
+- Comando de teste completo: `python -m unittest discover -s tests`
+- Resultado de teste completo: 53 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Comando de carga real segura: `python -m social_analytics_pipeline.cli.youtube_local_pipeline`
+- Resultado de carga: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local, sem imprimir chave, channel id real ou payload.

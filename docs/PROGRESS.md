@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-026 - Resolver handle publico do YouTube no smoke.
+Task atual: TASK-027 - Criar carga local segura do YouTube real.
 
-Status geral: TASK-026 concluida localmente. O smoke command aceita handle publico como alternativa ao channel id e o smoke real segue coletando dados publicos com saida segura.
+Status geral: TASK-027 concluida localmente. O YouTube real ja possui comando de carga local segura salvando raw e processed em diretorios ignorados pelo Git.
 
 ## Registro
 
@@ -249,7 +249,17 @@ Status geral: TASK-026 concluida localmente. O smoke command aceita handle publi
 - Verificacao documental concluida com sucesso.
 - Smoke real seguro executado: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.
 - TASK-026 marcada como Done.
+- Iniciada TASK-027 para salvar resultados reais do YouTube em raw storage e artefato processed local.
+- Criado comando `youtube_local_pipeline` para executar provider real, `RawStorage` e `JsonMetricArtifactLoader`.
+- Criado teste offline cobrindo persistencia raw e artefato processed sem rede e sem chave real.
+- Executados 53 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- Verificacao documental concluida com sucesso.
+- Carga real segura executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local, sem imprimir chave, channel id real ou payload.
+- Confirmado que `data/raw/` e `data/processed/` continuam ignorados pelo Git.
+- TASK-027 marcada como Done.
 
 ## Proximas acoes
 
-- Criar carga segura dos resultados reais do YouTube em artefato local ou PostgreSQL, mantendo raw payloads reais fora do Git.
+- Avaliar se a carga real do YouTube deve ser conectada ao PostgreSQL local ou a uma DAG Airflow dedicada.

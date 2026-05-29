@@ -214,6 +214,15 @@ python -m social_analytics_pipeline.cli.youtube_smoke
 
 O smoke command imprime apenas um resumo seguro. Ele nao salva payload raw, nao imprime a chave e mascara o canal real como `<configured>`.
 
+Executar carga local segura do YouTube real:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_local_pipeline
+```
+
+Esse comando salva payloads raw em `data/raw/` e metricas normalizadas em `data/processed/youtube/`. Esses diretorios sao ignorados pelo Git. Nao commite payloads reais sem revisao de sensibilidade.
+
 ## Validar normalizacao para schema unico
 
 ```powershell
