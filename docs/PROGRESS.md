@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-017 - Corrigir prontidao do Postgres antes de API real
+Task atual: TASK-018 - Criar provider real inicial do YouTube
 
-Status geral: TASK-017 concluida localmente; schema PostgreSQL e dependencias do Airflow foram ajustados para reduzir risco antes da primeira API real.
+Status geral: TASK-018 concluida localmente; primeiro provider real do YouTube foi criado com testes fake, sem chamada real e sem chave versionada.
 
 ## Registro
 
@@ -157,6 +157,18 @@ Status geral: TASK-017 concluida localmente; schema PostgreSQL e dependencias do
 - Docker Compose ajustado para que os servicos Airflow aguardem o servico `postgres` saudavel.
 - Criado teste de regressao para confirmar que contadores sociais permanecem como `BIGINT`.
 - TASK-017 marcada como Done.
+- Consultada documentacao oficial do YouTube Data API para `search.list`, `videos.list` e paginacao.
+- Iniciada TASK-018 para criar o primeiro provider real em escopo reduzido.
+- Criado `YouTubeDataApiProvider`, usando `YOUTUBE_API_KEY` via ambiente.
+- Adicionada dependencia runtime `requests` para chamadas HTTP reais.
+- Provider YouTube coleta IDs por canal e intervalo via `search.list`, respeitando `nextPageToken` ate `max_pages`.
+- Provider YouTube busca `snippet` e `statistics` via `videos.list`.
+- Normalizador YouTube passou a aceitar payload real com campo `id`, mantendo compatibilidade com fixture `videoId`.
+- Criados testes com cliente HTTP fake, sem rede e sem chave real.
+- `.env.example` passou a documentar `YOUTUBE_API_KEY=` sem valor.
+- Executados 33 testes unitarios com sucesso.
+- Ruff, Bandit, pip-audit, Docker Compose config e verificacao documental aprovados.
+- TASK-018 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -256,4 +268,4 @@ Status geral: TASK-017 concluida localmente; schema PostgreSQL e dependencias do
 ## Proximas acoes
 
 - Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
-- Integrar a primeira API real em escopo reduzido, preferencialmente YouTube.
+- Validar provider YouTube com uma chave local e um canal real controlado, sem commitar logs ou payloads sensiveis.

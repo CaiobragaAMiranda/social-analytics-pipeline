@@ -180,6 +180,23 @@ $env:PYTHONPATH = "src"
 python -m unittest tests.test_mock_providers
 ```
 
+## Configurar provider YouTube real
+
+O provider real do YouTube usa a YouTube Data API v3 e espera uma chave local no `.env`:
+
+```text
+YOUTUBE_API_KEY=<sua-chave-local>
+```
+
+Nao commite `.env`, logs de resposta real ou payloads raw coletados de canais reais sem revisao de sensibilidade.
+
+Validar o provider YouTube sem rede e sem chave real:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest tests.test_youtube_provider
+```
+
 ## Validar normalizacao para schema unico
 
 ```powershell

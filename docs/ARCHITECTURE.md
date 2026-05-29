@@ -48,6 +48,18 @@ data/fixtures/tiktok_metrics.json
 
 Os mocks preservam formatos diferentes por plataforma. Isso e intencional: a proxima etapa de transformacao deve provar que consegue mapear essas formas distintas para `SocialMetric`.
 
+Na TASK-018 foi criado o primeiro provider real em escopo reduzido:
+
+```text
+YouTubeDataApiProvider
+  -> search.list(channelId, publishedAfter, publishedBefore, pageToken)
+  -> videos.list(id, part=snippet,statistics)
+  -> payload raw enriquecido com _collection
+```
+
+O provider usa `YOUTUBE_API_KEY` via ambiente e permite limitar paginacao com `max_pages`, evitando backfills grandes acidentais durante validacao local. Os testes usam cliente HTTP fake, sem rede e sem chave real.
+O cliente HTTP runtime usa `requests`; chamadas reais devem ficar fora dos testes automatizados e depender de configuracao local.
+
 ## Raw Storage
 
 Toda resposta bruta sera preservada antes de qualquer transformacao.
@@ -102,7 +114,7 @@ Instagram:
   account.followers_count -> followers
 
 YouTube:
-  videoId -> content_id
+  videoId ou id -> content_id
   statistics.likeCount -> likes
   statistics.commentCount -> comments
   statistics.viewCount -> views
