@@ -24,6 +24,8 @@ x-airflow-common: &airflow-common
     - ./src:/opt/airflow/project/src:ro
     - ./data:/opt/airflow/project/data
   depends_on: &airflow-common-depends-on
+    postgres:
+      condition: service_healthy
     airflow-redis:
       condition: service_healthy
     airflow-postgres:

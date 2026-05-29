@@ -30,7 +30,7 @@ python -m unittest discover -s tests
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-016 - Carregar DAG mockada no PostgreSQL
+Task atual: TASK-017 - Corrigir prontidao do Postgres antes de API real
 
 ## Estrutura inicial
 
