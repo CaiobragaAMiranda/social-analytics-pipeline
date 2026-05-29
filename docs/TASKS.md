@@ -538,3 +538,30 @@ Evidencias:
 - Resultado de lint: aprovado apos correcao automatica de ordenacao de imports.
 - Comando de security lint: `bandit -c pyproject.toml -r src`
 - Resultado de security lint: aprovado, sem issues.
+
+## TASK-017 - Corrigir prontidao do Postgres antes de API real
+
+Status: Done
+
+Fase: Fase 2 - Orquestracao e historico
+
+Objetivo: remover riscos tecnicos imediatos identificados na revisao geral antes de integrar a primeira API real.
+
+Criterios de aceite:
+
+- Campos numericos de metricas sociais usam `BIGINT` no schema PostgreSQL.
+- Teste automatizado protege o schema contra regressao para `INTEGER`.
+- Servicos Airflow aguardam o Postgres de metricas ficar saudavel antes de executar DAGs.
+- Docker Compose continua valido com `.env.example`.
+- Quality gates locais relevantes passam.
+
+Evidencias:
+
+- Comando Docker Compose: `docker compose --env-file .env.example config --quiet`
+- Resultado Docker Compose: configuracao valida.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 30 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.

@@ -11,6 +11,12 @@ from social_analytics_pipeline.transform import SocialMetric
 
 
 class PostgresLoaderTest(unittest.TestCase):
+    def test_schema_uses_bigint_for_social_counters(self) -> None:
+        schema_sql = Path("db/init/001_create_social_metrics.sql").read_text(encoding="utf-8")
+
+        for column in ["likes", "comments", "shares", "views", "followers"]:
+            self.assertIn(f"{column} BIGINT", schema_sql)
+
     def test_metric_to_row_converts_raw_path_to_string(self) -> None:
         metric = SocialMetric(
             provider="instagram",

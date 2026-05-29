@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-016 - Carregar DAG mockada no PostgreSQL
+Task atual: TASK-017 - Corrigir prontidao do Postgres antes de API real
 
-Status geral: TASK-016 concluida localmente; a DAG mockada agora pode carregar no PostgreSQL por configuracao de ambiente, mantendo JSON como padrao.
+Status geral: TASK-017 concluida localmente; schema PostgreSQL e dependencias do Airflow foram ajustados para reduzir risco antes da primeira API real.
 
 ## Registro
 
@@ -151,6 +151,12 @@ Status geral: TASK-016 concluida localmente; a DAG mockada agora pode carregar n
 - Ruff aprovado apos correcao automatica de ordenacao de imports.
 - TASK-016 marcada como Done.
 - PR da TASK-016 mergeado no `master`.
+- Avaliacao geral do codigo identificou dois ajustes imediatos antes de API real: contadores sociais em `BIGINT` e dependencia do Airflow no Postgres de metricas.
+- Iniciada TASK-017 para corrigir a prontidao do Postgres antes da primeira API real.
+- Schema `social_metrics` alterado para usar `BIGINT` em `likes`, `comments`, `shares`, `views` e `followers`.
+- Docker Compose ajustado para que os servicos Airflow aguardem o servico `postgres` saudavel.
+- Criado teste de regressao para confirmar que contadores sociais permanecem como `BIGINT`.
+- TASK-017 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -250,4 +256,4 @@ Status geral: TASK-016 concluida localmente; a DAG mockada agora pode carregar n
 ## Proximas acoes
 
 - Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
-- Definir a proxima task de produto depois da carga PostgreSQL na DAG mockada.
+- Integrar a primeira API real em escopo reduzido, preferencialmente YouTube.
