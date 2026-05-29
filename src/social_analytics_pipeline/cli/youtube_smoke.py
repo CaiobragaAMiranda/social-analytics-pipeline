@@ -20,6 +20,11 @@ class YouTubeCollector(Protocol):
         """Collect raw YouTube payloads for a channel and interval."""
 
 
+class YouTubeChannelResolver(Protocol):
+    def resolve_channel_id(self, handle: str) -> str:
+        """Resolve a public YouTube handle to a channel id."""
+
+
 @dataclass(frozen=True)
 class YouTubeSmokeSummary:
     provider: str
@@ -102,6 +107,28 @@ def require_youtube_channel_id(channel_id: str) -> str:
     return channel_id
 
 
+def resolve_smoke_channel_id(
+    runtime_env: Mapping[str, str],
+    resolver: YouTubeChannelResolver,
+    env_path: Path | None = None,
+) -> str:
+    channel_id = runtime_env.get("YOUTUBE_CHANNEL_ID", "")
+    if channel_id:
+        return require_youtube_channel_id(channel_id)
+
+    handle = runtime_env.get("YOUTUBE_CHANNEL_HANDLE", "")
+    if handle:
+        return resolver.resolve_channel_id(handle)
+
+    if not (env_path or Path(".env")).exists():
+        raise RuntimeError(
+            "YOUTUBE_CHANNEL_ID or YOUTUBE_CHANNEL_HANDLE required. Create a local .env "
+            "from .env.example and fill YouTube settings."
+        )
+
+    raise RuntimeError("YOUTUBE_CHANNEL_ID or YOUTUBE_CHANNEL_HANDLE required in local .env.")
+
+
 def build_youtube_smoke_summary(
     provider: YouTubeCollector,
     channel_id: str,
@@ -127,10 +154,9 @@ def main(env: Mapping[str, str] | None = None, env_path: Path | None = None) -> 
     runtime_env = build_runtime_env(env, env_path)
     required_settings = require_smoke_settings(
         runtime_env,
-        ("YOUTUBE_CHANNEL_ID", "YOUTUBE_API_KEY"),
+        ("YOUTUBE_API_KEY",),
         env_path,
     )
-    channel_id = require_youtube_channel_id(required_settings["YOUTUBE_CHANNEL_ID"])
 
     lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
     if lookback_days < 1:
@@ -139,6 +165,7 @@ def main(env: Mapping[str, str] | None = None, env_path: Path | None = None) -> 
     end_at = datetime.now(UTC)
     start_at = end_at - timedelta(days=lookback_days)
     provider = YouTubeDataApiProvider(YouTubeApiConfig.from_env(runtime_env))
+    channel_id = resolve_smoke_channel_id({**runtime_env, **required_settings}, provider, env_path)
     summary = build_youtube_smoke_summary(provider, channel_id, start_at, end_at)
 
     print("YouTube smoke summary")

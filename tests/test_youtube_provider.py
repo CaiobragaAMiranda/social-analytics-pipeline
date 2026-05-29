@@ -43,6 +43,15 @@ class FakeHttpJsonClient:
                 ]
             }
 
+        if url.endswith("/channels"):
+            return {
+                "items": [
+                    {
+                        "id": "UCresolved123",
+                    }
+                ]
+            }
+
         raise AssertionError(f"Unexpected URL: {url}")
 
 
@@ -116,6 +125,19 @@ class YouTubeProviderTest(unittest.TestCase):
         self.assertEqual(http_client.calls[0][1]["publishedBefore"], "2026-05-27T00:00:00Z")
         self.assertEqual(http_client.calls[1][1]["pageToken"], "page-2")
         self.assertEqual(http_client.calls[2][1]["part"], "snippet,statistics")
+
+    def test_resolve_channel_id_uses_handle_without_at_sign(self) -> None:
+        http_client = FakeHttpJsonClient()
+        provider = YouTubeDataApiProvider(
+            YouTubeApiConfig(api_key="test-api-key"),
+            http_client=http_client,
+        )
+
+        channel_id = provider.resolve_channel_id("https://www.youtube.com/@public-handle")
+
+        self.assertEqual(channel_id, "UCresolved123")
+        self.assertEqual(http_client.calls[0][1]["part"], "id")
+        self.assertEqual(http_client.calls[0][1]["forHandle"], "public-handle")
 
     def test_real_youtube_payload_normalizes_without_fixture_video_id_field(self) -> None:
         http_client = FakeHttpJsonClient()
