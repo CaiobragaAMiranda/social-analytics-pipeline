@@ -74,6 +74,25 @@ def require_smoke_setting(
     raise RuntimeError(f"{key} is required in environment or local .env.")
 
 
+def require_smoke_settings(
+    runtime_env: Mapping[str, str],
+    keys: tuple[str, ...],
+    env_path: Path | None = None,
+) -> dict[str, str]:
+    missing = [key for key in keys if not runtime_env.get(key, "")]
+    if not missing:
+        return {key: runtime_env[key] for key in keys}
+
+    missing_text = ", ".join(missing)
+    if not (env_path or Path(".env")).exists():
+        raise RuntimeError(
+            f"{missing_text} required. Create a local .env from .env.example "
+            "and fill YouTube settings."
+        )
+
+    raise RuntimeError(f"{missing_text} required in environment or local .env.")
+
+
 def build_youtube_smoke_summary(
     provider: YouTubeCollector,
     channel_id: str,
@@ -97,7 +116,11 @@ def build_youtube_smoke_summary(
 
 def main(env: Mapping[str, str] | None = None) -> int:
     runtime_env = build_runtime_env(env)
-    channel_id = require_smoke_setting(runtime_env, "YOUTUBE_CHANNEL_ID")
+    required_settings = require_smoke_settings(
+        runtime_env,
+        ("YOUTUBE_CHANNEL_ID", "YOUTUBE_API_KEY"),
+    )
+    channel_id = required_settings["YOUTUBE_CHANNEL_ID"]
 
     lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
     if lookback_days < 1:

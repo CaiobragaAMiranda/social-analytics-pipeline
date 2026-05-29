@@ -4,11 +4,11 @@
 
 Data: 2026-05-29
 
-Fase atual: Fase 0 - Governanca do projeto
+Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-023 - Pacote de revisao com diff do ultimo commit.
+Task atual: TASK-024 - Listar configuracoes ausentes no smoke do YouTube.
 
-Status geral: TASK-023 concluida e mergeada. O pacote de revisao agora permite auditoria contratual mesmo quando a revisao for rodada depois do commit local.
+Status geral: TASK-024 concluida localmente. O smoke command do YouTube agora indica todas as configuracoes obrigatorias ausentes antes de qualquer chamada real.
 
 ## Registro
 
@@ -216,7 +216,17 @@ Status geral: TASK-023 concluida e mergeada. O pacote de revisao agora permite a
 - Ruff aprovado.
 - Bandit aprovado sem issues.
 - TASK-023 marcada como Done.
+- Criado `.env` local a partir de `.env.example`; arquivo permanece ignorado pelo Git.
+- Smoke command do YouTube falhou de forma segura antes de rede, indicando configuracao ausente.
+- Iniciada TASK-024 para listar todas as configuracoes obrigatorias ausentes no smoke do YouTube.
+- `youtube_smoke` passou a validar `YOUTUBE_CHANNEL_ID` e `YOUTUBE_API_KEY` em lote antes de criar o provider real.
+- Smoke command com `.env` local sem segredos preenchidos falhou de forma segura, listando `YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY`.
+- Executados 45 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- Verificacao documental concluida com sucesso.
+- TASK-024 marcada como Done.
 
 ## Proximas acoes
 
-- Executar o smoke command do YouTube com chave local e canal real controlado, sem commitar logs ou payloads sensiveis.
+- Depois, preencher `.env` local com chave/canal controlados e executar o smoke real sem commitar logs ou payloads sensiveis.

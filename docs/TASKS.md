@@ -755,3 +755,34 @@ Evidencias:
 - Resultado de lint: aprovado.
 - Comando de security lint: `bandit -c pyproject.toml -r src`
 - Resultado de security lint: aprovado, sem issues.
+
+## TASK-024 - Listar configuracoes ausentes no smoke do YouTube
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: tornar o smoke command do YouTube mais acionavel antes da chamada real, listando todas as configuracoes obrigatorias ausentes sem expor valores sensiveis.
+
+Criterios de aceite:
+
+- O comando valida `YOUTUBE_CHANNEL_ID` e `YOUTUBE_API_KEY` antes de criar o provider real.
+- Quando ambas estiverem ausentes, o erro lista os dois nomes de variavel de uma vez.
+- A mensagem continua sem imprimir chave, canal real ou payload.
+- Testes cobrem `.env` ausente, `.env` existente incompleto e configuracoes presentes.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de teste especifico: `python -m unittest tests.test_youtube_smoke`
+- Resultado de teste especifico: 10 testes executados com sucesso.
+- Comando de teste completo: `python -m unittest discover -s tests`
+- Resultado de teste completo: 45 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Comando de smoke com `.env` local sem segredos preenchidos: `python -m social_analytics_pipeline.cli.youtube_smoke`
+- Resultado de smoke: falha segura antes de rede, listando `YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY` sem imprimir valores.

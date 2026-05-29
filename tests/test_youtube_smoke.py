@@ -10,6 +10,7 @@ from social_analytics_pipeline.cli.youtube_smoke import (
     load_env_file,
     main,
     require_smoke_setting,
+    require_smoke_settings,
 )
 
 
@@ -52,8 +53,8 @@ class YouTubeSmokeTest(unittest.TestCase):
         self.assertEqual(summary.raw_records, 1)
         self.assertEqual(summary.normalized_records, 1)
 
-    def test_main_requires_channel_id_before_network_or_api_key(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID"):
+    def test_main_reports_all_missing_required_settings_before_network(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY"):
             main({})
 
     def test_require_smoke_setting_explains_missing_env_file(self) -> None:
@@ -75,6 +76,41 @@ class YouTubeSmokeTest(unittest.TestCase):
         value = require_smoke_setting({"YOUTUBE_CHANNEL_ID": "yt-channel-1"}, "YOUTUBE_CHANNEL_ID")
 
         self.assertEqual(value, "yt-channel-1")
+
+    def test_require_smoke_settings_reports_missing_env_file(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            missing_env_path = Path(tmpdir) / ".env"
+
+            with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY"):
+                require_smoke_settings(
+                    {},
+                    ("YOUTUBE_CHANNEL_ID", "YOUTUBE_API_KEY"),
+                    missing_env_path,
+                )
+
+    def test_require_smoke_settings_reports_all_empty_existing_env_values(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text("", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY"):
+                require_smoke_settings(
+                    {},
+                    ("YOUTUBE_CHANNEL_ID", "YOUTUBE_API_KEY"),
+                    env_path,
+                )
+
+    def test_require_smoke_settings_returns_configured_values(self) -> None:
+        values = require_smoke_settings(
+            {
+                "YOUTUBE_CHANNEL_ID": "yt-channel-1",
+                "YOUTUBE_API_KEY": "test-api-key",
+            },
+            ("YOUTUBE_CHANNEL_ID", "YOUTUBE_API_KEY"),
+        )
+
+        self.assertEqual(values["YOUTUBE_CHANNEL_ID"], "yt-channel-1")
+        self.assertEqual(values["YOUTUBE_API_KEY"], "test-api-key")
 
     def test_load_env_file_reads_simple_values_without_logging_secrets(self) -> None:
         with TemporaryDirectory() as tmpdir:
