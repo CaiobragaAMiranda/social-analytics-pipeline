@@ -193,6 +193,8 @@ YOUTUBE_SMOKE_LOOKBACK_DAYS=30
 
 Nao commite `.env`, logs de resposta real ou payloads raw coletados de canais reais sem revisao de sensibilidade.
 
+O smoke command le `.env` automaticamente quando o arquivo existir. Variaveis ja exportadas no terminal tem prioridade sobre o `.env`.
+
 Validar o provider YouTube sem rede e sem chave real:
 
 ```powershell

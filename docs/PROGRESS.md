@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-019 - Criar smoke command seguro para YouTube real
+Task atual: TASK-020 - Carregar `.env` no smoke command do YouTube
 
-Status geral: TASK-019 concluida localmente; provider YouTube agora tem comando de smoke manual seguro para validacao com chave local.
+Status geral: TASK-020 concluida localmente; smoke command do YouTube agora le `.env` local automaticamente, mantendo variaveis exportadas como prioridade.
 
 ## Registro
 
@@ -180,6 +180,13 @@ Status geral: TASK-019 concluida localmente; provider YouTube agora tem comando 
 - Executados 37 testes unitarios com sucesso.
 - Ruff, Bandit, pip-audit, Docker Compose config e verificacao documental aprovados.
 - TASK-019 marcada como Done.
+- Identificada incoerencia operacional: bootstrap orientava preencher `.env`, mas o smoke command lia apenas variaveis exportadas.
+- Iniciada TASK-020 para carregar `.env` local no smoke command do YouTube.
+- Criado parser simples de `.env` para `KEY=value`, ignorando comentarios e linhas vazias.
+- Variaveis exportadas no ambiente passam a ter prioridade sobre valores do `.env`.
+- Criados testes cobrindo leitura de `.env`, remocao de aspas simples/duplas e prioridade do ambiente.
+- Documentado que o smoke command le `.env` automaticamente.
+- TASK-020 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.

@@ -633,3 +633,31 @@ Evidencias:
 - Resultado Docker Compose: configuracao valida.
 - Comando de verificacao documental: `.\scripts\verify_docs.ps1`
 - Resultado documental: verificacao concluida com sucesso.
+
+## TASK-020 - Carregar `.env` no smoke command do YouTube
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: alinhar o bootstrap ao comportamento real do smoke command, permitindo que a validacao manual leia configuracoes locais de `.env` sem depender de export manual no terminal.
+
+Criterios de aceite:
+
+- Smoke command le `.env` local quando o arquivo existe.
+- Variaveis ja exportadas no ambiente tem prioridade sobre `.env`.
+- Parser de `.env` ignora comentarios e linhas vazias.
+- Parser remove aspas simples ou duplas simples ao redor de valores.
+- Testes cobrem leitura de `.env` e prioridade do ambiente.
+- Documentacao explica que `.env` e lido automaticamente.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 39 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de smoke sem `.env`: `python -m social_analytics_pipeline.cli.youtube_smoke`
+- Resultado de smoke sem `.env`: falha controlada antes de rede, exigindo `YOUTUBE_CHANNEL_ID`.
