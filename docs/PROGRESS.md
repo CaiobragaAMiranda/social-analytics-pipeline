@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 1 - Nucleo MVP e autenticacao
 
-Task atual: TASK-024 - Listar configuracoes ausentes no smoke do YouTube.
+Task atual: TASK-025 - Sanitizar erros HTTP do smoke do YouTube.
 
-Status geral: TASK-024 concluida localmente. O smoke command do YouTube agora indica todas as configuracoes obrigatorias ausentes antes de qualquer chamada real.
+Status geral: TASK-025 concluida localmente. Erros HTTP do YouTube agora sao sanitizados e o smoke valida o formato do channel id antes de rede.
 
 ## Registro
 
@@ -226,7 +226,20 @@ Status geral: TASK-024 concluida localmente. O smoke command do YouTube agora in
 - Bandit aprovado sem issues.
 - Verificacao documental concluida com sucesso.
 - TASK-024 marcada como Done.
+- Smoke real com configuracao local chegou ate a API, mas falhou com erro HTTP antes de coletar dados.
+- Identificado risco operacional: excecoes HTTP padrao podem imprimir URL com parametros no terminal.
+- Identificado ajuste de entrada: `YOUTUBE_CHANNEL_ID` deve ser ID publico iniciado por `UC`, nao nome ou handle do canal.
+- Iniciada TASK-025 para sanitizar erros HTTP e validar formato do channel id antes de rede.
+- `HttpJsonClient` passou a converter falhas HTTP em mensagem generica com status, sem URL.
+- `youtube_smoke` passou a rejeitar nomes/handles de canal antes de chamada real.
+- Smoke command com canal em formato invalido falhou de forma segura antes de rede, sem traceback, URL, chave ou payload.
+- Executados 48 testes unitarios com sucesso.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- Verificacao documental concluida com sucesso.
+- Revisao Gemini tentada antes do commit, mas bloqueada por credenciais invalidas do CLI; seguiremos com CI e CodeRabbit no PR.
+- TASK-025 marcada como Done.
 
 ## Proximas acoes
 
-- Depois, preencher `.env` local com chave/canal controlados e executar o smoke real sem commitar logs ou payloads sensiveis.
+- Depois, preencher `YOUTUBE_CHANNEL_ID` com ID publico iniciado por `UC` e executar o smoke real sem commitar logs ou payloads sensiveis.

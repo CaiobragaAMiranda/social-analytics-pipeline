@@ -52,7 +52,7 @@ def build_runtime_env(
     env: Mapping[str, str] | None = None,
     env_path: Path | None = None,
 ) -> dict[str, str]:
-    current_env = dict(env or os.environ)
+    current_env = dict(os.environ if env is None else env)
     file_env = load_env_file(env_path or Path(".env"))
     return {**file_env, **current_env}
 
@@ -93,6 +93,15 @@ def require_smoke_settings(
     raise RuntimeError(f"{missing_text} required in environment or local .env.")
 
 
+def require_youtube_channel_id(channel_id: str) -> str:
+    if not channel_id.startswith("UC"):
+        raise RuntimeError(
+            "YOUTUBE_CHANNEL_ID must be a public YouTube channel ID that starts with UC, "
+            "not a channel name or handle."
+        )
+    return channel_id
+
+
 def build_youtube_smoke_summary(
     provider: YouTubeCollector,
     channel_id: str,
@@ -114,13 +123,14 @@ def build_youtube_smoke_summary(
     )
 
 
-def main(env: Mapping[str, str] | None = None) -> int:
-    runtime_env = build_runtime_env(env)
+def main(env: Mapping[str, str] | None = None, env_path: Path | None = None) -> int:
+    runtime_env = build_runtime_env(env, env_path)
     required_settings = require_smoke_settings(
         runtime_env,
         ("YOUTUBE_CHANNEL_ID", "YOUTUBE_API_KEY"),
+        env_path,
     )
-    channel_id = required_settings["YOUTUBE_CHANNEL_ID"]
+    channel_id = require_youtube_channel_id(required_settings["YOUTUBE_CHANNEL_ID"])
 
     lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
     if lookback_days < 1:
