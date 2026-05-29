@@ -30,9 +30,9 @@ python -m unittest discover -s tests
 
 ## Status
 
-Fase atual: Fase 0 - Governanca do projeto
+Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-029 - Validar carga real do YouTube no PostgreSQL local
+Task atual: TASK-030 - Criar DAG Airflow para YouTube real
 
 ## Estrutura inicial
 

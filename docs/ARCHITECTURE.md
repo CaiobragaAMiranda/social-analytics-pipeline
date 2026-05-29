@@ -217,6 +217,17 @@ SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=postgres  -> PostgresMetricLoader
 
 O alvo padrao continua sendo JSON para smoke runs simples. Quando o alvo e PostgreSQL, o DSN vem de `SOCIAL_ANALYTICS_POSTGRES_DSN`, injetado pelo Docker Compose a partir do `.env` local. O Compose tambem instala `psycopg[binary]` nos containers Airflow, porque esse e o driver usado pelo loader real. Assim, a DAG usa o loader real sem senha literal ou caminho local hardcoded nos arquivos versionados.
 
+Na TASK-030 foi adicionada a DAG `social_analytics_youtube_pipeline` para executar o provider real do YouTube pelo Airflow:
+
+```text
+YouTubeDataApiProvider
+  -> run_youtube_local_pipeline(...)
+  -> RawStorage(data/raw)
+  -> JsonMetricArtifactLoader(data/processed/youtube) ou PostgresMetricLoader
+```
+
+A DAG usa `data_interval_start` e `data_interval_end`, mantendo o mesmo agendamento quinzenal e catchup historico. Chave de API, canal, paginacao e destino de carga entram apenas por variaveis de ambiente injetadas pelo Docker Compose; nenhum valor local deve ser versionado.
+
 ## Qualidade
 
 Validacoes planejadas:
