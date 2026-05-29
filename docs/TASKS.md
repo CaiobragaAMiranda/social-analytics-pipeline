@@ -89,7 +89,7 @@ Objetivo: mover a estrutura base para o diretorio oficial do projeto e inicializ
 
 Critérios de aceite:
 
-- Pasta `C:\Users\gamer\Desktop\Programing\social-analytics-pipeline` criada.
+- Pasta `<caminho-do-projeto>` criada.
 - `README.md`, `docs/` e `scripts/` copiados para a pasta oficial.
 - Git inicializado na pasta oficial.
 - `scripts/verify_docs.ps1` executa com sucesso na pasta oficial.
@@ -428,3 +428,84 @@ Evidencias:
 - Revisao Gemini: `docs/REVIEWS/review-20260528-093357.md`
 - Resultado Gemini: aprovado.
 - Commit: `ci: force node24 for secret scan action`
+
+## TASK-013 - Conferir vazamento de informacao sensivel no prompt Gemini
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: garantir que o prompt de revisao do Gemini identifique vazamentos sensiveis em repositorios publicos antes de aprovar mudancas.
+
+Criterios de aceite:
+
+- O prompt do Gemini pede verificacao explicita de vazamentos sensiveis.
+- O contrato do Gemini inclui vazamento sensivel como criterio de rejeicao.
+- O bootstrap documenta o novo comportamento para repositorios publicos.
+- Progresso registra a mudanca de governanca.
+- Verificacao documental passa.
+- Gemini revisa e aprova antes do commit.
+
+Evidencias:
+
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: `docs/REVIEWS/review-20260528-212740.md`
+- Resultado Gemini: aprovado.
+- Commit: `docs: harden gemini review for public repo leaks`
+
+## TASK-014 - Padronizar severidade no feedback do Gemini
+
+Status: In Progress
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: deixar o feedback do Gemini mais acionavel exigindo severidade, arquivo afetado, evidencia objetiva, risco pratico e acao recomendada em cada problema encontrado.
+
+Criterios de aceite:
+
+- O prompt do Gemini exige formato padronizado para cada problema.
+- O contrato do Gemini registra o mesmo formato.
+- O feedback continua proibido de repetir valores sensiveis.
+- Verificacao documental passa.
+
+Evidencias:
+
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: pendente por reautenticacao do CLI.
+
+## TASK-015 - Generalizar configuracoes sensiveis e hardcoded
+
+Status: Done
+
+Fase: Fase 0 - Governanca do projeto
+
+Objetivo: conferir novamente vazamento de informacao sensivel e remover configuracoes locais hardcoded de credenciais, portas e caminhos quando fizer sentido.
+
+Criterios de aceite:
+
+- Varredura local nao encontra caminhos absolutos de usuario, chaves privadas, IPs privados ou segredos literais.
+- Credenciais e portas locais do Docker Compose usam variaveis de ambiente.
+- `.env.example` documenta as variaveis sem preencher senhas.
+- `.env` local continua ignorado pelo Git.
+- Bootstrap documenta uso de placeholders e alerta contra commit da saida expandida do Compose.
+- Validacoes locais relevantes passam ou registram bloqueio operacional.
+
+Evidencias:
+
+- Varredura sensivel customizada: sem caminhos de usuario, chaves privadas, IPs privados ou segredos literais reais.
+- Comando Docker Compose: `docker compose --env-file .env.example config --quiet`
+- Resultado Docker Compose: configuracao valida.
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 24 testes executados com sucesso fora do sandbox.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.
+- Revisao Gemini: pendente por reautenticacao do CLI.
+- Gitleaks local: pendente porque o binario nao esta instalado neste ambiente; CI do GitHub mantem o secret scan.
+- pip-audit local: pendente porque a execucao ficou presa neste ambiente.
+- GitHub Actions: permissao `pull-requests: read` adicionada ao workflow para permitir secret scan em PR.

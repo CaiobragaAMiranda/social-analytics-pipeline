@@ -2,13 +2,13 @@
 
 ## Snapshot atual
 
-Data: 2026-05-27
+Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-012 - Preparar secret scan para Node 24 no GitHub Actions
+Task atual: TASK-015 - Generalizar configuracoes sensiveis e hardcoded
 
-Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
+Status geral: TASK-015 concluida localmente; configuracoes sensiveis do Compose foram parametrizadas e a varredura nao encontrou segredo literal real nos arquivos versionados.
 
 ## Registro
 
@@ -22,7 +22,7 @@ Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
 - Criados scripts `scripts/project_status.ps1`, `scripts/verify_docs.ps1` e `scripts/gemini_packet.ps1`.
 - Executada verificacao documental com sucesso.
 - TASK-001 marcada como Done.
-- Criada pasta oficial `C:\Users\gamer\Desktop\Programing\social-analytics-pipeline`.
+- Criada pasta oficial `<caminho-do-projeto>`.
 - Copiados `README.md`, `docs/` e `scripts/` para a pasta oficial.
 - Inicializado Git na pasta oficial.
 - TASK-001B marcada como Done.
@@ -109,6 +109,37 @@ Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-093357.md`.
 - Resultado Gemini: aprovado.
 - TASK-012 marcada como Done.
+- Iniciada TASK-013 para conferir vazamento de informacao sensivel no prompt Gemini.
+- Atualizado `scripts/gemini_review.ps1` para exigir checagem explicita de caminhos absolutos, chaves, tokens, IPs, portas, credenciais e dados reais.
+- Atualizado `docs/GEMINI_CONTRACT.md` com criterio de rejeicao para vazamento sensivel.
+- Atualizado `docs/BOOTSTRAP.md` para documentar a checagem publica de sensibilidade.
+- Caminhos absolutos locais substituidos por `<caminho-do-projeto>` nos arquivos publicos principais.
+- Revisao Gemini salva em `docs/REVIEWS/review-20260528-212740.md`.
+- Resultado Gemini: aprovado.
+- Iniciada TASK-014 para padronizar o feedback do Gemini por achado.
+- Atualizado `scripts/gemini_review.ps1` para exigir severidade, arquivo afetado, evidencia objetiva, risco pratico e acao recomendada.
+- Atualizado `docs/GEMINI_CONTRACT.md` com o mesmo formato de resposta.
+- Verificacao documental concluida com sucesso.
+- Revisao Gemini pendente por reautenticacao do CLI.
+- Iniciada TASK-015 para conferir informacoes sensiveis e configuracoes hardcoded.
+- Parametrizadas credenciais e portas locais em `docker-compose.yml`.
+- Expandido `.env.example` com variaveis locais sem senhas preenchidas.
+- Removidas allowlists antigas de credenciais locais em `.gitleaks.toml`.
+- Atualizado `docs/BOOTSTRAP.md` para usar placeholders e alertar contra commit da saida expandida de `docker compose config`.
+- Atualizado `scripts/gemini_review.ps1` para descobrir `node` via `Get-Command`, removendo caminho fixo de instalacao.
+- Varredura sensivel customizada nao encontrou caminhos de usuario, chaves privadas, IPs privados ou segredos literais reais.
+- `docker compose --env-file .env.example config --quiet` validado com sucesso.
+- Executados 24 testes unitarios com sucesso fora do sandbox.
+- Ruff aprovado.
+- Bandit aprovado sem issues.
+- Gitleaks local nao executado porque o binario nao esta instalado neste ambiente.
+- pip-audit local ficou preso neste ambiente e foi interrompido.
+- Verificacao documental concluida com sucesso.
+- TASK-015 marcada como Done.
+- PR da TASK-015 abriu com conflito porque `master` avancou; branch foi rebaseada e conflito no `README.md` resolvido removendo a secao de caminho oficial.
+- GitHub Actions `Secret scan` falhou inicialmente por falta de permissao `pull-requests: read`; workflow atualizado para permitir leitura dos commits do PR.
+- CodeRabbit apontou melhoria valida no wrapper Gemini; `scripts/gemini_review.ps1` passou a localizar o Gemini CLI via `npm root -g` e avisar quando credenciais OAuth locais nao puderem ser carregadas.
+- CodeRabbit apontou melhoria de permissao no Gitleaks; comentarios automaticos do Gitleaks foram desativados e `pull-requests: read` ficou restrito ao job `secret-scan`.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -207,5 +238,5 @@ Status geral: TASK-012 concluida; secret scan preparado para runtime Node 24.
 
 ## Proximas acoes
 
-- Criar commit da TASK-012.
-- Publicar no GitHub e acompanhar GitHub Actions.
+- Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
+- Acompanhar o secret scan no GitHub Actions apos publicacao.

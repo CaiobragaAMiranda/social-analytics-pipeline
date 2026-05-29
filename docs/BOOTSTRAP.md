@@ -5,7 +5,7 @@ Este documento explica como preparar e verificar o projeto do zero.
 ## Caminho oficial do projeto
 
 ```powershell
-cd C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
+cd <caminho-do-projeto>
 ```
 
 ## Pre-requisitos atuais
@@ -47,15 +47,23 @@ O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o boots
 
 ## Subir PostgreSQL local
 
+Prepare o arquivo `.env` a partir do exemplo e ajuste os valores locais antes de subir servicos:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Preencha no `.env` local os campos de senha antes de iniciar PostgreSQL ou Airflow. O `.env` nao deve ser commitado.
+
 ```powershell
 docker compose up -d postgres
 docker compose ps
 ```
 
-DSN local padrao:
+DSN local em formato de template:
 
 ```text
-postgresql://social_analytics:social_analytics@localhost:5432/social_analytics
+postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:<POSTGRES_PORT>/<POSTGRES_DB>
 ```
 
 O schema inicial fica em `db/init/001_create_social_metrics.sql` e e aplicado automaticamente quando o volume do Postgres e criado pela primeira vez.
@@ -69,11 +77,7 @@ docker compose up -d postgres
 
 ## Subir Airflow local
 
-Prepare o arquivo `.env` a partir do exemplo:
-
-```powershell
-Copy-Item .env.example .env
-```
+Confirme que o arquivo `.env` local foi criado a partir de `.env.example` e ajustado para a sua maquina.
 
 Inicialize o banco/metadados do Airflow:
 
@@ -90,14 +94,14 @@ docker compose up -d airflow-api-server airflow-scheduler airflow-dag-processor 
 A interface fica em:
 
 ```text
-http://localhost:8080
+http://localhost:<AIRFLOW_API_PORT>
 ```
 
 Credenciais locais:
 
 ```text
-usuario: airflow
-senha: airflow
+usuario: <AIRFLOW_ADMIN_USERNAME>
+senha: <AIRFLOW_ADMIN_PASSWORD>
 ```
 
 Validar containers:
@@ -230,3 +234,7 @@ O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase poste
 ```
 
 Esse comando gera o pacote de revisao, chama o Gemini CLI em modo headless e salva a resposta em `docs/REVIEWS/`.
+
+O prompt do Gemini tambem valida vazamentos de informacao sensivel em repositorios publicos, como caminhos absolutos locais, chaves, tokens, IPs, portas, credenciais, hosts internos e dados reais.
+
+Nao registre em commits a saida expandida de `docker compose config`, porque ela pode conter caminhos absolutos e valores locais resolvidos a partir do `.env`.
