@@ -661,3 +661,25 @@ Evidencias:
 - Resultado de security lint: aprovado, sem issues.
 - Comando de smoke sem `.env`: `python -m social_analytics_pipeline.cli.youtube_smoke`
 - Resultado de smoke sem `.env`: falha controlada antes de rede, exigindo `YOUTUBE_CHANNEL_ID`.
+
+## TASK-021 - Melhorar orientacao de setup do smoke command
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: tornar o smoke command mais acionavel quando `.env` local ainda nao existe ou esta incompleto, sem expor valores sensiveis.
+
+Criterios de aceite:
+
+- Quando `.env` nao existe, o erro orienta criar `.env` a partir de `.env.example`.
+- Quando `.env` existe mas uma variavel obrigatoria falta, o erro aponta ambiente ou `.env`.
+- O comando continua falhando antes de rede quando falta `YOUTUBE_CHANNEL_ID`.
+- Testes cobrem os dois cenarios de erro e o caminho com valor configurado.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest tests.test_youtube_smoke`
+- Resultado de teste: 7 testes executados com sucesso.
+- Comando de smoke sem `.env`: `python -m social_analytics_pipeline.cli.youtube_smoke`
+- Resultado de smoke sem `.env`: falha controlada com orientacao para criar `.env`.

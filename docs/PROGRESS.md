@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-020 - Carregar `.env` no smoke command do YouTube
+Task atual: TASK-021 - Melhorar orientacao de setup do smoke command
 
-Status geral: TASK-020 concluida localmente; smoke command do YouTube agora le `.env` local automaticamente, mantendo variaveis exportadas como prioridade.
+Status geral: TASK-021 concluida localmente; smoke command do YouTube agora orienta criacao de `.env` quando configuracao local ainda nao existe.
 
 ## Registro
 
@@ -187,6 +187,12 @@ Status geral: TASK-020 concluida localmente; smoke command do YouTube agora le `
 - Criados testes cobrindo leitura de `.env`, remocao de aspas simples/duplas e prioridade do ambiente.
 - Documentado que o smoke command le `.env` automaticamente.
 - TASK-020 marcada como Done.
+- Teste operacional mostrou que `.env` local ainda nao existe neste ambiente.
+- Iniciada TASK-021 para melhorar a orientacao de setup do smoke command.
+- Smoke command passou a orientar criacao de `.env` a partir de `.env.example` quando `.env` nao existe.
+- Smoke command diferencia `.env` ausente de `.env` existente porem incompleto.
+- Criados testes para erro de `.env` ausente, `.env` incompleto e valor configurado.
+- TASK-021 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
