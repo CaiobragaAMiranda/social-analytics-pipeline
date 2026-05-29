@@ -599,3 +599,37 @@ Evidencias:
 - Resultado Docker Compose: configuracao valida.
 - Comando de verificacao documental: `.\scripts\verify_docs.ps1`
 - Resultado documental: verificacao concluida com sucesso.
+
+## TASK-019 - Criar smoke command seguro para YouTube real
+
+Status: Done
+
+Fase: Fase 1 - Nucleo MVP e autenticacao
+
+Objetivo: permitir uma validacao manual controlada do provider real do YouTube com chave local e canal real, sem registrar payloads ou identificadores sensiveis nos logs.
+
+Criterios de aceite:
+
+- Existe comando `python -m social_analytics_pipeline.cli.youtube_smoke`.
+- Comando exige `YOUTUBE_CHANNEL_ID` antes de tentar rede ou chave de API.
+- Comando usa `YOUTUBE_API_KEY`, `YOUTUBE_MAX_PAGES` e `YOUTUBE_SMOKE_LOOKBACK_DAYS` via ambiente.
+- Saida do comando mostra somente resumo seguro, sem payload raw e sem imprimir canal real.
+- Testes validam o resumo com provider fake e a exigencia de `YOUTUBE_CHANNEL_ID`.
+- `.env.example` documenta as variaveis novas sem segredo.
+
+Evidencias:
+
+- Comando de teste: `python -m unittest discover -s tests`
+- Resultado de teste: 37 testes executados com sucesso.
+- Comando de lint: `ruff check .`
+- Resultado de lint: aprovado.
+- Comando de smoke sem ambiente: `python -m social_analytics_pipeline.cli.youtube_smoke`
+- Resultado de smoke sem ambiente: falha controlada antes de rede, exigindo `YOUTUBE_CHANNEL_ID`.
+- Comando de security lint: `bandit -c pyproject.toml -r src`
+- Resultado de security lint: aprovado, sem issues.
+- Comando de dependency audit: `pip-audit .`
+- Resultado de dependency audit: sem vulnerabilidades conhecidas.
+- Comando Docker Compose: `docker compose --env-file .env.example config --quiet`
+- Resultado Docker Compose: configuracao valida.
+- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
+- Resultado documental: verificacao concluida com sucesso.

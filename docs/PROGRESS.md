@@ -6,9 +6,9 @@ Data: 2026-05-29
 
 Fase atual: Fase 2 - Orquestracao e historico
 
-Task atual: TASK-018 - Criar provider real inicial do YouTube
+Task atual: TASK-019 - Criar smoke command seguro para YouTube real
 
-Status geral: TASK-018 concluida localmente; primeiro provider real do YouTube foi criado com testes fake, sem chamada real e sem chave versionada.
+Status geral: TASK-019 concluida localmente; provider YouTube agora tem comando de smoke manual seguro para validacao com chave local.
 
 ## Registro
 
@@ -169,6 +169,17 @@ Status geral: TASK-018 concluida localmente; primeiro provider real do YouTube f
 - Executados 33 testes unitarios com sucesso.
 - Ruff, Bandit, pip-audit, Docker Compose config e verificacao documental aprovados.
 - TASK-018 marcada como Done.
+- Iniciada TASK-019 para criar comando manual seguro de smoke do YouTube real.
+- Criado comando `python -m social_analytics_pipeline.cli.youtube_smoke`.
+- Comando exige `YOUTUBE_CHANNEL_ID` antes de tentar chamada real.
+- Comando usa `YOUTUBE_API_KEY`, `YOUTUBE_MAX_PAGES` e `YOUTUBE_SMOKE_LOOKBACK_DAYS` via ambiente.
+- Saida do smoke command imprime apenas resumo seguro e mascara o canal como `<configured>`.
+- `.env.example` passou a documentar `YOUTUBE_CHANNEL_ID=`, `YOUTUBE_MAX_PAGES=1` e `YOUTUBE_SMOKE_LOOKBACK_DAYS=30`.
+- Criados testes offline para o resumo do smoke command e validacao de configuracao.
+- Validado que o smoke command sem variaveis falha de forma controlada antes de rede ou chave real.
+- Executados 37 testes unitarios com sucesso.
+- Ruff, Bandit, pip-audit, Docker Compose config e verificacao documental aprovados.
+- TASK-019 marcada como Done.
 - Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
 - Resultado Gemini: aprovado.
 - TASK-010 marcada como Done.
@@ -268,4 +279,4 @@ Status geral: TASK-018 concluida localmente; primeiro provider real do YouTube f
 ## Proximas acoes
 
 - Reautenticar o Gemini CLI e rerodar a revisao da TASK-014/TASK-015.
-- Validar provider YouTube com uma chave local e um canal real controlado, sem commitar logs ou payloads sensiveis.
+- Executar o smoke command do YouTube com chave local e canal real controlado, sem commitar logs ou payloads sensiveis.

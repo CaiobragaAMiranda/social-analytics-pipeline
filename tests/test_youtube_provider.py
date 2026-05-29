@@ -49,6 +49,25 @@ class YouTubeProviderTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "YOUTUBE_API_KEY"):
             YouTubeApiConfig.from_env({})
 
+    def test_config_from_env_reads_max_pages(self) -> None:
+        config = YouTubeApiConfig.from_env(
+            {
+                "YOUTUBE_API_KEY": "test-api-key",
+                "YOUTUBE_MAX_PAGES": "3",
+            }
+        )
+
+        self.assertEqual(config.max_pages, 3)
+
+    def test_config_from_env_rejects_invalid_max_pages(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "YOUTUBE_MAX_PAGES"):
+            YouTubeApiConfig.from_env(
+                {
+                    "YOUTUBE_API_KEY": "test-api-key",
+                    "YOUTUBE_MAX_PAGES": "0",
+                }
+            )
+
     def test_collect_metrics_uses_search_pagination_and_video_statistics(self) -> None:
         http_client = FakeHttpJsonClient()
         provider = YouTubeDataApiProvider(

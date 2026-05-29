@@ -60,6 +60,14 @@ YouTubeDataApiProvider
 O provider usa `YOUTUBE_API_KEY` via ambiente e permite limitar paginacao com `max_pages`, evitando backfills grandes acidentais durante validacao local. Os testes usam cliente HTTP fake, sem rede e sem chave real.
 O cliente HTTP runtime usa `requests`; chamadas reais devem ficar fora dos testes automatizados e depender de configuracao local.
 
+Na TASK-019 foi criado um smoke command manual:
+
+```text
+python -m social_analytics_pipeline.cli.youtube_smoke
+```
+
+Ele usa `YOUTUBE_CHANNEL_ID`, `YOUTUBE_API_KEY`, `YOUTUBE_MAX_PAGES` e `YOUTUBE_SMOKE_LOOKBACK_DAYS` via ambiente. A saida e limitada a contagens e intervalo; o canal real e mascarado como `<configured>` e payloads raw nao sao salvos.
+
 ## Raw Storage
 
 Toda resposta bruta sera preservada antes de qualquer transformacao.
