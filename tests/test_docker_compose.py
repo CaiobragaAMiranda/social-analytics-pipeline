@@ -6,7 +6,14 @@ class DockerComposeTest(unittest.TestCase):
     def test_airflow_receives_youtube_runtime_environment_names(self) -> None:
         compose = Path("docker-compose.yml").read_text(encoding="utf-8")
 
-        self.assertIn("AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET}", compose)
+        self.assertIn(
+            "AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET:?",
+            compose,
+        )
+        self.assertIn(
+            "AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/",
+            compose,
+        )
 
         for variable_name in (
             "YOUTUBE_API_KEY",
@@ -17,6 +24,20 @@ class DockerComposeTest(unittest.TestCase):
             "YOUTUBE_SMOKE_LOOKBACK_DAYS",
         ):
             self.assertIn(f"{variable_name}: ${{{variable_name}}}", compose)
+
+    def test_airflow_workers_wait_for_api_server_health(self) -> None:
+        compose = Path("docker-compose.yml").read_text(encoding="utf-8")
+
+        for service_name in (
+            "airflow-scheduler",
+            "airflow-dag-processor",
+            "airflow-worker",
+            "airflow-triggerer",
+        ):
+            service_block = compose.split(f"  {service_name}:", 1)[1].split("\n  airflow-", 1)[0]
+
+            self.assertIn("airflow-api-server:", service_block)
+            self.assertIn("condition: service_healthy", service_block)
 
 
 if __name__ == "__main__":

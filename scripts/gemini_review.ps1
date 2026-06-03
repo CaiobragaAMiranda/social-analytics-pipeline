@@ -57,6 +57,17 @@ $npmRoot = & $npmCommand.Source root -g
 if (-not $npmRoot) {
     throw "Nao foi possivel localizar o diretorio global do npm."
 }
+
+function ConvertTo-ProcessArgument {
+    param([string] $Value)
+
+    if ($Value -notmatch '[\s"]') {
+        return $Value
+    }
+
+    return '"' + ($Value -replace '"', '\"') + '"'
+}
+
 $gemini = Join-Path $npmRoot "@google\gemini-cli\bundle\gemini.js"
 $inputPath = Join-Path $env:TEMP "gemini-review-input-$timestamp.md"
 $previousNoRelaunch = $env:GEMINI_CLI_NO_RELAUNCH
@@ -80,9 +91,31 @@ if (Test-Path $oauthCredsPath) {
 Set-Content -Path $inputPath -Value $inputText -Encoding UTF8
 
 try {
-    $command = 'type "{0}" | "{1}" "{2}" --skip-trust --approval-mode plan --prompt "Revise o pacote recebido via stdin. Nao use ferramentas. Responda somente com a avaliacao contratual textual." --output-format text 2>&1' -f $inputPath, $node, $gemini
-    $reviewOutput = cmd /c $command
-    $geminiExitCode = $LASTEXITCODE
+    $geminiArgs = @(
+        $gemini,
+        "--skip-trust",
+        "--approval-mode", "plan",
+        "--prompt", "Revise o pacote recebido via stdin. Nao use ferramentas. Responda somente com a avaliacao contratual textual.",
+        "--output-format", "text"
+    )
+    $processInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $processInfo.FileName = $node
+    $processInfo.Arguments = ($geminiArgs | ForEach-Object { ConvertTo-ProcessArgument $_ }) -join " "
+    $processInfo.RedirectStandardInput = $true
+    $processInfo.RedirectStandardOutput = $true
+    $processInfo.RedirectStandardError = $true
+    $processInfo.UseShellExecute = $false
+
+    $geminiProcess = [System.Diagnostics.Process]::new()
+    $geminiProcess.StartInfo = $processInfo
+    [void] $geminiProcess.Start()
+    $geminiProcess.StandardInput.Write((Get-Content -Path $inputPath -Encoding UTF8 -Raw))
+    $geminiProcess.StandardInput.Close()
+    $stdout = $geminiProcess.StandardOutput.ReadToEnd()
+    $stderr = $geminiProcess.StandardError.ReadToEnd()
+    $geminiProcess.WaitForExit()
+    $geminiExitCode = $geminiProcess.ExitCode
+    $reviewOutput = @($stdout, $stderr)
 } finally {
     $env:GEMINI_CLI_NO_RELAUNCH = $previousNoRelaunch
     $env:GOOGLE_GENAI_USE_GCA = $previousUseGca
