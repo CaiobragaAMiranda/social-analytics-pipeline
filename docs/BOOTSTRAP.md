@@ -19,6 +19,8 @@ python -m pip install -r requirements-dev.txt
 
 Fill local `.env` values only on your machine. Never commit `.env`, raw API payloads, generated data, real channel IDs, expanded DSNs or local paths.
 
+For Airflow with CeleryExecutor, set `AIRFLOW_API_AUTH_JWT_SECRET` locally to the same non-empty random value for all containers. The Compose file passes it to `AIRFLOW__API_AUTH__JWT_SECRET` so workers can authenticate with the Airflow execution API.
+
 ## Local Checks
 
 ```powershell

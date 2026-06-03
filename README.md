@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Phase 2 - Orchestration and history
-- Current task: TASK-031 - Condense documentation in English
-- Last completed delivery: TASK-030 - Real YouTube Airflow DAG
+- Current task: TASK-032 - Validate real YouTube Airflow DAG locally
+- Last completed delivery: TASK-032 - Real YouTube Airflow validation
 
 ## Workflow
 

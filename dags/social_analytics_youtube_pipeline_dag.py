@@ -1,5 +1,5 @@
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from airflow.sdk import dag, get_current_context, task
@@ -39,12 +39,13 @@ def social_analytics_youtube_pipeline() -> None:
         )
 
         context = get_current_context()
-        fallback_now = datetime.now(UTC)
-        start_at = context.get("data_interval_start") or fallback_now
-        end_at = context.get("data_interval_end") or fallback_now
-
         project_root = AIRFLOW_PROJECT_ROOT
         runtime_env = build_runtime_env(os.environ, project_root / ".env")
+        fallback_end_at = datetime.now(UTC)
+        lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
+        fallback_start_at = fallback_end_at - timedelta(days=lookback_days)
+        start_at = context.get("data_interval_start") or fallback_start_at
+        end_at = context.get("data_interval_end") or fallback_end_at
         required_settings = require_smoke_settings(
             runtime_env,
             ("YOUTUBE_API_KEY",),

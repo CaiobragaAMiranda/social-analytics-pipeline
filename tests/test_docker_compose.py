@@ -6,6 +6,8 @@ class DockerComposeTest(unittest.TestCase):
     def test_airflow_receives_youtube_runtime_environment_names(self) -> None:
         compose = Path("docker-compose.yml").read_text(encoding="utf-8")
 
+        self.assertIn("AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET}", compose)
+
         for variable_name in (
             "YOUTUBE_API_KEY",
             "YOUTUBE_CHANNEL_ID",

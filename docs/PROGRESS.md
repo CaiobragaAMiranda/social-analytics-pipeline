@@ -6,9 +6,9 @@ Date: 2026-06-03
 
 Current phase: Phase 2 - Orchestration and history
 
-Current task: TASK-031 - Condense documentation in English.
+Current task: TASK-032 - Validate `social_analytics_youtube_pipeline` inside local Airflow.
 
-Overall status: TASK-031 completed locally. Main documentation is now compact, English-first and still preserves current project state, workflow and safety rules.
+Overall status: TASK-032 completed locally. The real YouTube Airflow DAG was parsed, triggered and completed successfully in local Docker Airflow.
 
 ## Completed Milestones
 
@@ -23,6 +23,15 @@ Overall status: TASK-031 completed locally. Main documentation is now compact, E
 - Safe YouTube smoke and local pipeline commands were added.
 - Real YouTube local JSON and PostgreSQL loads were validated without printing secrets or payloads.
 - A real YouTube Airflow DAG was added and merged in PR #19.
+- Local Airflow validation completed for the real YouTube DAG.
+
+## Latest Notes
+
+- Windows reserved the previous local metrics PostgreSQL port; the local `.env` now uses a non-reserved port.
+- Airflow 3.2.1 initialization now runs metadata migration without the incompatible user creation command.
+- Celery workers now use the Airflow execution API URL and a shared JWT secret from local environment configuration.
+- Automatic catchup is disabled for the real YouTube DAG to avoid unexpected YouTube API quota usage. Mock DAG catchup remains available for historical orchestration testing.
+- The successful YouTube Airflow run loaded 50 records and masked the configured channel in logs.
 
 ## Current Constraints
 
@@ -32,5 +41,5 @@ Overall status: TASK-031 completed locally. Main documentation is now compact, E
 
 ## Next Actions
 
-- Validate the real YouTube DAG inside local Airflow.
 - Add targeted resilience around API failures and invalid configuration.
+- Decide whether the next work should harden YouTube errors/retries or add explicit controlled backfill.

@@ -80,13 +80,64 @@ if (Test-Path $oauthCredsPath) {
 Set-Content -Path $inputPath -Value $inputText -Encoding UTF8
 
 try {
-    $command = 'type "{0}" | "{1}" "{2}" --skip-trust --approval-mode plan --prompt "Revise o pacote recebido via stdin. Nao use ferramentas. Responda somente com a avaliacao contratual textual." --output-format text' -f $inputPath, $node, $gemini
-    $review = cmd /c $command
+    $command = 'type "{0}" | "{1}" "{2}" --skip-trust --approval-mode plan --prompt "Revise o pacote recebido via stdin. Nao use ferramentas. Responda somente com a avaliacao contratual textual." --output-format text 2>&1' -f $inputPath, $node, $gemini
+    $reviewOutput = cmd /c $command
+    $geminiExitCode = $LASTEXITCODE
 } finally {
     $env:GEMINI_CLI_NO_RELAUNCH = $previousNoRelaunch
     $env:GOOGLE_GENAI_USE_GCA = $previousUseGca
     $env:GOOGLE_CLOUD_ACCESS_TOKEN = $previousAccessToken
     Remove-Item -LiteralPath $inputPath -ErrorAction SilentlyContinue
+}
+
+$review = $reviewOutput | Out-String
+$review = $review -replace [regex]::Escape($root), "<project-root>"
+$review = $review -replace [regex]::Escape(($root -replace "\\", "/")), "<project-root>"
+if ($env:USERPROFILE) {
+    $review = $review -replace [regex]::Escape($env:USERPROFILE), "<user-home>"
+    $review = $review -replace [regex]::Escape(($env:USERPROFILE -replace "\\", "/")), "<user-home>"
+}
+if ($env:TEMP) {
+    $review = $review -replace [regex]::Escape($env:TEMP), "<temp-dir>"
+    $review = $review -replace [regex]::Escape(($env:TEMP -replace "\\", "/")), "<temp-dir>"
+}
+
+if ($geminiExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($review)) {
+    $blockedReviewTemplate = @'
+Resultado: Changes requested
+
+## Evidencias
+
+- Gemini CLI did not return a valid contractual review.
+- Exit code: {{EXIT_CODE}}
+
+## Problemas encontrados
+
+### Gemini review could not be completed
+
+- Severidade: alta
+- Arquivo afetado: scripts/gemini_review.ps1
+- Evidencia objetiva: Gemini CLI returned no valid review output.
+- Risco pratico: The project could incorrectly treat an unreviewed change as contractually approved.
+- Acao recomendada: Refresh Gemini CLI authentication and rerun scripts/gemini_review.ps1 before considering the contractual review complete.
+
+## Recomendacoes
+
+- Run `gemini auth login` or the locally required Gemini CLI authentication flow.
+- Rerun `scripts/gemini_review.ps1`.
+- Do not commit docs/REVIEWS output unless it has been manually checked for sensitive information.
+
+## Decisao final
+
+Changes requested until Gemini authentication is restored and a valid review is produced.
+
+## Raw Tool Output Sanitized
+
+```text
+{{RAW_REVIEW}}
+```
+'@
+    $review = $blockedReviewTemplate.Replace("{{EXIT_CODE}}", [string] $geminiExitCode).Replace("{{RAW_REVIEW}}", $review)
 }
 
 $header = @"
