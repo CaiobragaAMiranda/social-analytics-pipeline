@@ -1,74 +1,67 @@
-# Contratos de Agentes (Gemini & ChatGPT)
+# Agent Contracts
 
-Este documento define os papeis e rubricas de revisao quando o projeto e desenvolvido por multiplos agentes de IA.
+This project can be developed by Codex/ChatGPT or Gemini, but every meaningful change should be reviewable from repository context.
 
-## Dinamica de Agentes
+## Roles
 
-O papel de "Desenvolvedor" e "Revisor" alterna dependendo do canal de comunicacao utilizado:
+When Codex implements:
 
-1.  **Canal Codex (ChatGPT):**
-    *   **Desenvolvedor:** ChatGPT.
-    *   **Revisor Contratual:** Gemini.
-    *   **Fluxo:** O ChatGPT implementa a task e solicita a revisao via `scripts/gemini_review.ps1`.
+- Developer: Codex/ChatGPT.
+- Contract reviewer: Gemini when available.
+- Fallback reviewers: GitHub Actions, CodeRabbit and user review.
 
-2.  **Canal Gemini CLI (Gemini):**
-    *   **Desenvolvedor:** Gemini.
-    *   **Revisor Contratual:** ChatGPT.
-    *   **Fluxo:** O Gemini implementa a task e solicita a revisao via `scripts/chatgpt_review.ps1`.
+When Gemini implements:
 
-## Rubrica de Revisao
+- Developer: Gemini.
+- Contract reviewer: ChatGPT/Codex when available.
 
-Independentemente do agente revisor, a rubrica deve ser seguida rigorosamente. Para cada problema encontrado, incluir obrigatoriamente:
-- **Severidade:** baixa | media | alta | critica
-- **Arquivo afetado:** <caminho-relativo>
-- **Evidencia objetiva:** <trecho-ou-log> (sem valores sensiveis)
-- **Risco pratico:** <impacto-real>
-- **Acao recomendada:** <como-corrigir>
+## Required Review Questions
 
-Rubrica de conformidade:
+Reviewers should check:
 
-1. A task pertence ao plano?
-2. Os criterios de aceite foram cumpridos?
-3. A documentacao foi atualizada?
-4. O bootstrap continua correto?
-5. Existem mudancas fora do escopo?
-6. Existem riscos tecnicos nao registrados?
-7. Existem testes ou justificativa para ausencia de testes?
-8. O progresso foi registrado de forma retomavel?
-9. As mudancas propostas foram comunicadas diretamente ao usuario antes da implementacao?
-10. A task executada corresponde a uma proposta aprovada ou a uma continuidade solicitada pelo usuario?
-11. O diff, os logs ou a documentacao expuseram caminhos locais absolutos, chaves, tokens, segredos, credenciais, dados reais, IPs, portas, hosts internos ou qualquer informacao desnecessaria para um repositorio publico?
+1. Does the change belong to the work plan?
+2. Does it match the current task?
+3. Were acceptance criteria met?
+4. Were docs and bootstrap updated when needed?
+5. Are there out-of-scope changes?
+6. Are tests present, or is the lack of tests justified?
+7. Can the next session resume from the repository state?
+8. Did the developer explain proposed changes before coding?
+9. Did the diff expose secrets, local paths, real payloads, IPs, ports, credentials, hosts or expanded DSNs?
 
-## Regras de Aprovacao
+## Finding Format
 
-*   **Approved:** Todos os criterios atendidos, sem riscos bloqueantes, documentacao coerente.
-*   **Approved with notes:** Aceitavel, mas com recomendacoes de melhoria nao bloqueantes.
-*   **Changes requested:** Criterios nao cumpridos, mudanca fora de escopo, falta documentacao, quebra de bootstrap ou vazamento de informacao sensivel.
+Each problem must include:
 
-## Prompt Base para Revisor (ChatGPT ou Gemini)
+- Severity: low | medium | high | critical
+- Affected file: `<relative-path>`
+- Objective evidence: safe excerpt or log summary
+- Practical risk: real impact
+- Recommended action: concrete fix
+
+## Decision Labels
+
+- Approved
+- Approved with notes
+- Changes requested
+
+## Base Reviewer Prompt
 
 ```text
-Voce e o avaliador contratual deste projeto.
+You are the contractual reviewer for this project.
 
-Avalie se a mudanca atual cumpre a task declarada, se pertence ao plano de trabalho, se a documentacao foi atualizada e se o bootstrap continua valido.
+Evaluate whether the current change matches the declared task, belongs to the work plan, updates documentation when needed and keeps bootstrap instructions valid.
 
-Como o repositorio e publico, verifique explicitamente se o diff, a documentacao ou os logs expuseram caminhos absolutos locais, chaves de API, tokens, segredos, credenciais, dados reais, IPs, portas, hosts internos ou qualquer informacao desnecessaria para consumo publico.
+Because the repository is public, explicitly check whether the diff, documentation or logs expose local absolute paths, API keys, tokens, secrets, credentials, real payloads, IPs, ports, internal hosts or expanded DSNs.
 
-Se identificar algum vazamento sensivel, reporte o problema sem repetir o valor exato. Cite apenas o tipo de informacao, o arquivo e, se necessario, use placeholders como <caminho-local>, <token>, <ip-interno> ou <porta-local>.
+If sensitive information appears, report the type and location without repeating the value. Use placeholders such as <local-path>, <token>, <internal-host> or <local-port>.
 
-Use a rubrica de docs/AGENT_CONTRACTS.md.
+Use docs/AGENT_CONTRACTS.md as the rubric.
 
-Responda em Markdown com:
-- Resultado: Approved | Approved with notes | Changes requested
-- Evidencias
-- Problemas encontrados
-- Recomendacoes
-- Decisao final
-
-Para cada problema encontrado, inclua obrigatoriamente:
-- Severidade: baixa | media | alta | critica
-- Arquivo afetado: <caminho-relativo>
-- Evidencia objetiva: <trecho-ou-log>
-- Risco pratico: <impacto-real>
-- Acao recomendada: <como-corrigir>
+Respond in Markdown with:
+- Result: Approved | Approved with notes | Changes requested
+- Evidence
+- Findings
+- Recommendations
+- Final decision
 ```
