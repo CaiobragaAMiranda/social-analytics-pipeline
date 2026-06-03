@@ -1,344 +1,130 @@
 # Bootstrap
 
-Este documento explica como preparar e verificar o projeto do zero.
+## Requirements
 
-## Caminho oficial do projeto
-
-```powershell
-cd <caminho-do-projeto>
-```
-
-## Pre-requisitos atuais
-
-- Windows com PowerShell.
+- Windows PowerShell.
 - Git.
-- Python 3.12 ou superior.
-- Docker Desktop, quando chegarmos ao PostgreSQL e Airflow.
-- Node.js nao e requisito para este projeto no momento.
+- Python 3.12+.
+- Docker Desktop for PostgreSQL and Airflow.
+- Node.js only when using Gemini CLI through npm.
 
-## Verificar ambiente
+## Setup
 
 ```powershell
-git --version
-python --version
-docker --version
+cd <project-root>
+Copy-Item .env.example .env
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
 ```
 
-## Verificar status do projeto
+Fill local `.env` values only on your machine. Never commit `.env`, raw API payloads, generated data, real channel IDs, expanded DSNs or local paths.
+
+## Local Checks
 
 ```powershell
 .\scripts\project_status.ps1
-```
-
-## Verificar documentacao minima
-
-```powershell
 .\scripts\verify_docs.ps1
+$env:PYTHONPATH = "src"; python -m unittest discover -s tests
+ruff check .
+bandit -c pyproject.toml -r src
+docker compose --env-file .env.example config --quiet
 ```
 
-## Rodar testes
+Optional dependency/security checks:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests
+pip-audit .
+gitleaks detect --source . --config .gitleaks.toml
 ```
 
-O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o bootstrap inicial simples e offline.
+## PostgreSQL
 
-## Subir PostgreSQL local
-
-Prepare o arquivo `.env` a partir do exemplo e ajuste os valores locais antes de subir servicos:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Preencha no `.env` local os campos de senha antes de iniciar PostgreSQL ou Airflow. O `.env` nao deve ser commitado.
+Start the metrics database:
 
 ```powershell
 docker compose up -d postgres
 docker compose ps
 ```
 
-DSN local em formato de template:
+The schema is initialized from `db/init/001_create_social_metrics.sql`.
 
-```text
-postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@localhost:<POSTGRES_PORT>/<POSTGRES_DB>
-```
-
-O schema inicial fica em `db/init/001_create_social_metrics.sql` e e aplicado automaticamente quando o volume do Postgres e criado pela primeira vez.
-
-Para reiniciar o banco do zero durante desenvolvimento:
+Reset local volumes only when you intentionally want a clean database:
 
 ```powershell
 docker compose down -v
 docker compose up -d postgres
 ```
 
-## Subir Airflow local
+## YouTube Local Commands
 
-Confirme que o arquivo `.env` local foi criado a partir de `.env.example` e ajustado para a sua maquina.
-
-Inicialize o banco/metadados do Airflow:
-
-```powershell
-docker compose up airflow-init
-```
-
-Suba os servicos principais:
-
-```powershell
-docker compose up -d airflow-api-server airflow-scheduler airflow-dag-processor airflow-worker airflow-triggerer
-```
-
-A interface fica em:
+Required local settings:
 
 ```text
-http://localhost:<AIRFLOW_API_PORT>
-```
-
-Credenciais locais:
-
-```text
-usuario: <AIRFLOW_ADMIN_USERNAME>
-senha: <AIRFLOW_ADMIN_PASSWORD>
-```
-
-Validar containers:
-
-```powershell
-docker compose ps
-```
-
-Listar DAGs:
-
-```powershell
-docker compose exec airflow-api-server airflow dags list
-```
-
-Executar a DAG mockada manualmente:
-
-```powershell
-docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
-```
-
-Executar a DAG real do YouTube manualmente:
-
-```powershell
-docker compose exec airflow-api-server airflow dags trigger social_analytics_youtube_pipeline
-```
-
-A DAG real do YouTube usa as mesmas variaveis locais do comando `youtube_local_pipeline`: `YOUTUBE_API_KEY`, `YOUTUBE_CHANNEL_ID` ou `YOUTUBE_CHANNEL_HANDLE`, `YOUTUBE_MAX_PAGES` e `YOUTUBE_LOCAL_LOAD_TARGET`. O Docker Compose repassa esses nomes aos containers Airflow sem registrar valores no repositorio.
-
-Por padrao, a DAG mockada grava artefatos JSON para facilitar smoke runs:
-
-```text
-SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=json
-```
-
-Para carregar no PostgreSQL local, ajuste o `.env` antes de subir o Airflow:
-
-```text
-SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=postgres
-```
-
-O DSN usado pelo Airflow e montado pelo Docker Compose com as variaveis `POSTGRES_*` do `.env`; nao registre valores expandidos ou senhas em arquivos versionados.
-
-O Compose instala `psycopg[binary]` nos containers Airflow para que o `PostgresMetricLoader` funcione quando esse alvo estiver habilitado.
-
-Agendamento da DAG mockada:
-
-```text
-intervalo: 15 dias
-catchup: habilitado
-start_date: 2026-01-01
-```
-
-Por padrao, as DAGs nascem pausadas no ambiente local. Para permitir que o scheduler crie execucoes quinzenais e catchup historico a partir do `start_date`:
-
-```powershell
-docker compose exec airflow-api-server airflow dags unpause social_analytics_mock_pipeline
-docker compose exec airflow-api-server airflow dags unpause social_analytics_youtube_pipeline
-```
-
-Saidas esperadas:
-
-```text
-data/raw/
-data/processed/airflow/
-data/processed/youtube/
-```
-
-Os artefatos processados da DAG usam o formato:
-
-```text
-data/processed/airflow/{provider}-{interval_start}-{interval_end}.json
-```
-
-Limpar ambiente Airflow local:
-
-```powershell
-docker compose down --volumes --remove-orphans
-```
-
-## Validar providers mockados
-
-Os providers mockados usam fixtures locais e nao precisam de tokens:
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_mock_providers
-```
-
-## Configurar provider YouTube real
-
-O provider real do YouTube usa a YouTube Data API v3 e espera uma chave local no `.env`:
-
-```text
-YOUTUBE_API_KEY=<sua-chave-local>
-YOUTUBE_CHANNEL_ID=<id-publico-do-canal>
-YOUTUBE_CHANNEL_HANDLE=<handle-publico-opcional>
+YOUTUBE_API_KEY=<local-api-key>
+YOUTUBE_CHANNEL_ID=<public-channel-id>
+YOUTUBE_CHANNEL_HANDLE=<optional-public-handle>
 YOUTUBE_MAX_PAGES=1
 YOUTUBE_SMOKE_LOOKBACK_DAYS=30
 YOUTUBE_LOCAL_LOAD_TARGET=json
 ```
 
-Nao commite `.env`, logs de resposta real ou payloads raw coletados de canais reais sem revisao de sensibilidade.
+Use `YOUTUBE_CHANNEL_ID` when available. Otherwise use `YOUTUBE_CHANNEL_HANDLE`; the code resolves it without printing the resolved channel ID.
 
-O smoke command le `.env` automaticamente quando o arquivo existir. Variaveis ja exportadas no terminal tem prioridade sobre o `.env`.
-
-Use `YOUTUBE_CHANNEL_ID` quando voce ja tiver o ID publico iniciado por `UC`. Como alternativa, deixe `YOUTUBE_CHANNEL_ID` vazio e preencha `YOUTUBE_CHANNEL_HANDLE` com um handle publico; o smoke resolve o ID em memoria sem imprimir o valor resolvido.
-
-Validar o provider YouTube sem rede e sem chave real:
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_youtube_provider
-```
-
-Executar smoke manual com chave e canal locais:
+Safe smoke run:
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_smoke
 ```
 
-O smoke command imprime apenas um resumo seguro. Ele nao salva payload raw, nao imprime a chave e mascara o canal real como `<configured>`.
-
-Executar carga local segura do YouTube real:
+Safe local load:
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_local_pipeline
 ```
 
-Esse comando salva payloads raw em `data/raw/` e metricas normalizadas em `data/processed/youtube/`. Esses diretorios sao ignorados pelo Git. Nao commite payloads reais sem revisao de sensibilidade.
-
-Por padrao, a carga local usa:
-
-```text
-YOUTUBE_LOCAL_LOAD_TARGET=json
-```
-
-Para carregar metricas normalizadas no PostgreSQL local, ajuste o `.env`:
+For PostgreSQL loading, set these locally:
 
 ```text
 YOUTUBE_LOCAL_LOAD_TARGET=postgres
-SOCIAL_ANALYTICS_POSTGRES_DSN=<dsn-local>
+SOCIAL_ANALYTICS_POSTGRES_DSN=<local-dsn>
 ```
 
-Mesmo com alvo PostgreSQL, os payloads raw continuam sendo salvos em `data/raw/`.
+The command may write to `data/raw/` and `data/processed/`; both are ignored by Git.
 
-## Validar normalizacao para schema unico
+## Airflow
+
+Initialize Airflow metadata:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_normalizer
+docker compose up airflow-init
 ```
 
-## Validar carga PostgreSQL sem banco real
+Start Airflow:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_postgres_loader
+docker compose up -d airflow-api-server airflow-scheduler airflow-dag-processor airflow-worker airflow-triggerer
 ```
 
-## Validar fluxo local integrado
+Useful Airflow commands:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_local_pipeline
+docker compose exec airflow-api-server airflow dags list
+docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
+docker compose exec airflow-api-server airflow dags trigger social_analytics_youtube_pipeline
+docker compose exec airflow-api-server airflow dags unpause social_analytics_mock_pipeline
+docker compose exec airflow-api-server airflow dags unpause social_analytics_youtube_pipeline
 ```
 
-## Validar loader de artefato JSON
+The Airflow UI runs at `http://localhost:<AIRFLOW_API_PORT>`.
 
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_artifact_loader
-```
-
-## Validar selecao de loader no Airflow
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_airflow_loaders
-```
-
-## Instalar ferramentas de desenvolvimento
-
-```powershell
-python -m pip install --upgrade pip
-python -m pip install -r requirements-dev.txt
-```
-
-## Rodar quality gates locais
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests
-ruff check .
-bandit -c pyproject.toml -r src
-pip-audit .
-```
-
-Secret scan local com Gitleaks depende do binario instalado na maquina:
-
-```powershell
-gitleaks detect --source . --config .gitleaks.toml
-```
-
-No GitHub, o workflow `.github/workflows/quality-gates.yml` executa testes, Ruff, Bandit, pip-audit e Gitleaks.
-
-O job `secret-scan` define `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` para antecipar o runtime Node 24 em actions JavaScript, conforme recomendacao do GitHub durante a deprecacao do Node 20 nos runners.
-
-## Gerar pacote para Gemini
+## Review Helpers
 
 ```powershell
 .\scripts\gemini_packet.ps1
-```
-
-O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase posterior, poderemos salvar esse pacote em `docs/REVIEWS/`.
-
-Quando a arvore Git estiver limpa, o pacote inclui o diff do ultimo commit para permitir revisao contratual logo depois de um commit local.
-
-Arquivos de review em `docs/REVIEWS/*.md` nao sao despejados automaticamente dentro do pacote quando ainda estao untracked, para evitar repetir logs extensos ou informacoes sensiveis. Novos reviews tambem ficam ignorados por padrao no Git; force o commit apenas depois de revisar o conteudo.
-
-## Rodar revisao contratual com Gemini
-
-```powershell
 .\scripts\gemini_review.ps1
-```
-
-Esse comando gera o pacote de revisao, chama o Gemini CLI em modo headless e salva a resposta em `docs/REVIEWS/`.
-
-## Rodar revisao contratual com ChatGPT (Codex)
-
-```powershell
 .\scripts\chatgpt_review.ps1
 ```
 
-Esse comando gera o pacote de revisao e tenta envia-lo automaticamente ao ChatGPT via Codex CLI. Se houver limite de cota ou o CLI nao estiver instalado, o pacote sera salvo em `docs/REVIEWS/` para copia manual para a interface do ChatGPT.
-
-Os prompts de revisao tambem validam vazamentos de informacao sensivel em repositorios publicos, como caminhos absolutos locais, chaves, tokens, IPs, portas, credenciais, hosts internos e dados reais.
-
-Nao registre em commits a saida expandida de `docker compose config`, porque ela pode conter caminhos absolutos e valores locais resolvidos a partir do `.env`.
+Review packets must not repeat secrets or local-only values. Files under `docs/REVIEWS/*.md` are ignored by default; commit them only after manual sensitivity review.

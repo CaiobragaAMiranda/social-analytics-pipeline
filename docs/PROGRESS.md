@@ -1,288 +1,36 @@
-# Progresso
+# Progress
 
-## Snapshot atual
+## Current Snapshot
 
-Data: 2026-05-29
+Date: 2026-06-03
 
-Fase atual: Fase 2 - Orquestracao e historico
+Current phase: Phase 2 - Orchestration and history
 
-Task atual: TASK-030 - Criar DAG Airflow para YouTube real.
+Current task: TASK-031 - Condense documentation in English.
 
-Status geral: TASK-030 concluida localmente. A DAG real do YouTube foi adicionada ao Airflow com configuracao por variaveis de ambiente e validacoes locais aprovadas.
+Overall status: TASK-031 completed locally. Main documentation is now compact, English-first and still preserves current project state, workflow and safety rules.
 
-## Registro
+## Completed Milestones
 
-### 2026-05-27
+- Governance docs and review scripts were created.
+- Python package skeleton, tests and quality gates were added.
+- Mock providers for Instagram, YouTube and TikTok were created.
+- A shared social metric schema and normalizers were implemented.
+- PostgreSQL local loading was added with idempotent upsert behavior.
+- Docker Compose now supports PostgreSQL and Airflow.
+- Airflow has a mock pipeline DAG with 15-day schedule and catchup.
+- YouTube Data API support was added behind local environment variables.
+- Safe YouTube smoke and local pipeline commands were added.
+- Real YouTube local JSON and PostgreSQL loads were validated without printing secrets or payloads.
+- A real YouTube Airflow DAG was added and merged in PR #19.
 
-- Definido que o projeto sera construido por tasks pequenas e auditaveis.
-- Definido que Codex deve apresentar estado, conclusoes, criterios de aceite e plano de teste antes de codar.
-- Definido que Gemini atuara como avaliador contratual, usando documentos do repositorio, diff e logs.
-- Iniciada TASK-001 para criar documentacao base e scripts de automacao.
-- Criados `README.md`, `docs/PLAN.md`, `docs/TASKS.md`, `docs/PROGRESS.md`, `docs/BOOTSTRAP.md`, `docs/ARCHITECTURE.md`, `docs/GEMINI_CONTRACT.md` e `docs/DECISIONS/ADR-0001-repository-as-source-of-truth.md`.
-- Criados scripts `scripts/project_status.ps1`, `scripts/verify_docs.ps1` e `scripts/gemini_packet.ps1`.
-- Executada verificacao documental com sucesso.
-- TASK-001 marcada como Done.
-- Criada pasta oficial `<caminho-do-projeto>`.
-- Copiados `README.md`, `docs/` e `scripts/` para a pasta oficial.
-- Inicializado Git na pasta oficial.
-- TASK-001B marcada como Done.
-- Iniciada TASK-001C para criar o primeiro commit rastreavel da governanca.
-- Executada verificacao documental com sucesso para TASK-001C.
-- TASK-001C marcada como Done.
-- Publicado repositorio privado no GitHub: `https://github.com/CaiobragaAMiranda/social-analytics-pipeline`.
-- Iniciada TASK-002 para criar o esqueleto tecnico Python.
-- Criado `pyproject.toml` com metadados do projeto Python.
-- Criada estrutura `src/social_analytics_pipeline/` com config, providers, storage e transform.
-- Criado teste inicial em `tests/test_project_skeleton.py`.
-- Atualizados `README.md`, `docs/BOOTSTRAP.md` e `docs/ARCHITECTURE.md`.
-- Executados 4 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- TASK-002 marcada como Done.
-- Commit da TASK-002 publicado no GitHub: `bd29c8c feat: add python project skeleton`.
-- Iniciada TASK-003 para criar providers mockados.
-- Criadas fixtures raw para Instagram, YouTube e TikTok em `data/fixtures/`.
-- Criado `FixtureProvider` e factory `build_mock_providers`.
-- Criados testes de contrato em `tests/test_mock_providers.py`.
-- Executados 8 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- TASK-003 marcada como Done.
-- Configurado Gemini CLI oficial `@google/gemini-cli`.
-- Login com Google concluido no Gemini CLI.
-- Criados `scripts/gemini_cli.ps1` e `scripts/gemini_review.ps1`.
-- Gemini headless validado com resposta `GEMINI_OK`.
-- TASK-001D marcada como Done.
-- Primeira tentativa de revisao Gemini falhou porque o agente tentou chamar `run_shell_command`, ferramenta indisponivel no ambiente.
-- Corrigido `scripts/gemini_review.ps1` para modo avaliador textual com `--approval-mode plan` e instrucao explicita para nao usar ferramentas.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260527-104706.md`.
-- Resultado Gemini: aprovado / em conformidade.
-- Commit da TASK-003 e automacao Gemini publicado no GitHub: `08bfeb4 feat: add mock providers and gemini review automation`.
-- Iniciada TASK-004 para criar normalizacao dos payloads mockados em `SocialMetric`.
-- Criado `src/social_analytics_pipeline/transform/normalizer.py`.
-- Criados normalizadores para Instagram, YouTube e TikTok.
-- Criados testes de transformacao em `tests/test_normalizer.py`.
-- Executados 14 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- Primeira revisao Gemini da TASK-004 falhou porque o wrapper local nao encaminhou o pacote para `stdin`.
-- Corrigido `scripts/gemini_cli.ps1` para repassar entrada padrao ao CLI.
-- Revisao Gemini formal salva em `docs/REVIEWS/review-20260527-191357.md`.
-- Resultado Gemini: aprovado.
-- TASK-004 marcada como Done.
-- Commit da TASK-004 publicado no GitHub: `2b716f7 feat: add social metric normalizers`.
-- Iniciada TASK-005 para criar carga local em PostgreSQL.
-- Criado `docker-compose.yml` com servico PostgreSQL 16.
-- Criado schema inicial em `db/init/001_create_social_metrics.sql`.
-- Criado `PostgresMetricLoader` com upsert idempotente.
-- Criados testes unitarios em `tests/test_postgres_loader.py`.
-- Adicionada dependencia `psycopg[binary]` ao `pyproject.toml`.
-- Corrigido `raw_path` do loader para persistir paths em formato POSIX estavel.
-- Executados 17 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- Revisao Gemini `docs/REVIEWS/review-20260527-192800.md` falhou porque `gemini_packet.ps1` imprimia cabecalhos com `Write-Host`, deixando o pacote vazio para o pipeline.
-- Corrigido `scripts/gemini_packet.ps1` para emitir conteudo com `Write-Output` e incluir diff completo do repositorio.
-- Revisao Gemini `docs/REVIEWS/review-20260527-192923.md` falhou porque `scripts/gemini_cli.ps1` nao recebia pipeline via `[Console]::In`.
-- Mantido `scripts/gemini_cli.ps1` como wrapper simples para chamadas diretas.
-- Corrigido `scripts/gemini_review.ps1` para enviar o pacote ao Gemini por arquivo temporario e `cmd /c type`, evitando perda de `stdin` em wrappers PowerShell.
-- Revisao Gemini `docs/REVIEWS/review-20260527-193101.md` aprovou a TASK-005, mas recomendou incluir arquivos novos ainda nao rastreados no pacote.
-- Corrigido `scripts/gemini_packet.ps1` para incluir diff staged e conteudo de arquivos untracked.
-- Revisao Gemini final salva em `docs/REVIEWS/review-20260527-193156.md`.
-- Resultado Gemini: aprovado.
-- TASK-005 marcada como Done.
-- Commit da TASK-005 publicado no GitHub: `59f9aa5 feat: add postgres metric loading`.
-- Iniciada TASK-006 para adicionar quality gates de seguranca e CI.
-- Versoes de GitHub Actions verificadas em fontes oficiais em 2026-05-27:
-  - `actions/checkout@v6`.
-  - `actions/setup-python@v6`.
-  - `gitleaks/gitleaks-action@v2`.
-  - `pypa/gh-action-pip-audit@v1.1.0`.
-- Adicionadas dependencias dev para `ruff`, `bandit` e `pip-audit`.
-- Adicionada configuracao `.gitleaks.toml`.
-- Criado workflow `.github/workflows/quality-gates.yml`.
-- Documentados comandos locais de quality gates no bootstrap.
-- Instaladas dependencias dev via `python -m pip install -r requirements-dev.txt`.
-- Primeira execucao do Ruff encontrou divida de formatacao/imports em codigo existente.
-- Aplicado `ruff check . --fix` e ajustes manuais de linhas longas.
-- Executados 17 testes unitarios com sucesso.
-- Ruff aprovado com `All checks passed!`.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-093357.md`.
-- Resultado Gemini: aprovado.
-- TASK-012 marcada como Done.
-- Iniciada TASK-013 para conferir vazamento de informacao sensivel no prompt Gemini.
-- Atualizado `scripts/gemini_review.ps1` para exigir checagem explicita de caminhos absolutos, chaves, tokens, IPs, portas, credenciais e dados reais.
-- Atualizado `docs/GEMINI_CONTRACT.md` com criterio de rejeicao para vazamento sensivel.
-- Atualizado `docs/BOOTSTRAP.md` para documentar a checagem publica de sensibilidade.
-- Caminhos absolutos locais substituidos por `<caminho-do-projeto>` nos arquivos publicos principais.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-212740.md`.
-- Resultado Gemini: aprovado.
-- Iniciada TASK-014 para padronizar o feedback do Gemini por achado.
-- Atualizado `scripts/gemini_review.ps1` para exigir severidade, arquivo afetado, evidencia objetiva, risco pratico e acao recomendada.
-- Atualizado `docs/GEMINI_CONTRACT.md` com o mesmo formato de resposta.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini pendente por reautenticacao do CLI.
-- Iniciada TASK-015 para conferir informacoes sensiveis e configuracoes hardcoded.
-- Parametrizadas credenciais e portas locais em `docker-compose.yml`.
-- Expandido `.env.example` com variaveis locais sem senhas preenchidas.
-- Removidas allowlists antigas de credenciais locais em `.gitleaks.toml`.
-- Atualizado `docs/BOOTSTRAP.md` para usar placeholders e alertar contra commit da saida expandida de `docker compose config`.
-- Atualizado `scripts/gemini_review.ps1` para descobrir `node` via `Get-Command`, removendo caminho fixo de instalacao.
-- Varredura sensivel customizada nao encontrou caminhos de usuario, chaves privadas, IPs privados ou segredos literais reais.
-- `docker compose --env-file .env.example config --quiet` validado com sucesso.
-- Executados 24 testes unitarios com sucesso fora do sandbox.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- Gitleaks local nao executado porque o binario nao esta instalado neste ambiente.
-- pip-audit local ficou preso neste ambiente e foi interrompido.
-- Verificacao documental concluida com sucesso.
-- TASK-015 marcada como Done.
-- PR da TASK-015 abriu com conflito porque `master` avancou; branch foi rebaseada e conflito no `README.md` resolvido removendo a secao de caminho oficial.
-- GitHub Actions `Secret scan` falhou inicialmente por falta de permissao `pull-requests: read`; workflow atualizado para permitir leitura dos commits do PR.
-- CodeRabbit apontou melhoria valida no wrapper Gemini; `scripts/gemini_review.ps1` passou a localizar o Gemini CLI via `npm root -g` e avisar quando credenciais OAuth locais nao puderem ser carregadas.
-- CodeRabbit apontou melhoria de permissao no Gitleaks; comentarios automaticos do Gitleaks foram desativados e `pull-requests: read` ficou restrito ao job `secret-scan`.
-- Iniciada TASK-016 para conectar a DAG mockada ao `PostgresMetricLoader` quando habilitado por configuracao.
-- Criado seletor `build_airflow_metric_loader`, com alvo padrao JSON e alvo PostgreSQL por `SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET=postgres`.
-- Docker Compose passou a injetar `SOCIAL_ANALYTICS_AIRFLOW_LOAD_TARGET` e `SOCIAL_ANALYTICS_POSTGRES_DSN` nos servicos Airflow sem senha hardcoded.
-- Docker Compose passou a instalar `psycopg[binary]` nos containers Airflow para suportar o loader PostgreSQL.
-- Criados testes para selecao do loader JSON/PostgreSQL, DSN ausente e alvo invalido.
-- Executados 29 testes unitarios com sucesso.
-- `docker compose --env-file .env.example config --quiet` validado com sucesso.
-- Bandit aprovado sem issues.
-- Ruff aprovado apos correcao automatica de ordenacao de imports.
-- TASK-016 marcada como Done.
-- PR da TASK-016 mergeado no `master`.
-- Avaliacao geral do codigo identificou dois ajustes imediatos antes de API real: contadores sociais em `BIGINT` e dependencia do Airflow no Postgres de metricas.
-- Iniciada TASK-017 para corrigir a prontidao do Postgres antes da primeira API real.
-- Schema `social_metrics` alterado para usar `BIGINT` em `likes`, `comments`, `shares`, `views` e `followers`.
-- Docker Compose ajustado para que os servicos Airflow aguardem o servico `postgres` saudavel.
-- Criado teste de regressao para confirmar que contadores sociais permanecem como `BIGINT`.
-- TASK-017 marcada como Done.
-- Consultada documentacao oficial do YouTube Data API para `search.list`, `videos.list` e paginacao.
-- Iniciada TASK-018 para criar o primeiro provider real em escopo reduzido.
-- Criado `YouTubeDataApiProvider`, usando `YOUTUBE_API_KEY` via ambiente.
-- Adicionada dependencia runtime `requests` para chamadas HTTP reais.
-- Provider YouTube coleta IDs por canal e intervalo via `search.list`, respeitando `nextPageToken` ate `max_pages`.
-- Provider YouTube busca `snippet` e `statistics` via `videos.list`.
-- Normalizador YouTube passou a aceitar payload real com campo `id`, mantendo compatibilidade com fixture `videoId`.
-- Criados testes com cliente HTTP fake, sem rede e sem chave real.
-- `.env.example` passou a documentar `YOUTUBE_API_KEY=` sem valor.
-- Executados 33 testes unitarios com sucesso.
-- Ruff, Bandit, pip-audit, Docker Compose config e verificacao documental aprovados.
-- TASK-018 marcada como Done.
-- Iniciada TASK-019 para criar comando manual seguro de smoke do YouTube real.
-- Criado comando `python -m social_analytics_pipeline.cli.youtube_smoke`.
-- Comando exige `YOUTUBE_CHANNEL_ID` antes de tentar chamada real.
-- Comando usa `YOUTUBE_API_KEY`, `YOUTUBE_MAX_PAGES` e `YOUTUBE_SMOKE_LOOKBACK_DAYS` via ambiente.
-- Saida do smoke command imprime apenas resumo seguro e mascara o canal como `<configured>`.
-- `.env.example` passou a documentar `YOUTUBE_CHANNEL_ID=`, `YOUTUBE_MAX_PAGES=1` e `YOUTUBE_SMOKE_LOOKBACK_DAYS=30`.
-- Criados testes offline para o resumo do smoke command e validacao de configuracao.
-- Validado que o smoke command sem variaveis falha de forma controlada antes de rede ou chave real.
-- Executados 37 testes unitarios com sucesso.
-- Ruff, Bandit, pip-audit, Docker Compose config e verificacao documental aprovados.
-- TASK-019 marcada como Done.
-- Identificada incoerencia operacional: bootstrap orientava preencher `.env`, mas o smoke command lia apenas variaveis exportadas.
-- Iniciada TASK-020 para carregar `.env` local no smoke command do YouTube.
-- Criado parser simples de `.env` para `KEY=value`, ignorando comentarios e linhas vazias.
-- Variaveis exportadas no ambiente passam a ter prioridade sobre valores do `.env`.
-- Criados testes cobrindo leitura de `.env`, remocao de aspas simples/duplas e prioridade do ambiente.
-- Documentado que o smoke command le `.env` automaticamente.
-- TASK-020 marcada como Done.
-- Teste operacional mostrou que `.env` local ainda nao existe neste ambiente.
-- Iniciada TASK-021 para melhorar a orientacao de setup do smoke command.
-- Smoke command passou a orientar criacao de `.env` a partir de `.env.example` quando `.env` nao existe.
-- Smoke command diferencia `.env` ausente de `.env` existente porem incompleto.
-- Criados testes para erro de `.env` ausente, `.env` incompleto e valor configurado.
-- TASK-021 marcada como Done.
+## Current Constraints
 
-### 2026-05-29
+- `.env`, raw data and processed data must remain local and ignored by Git.
+- Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
+- Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
 
-- Identificada necessidade de governanca hibrida para suportar Gemini e ChatGPT.
-- Iniciada TASK-022 para implementar governanca multi-agente.
-- `docs/GEMINI_CONTRACT.md` renomeado para `docs/AGENT_CONTRACTS.md`.
-- `docs/AGENT_CONTRACTS.md` atualizado para definir papeis de Desenvolvedor e Revisor baseados no canal (Codex vs Gemini CLI).
-- Criado `scripts/chatgpt_review.ps1` para suportar o fluxo de revisao via ChatGPT.
-- `scripts/verify_docs.ps1` e `README.md` atualizados para refletir a nova estrutura de agentes.
-- Verificacao documental concluida com sucesso.
-- TASK-022 marcada como Done.
-- Identificada falha de cota no Codex CLI para automacao direta; mantido fluxo hibrido com pacote gerado para copia manual se necessario.
-- Iniciada TASK-014 para padronizar o feedback dos revisores (Gemini e ChatGPT).
-- Atualizados `docs/AGENT_CONTRACTS.md`, `scripts/gemini_review.ps1` e `scripts/chatgpt_review.ps1` com o novo formato de feedback (Severidade, Arquivo, Evidencia, Risco, Acao).
-- Validacao local concluida: 42 testes passaram, ruff e bandit verdes, verify_docs ok.
-- TASK-014 marcada como Done.
-- Iniciada TASK-023 para incluir o diff do ultimo commit no pacote de revisao quando a arvore Git estiver limpa.
-- `scripts/gemini_packet.ps1` passou a adicionar a secao `Git Last Commit Diff` quando nao houver diff aberto ou staged.
-- Validado que o pacote exibe `Git Last Commit Diff` quando a arvore Git esta limpa.
-- Executados 42 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- TASK-023 marcada como Done.
-- Criado `.env` local a partir de `.env.example`; arquivo permanece ignorado pelo Git.
-- Smoke command do YouTube falhou de forma segura antes de rede, indicando configuracao ausente.
-- Iniciada TASK-024 para listar todas as configuracoes obrigatorias ausentes no smoke do YouTube.
-- `youtube_smoke` passou a validar `YOUTUBE_CHANNEL_ID` e `YOUTUBE_API_KEY` em lote antes de criar o provider real.
-- Smoke command com `.env` local sem segredos preenchidos falhou de forma segura, listando `YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY`.
-- Executados 45 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- Verificacao documental concluida com sucesso.
-- TASK-024 marcada como Done.
-- Smoke real com configuracao local chegou ate a API, mas falhou com erro HTTP antes de coletar dados.
-- Identificado risco operacional: excecoes HTTP padrao podem imprimir URL com parametros no terminal.
-- Identificado ajuste de entrada: `YOUTUBE_CHANNEL_ID` deve ser ID publico iniciado por `UC`, nao nome ou handle do canal.
-- Iniciada TASK-025 para sanitizar erros HTTP e validar formato do channel id antes de rede.
-- `HttpJsonClient` passou a converter falhas HTTP em mensagem generica com status, sem URL.
-- `youtube_smoke` passou a rejeitar nomes/handles de canal antes de chamada real.
-- Smoke command com canal em formato invalido falhou de forma segura antes de rede, sem traceback, URL, chave ou payload.
-- Executados 48 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini tentada antes do commit, mas bloqueada por credenciais invalidas do CLI; seguiremos com CI e CodeRabbit no PR.
-- TASK-025 marcada como Done.
-- Smoke real do YouTube executado com configuracao local segura: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.
-- Iniciada TASK-026 para permitir `YOUTUBE_CHANNEL_HANDLE` como alternativa a `YOUTUBE_CHANNEL_ID`.
-- Provider YouTube passou a resolver handle publico via endpoint de canais.
-- Smoke command passou a usar `YOUTUBE_CHANNEL_ID` com prioridade e fallback para `YOUTUBE_CHANNEL_HANDLE`.
-- Executados 52 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- Verificacao documental concluida com sucesso.
-- Smoke real seguro executado: 50 registros publicos coletados e 50 normalizados, sem imprimir chave, channel id real ou payload.
-- TASK-026 marcada como Done.
-- Iniciada TASK-027 para salvar resultados reais do YouTube em raw storage e artefato processed local.
-- Criado comando `youtube_local_pipeline` para executar provider real, `RawStorage` e `JsonMetricArtifactLoader`.
-- Criado teste offline cobrindo persistencia raw e artefato processed sem rede e sem chave real.
-- Executados 53 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- Verificacao documental concluida com sucesso.
-- Carga real segura executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local, sem imprimir chave, channel id real ou payload.
-- Confirmado que `data/raw/` e `data/processed/` continuam ignorados pelo Git.
-- TASK-027 marcada como Done.
-- Iniciada TASK-028 para permitir destino `json` ou `postgres` na carga local do YouTube.
-- `youtube_local_pipeline` passou a usar `YOUTUBE_LOCAL_LOAD_TARGET`, com JSON como padrao e Postgres via `SOCIAL_ANALYTICS_POSTGRES_DSN`.
-- `.env.example` e bootstrap documentam o novo alvo da carga local.
-- Executados 57 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- Verificacao documental concluida com sucesso.
-- Carga real segura no alvo `json` executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas em artefato local.
-- TASK-028 marcada como Done.
-- Iniciada TASK-029 para validar a carga real do YouTube no PostgreSQL local.
-- Docker Desktop iniciado e servico `postgres` do Compose ficou healthy.
-- `.env` local ignorado pelo Git foi ajustado com porta alternativa de Postgres para evitar conflito com outro Postgres local.
-- Carga real segura no alvo `postgres` executada: 50 payloads raw persistidos e 50 metricas normalizadas carregadas.
-- Verificacao agregada no banco confirmou 50 linhas YouTube e 50 conteudos distintos, sem listar IDs ou payloads.
-- `PostgresMetricLoader` passou a sanitizar erros de banco para evitar impressao de detalhes de conexao.
-- TASK-029 marcada como Done.
-- Iniciada TASK-030 para criar uma DAG Airflow dedicada ao YouTube real.
-- Proposta comunicada antes de codar: manter a DAG mockada, adicionar uma segunda DAG real, repassar variaveis YouTube pelo Docker Compose e validar sem importar Airflow nos testes.
-- Criada DAG `social_analytics_youtube_pipeline` usando intervalo de dados do Airflow e o provider real do YouTube.
-- Docker Compose passou a repassar `YOUTUBE_API_KEY`, canal, paginacao e alvo de carga para os servicos Airflow sem valores hardcoded.
-- Criados testes para configuracao da DAG real e injecao dos nomes de variaveis no Compose.
-- Validacoes locais aprovadas: 60 testes, Ruff, Bandit, Docker Compose config e verificacao documental.
-- TASK-030 marcada como Done.
+## Next Actions
 
-## Proximas acoes
-
-- Validar a DAG real do YouTube no Airflow local com ambiente Docker ativo e abrir PR para revisao automatizada.
+- Validate the real YouTube DAG inside local Airflow.
+- Add targeted resilience around API failures and invalid configuration.

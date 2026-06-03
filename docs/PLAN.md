@@ -1,81 +1,37 @@
-# Plano de Trabalho
+# Work Plan
 
-## Objetivo
+## Goal
 
-Construir um pipeline de analytics social capaz de extrair dados de plataformas sociais, manter historico, normalizar metricas em um schema unico, validar qualidade e orquestrar execucoes periodicas.
+Build a local-first social analytics pipeline that can collect public social data, preserve raw payloads, normalize metrics into one schema, load them locally and orchestrate scheduled runs.
 
-## Principios
+## Principles
 
-- O repositorio e a fonte da verdade.
-- Toda task deve ter criterios de aceite.
-- Toda mudanca relevante deve atualizar documentacao.
-- O Revisor avalia por contrato: plano, task, diff, testes e progresso.
-- O projeto deve permanecer demonstravel mesmo quando APIs reais bloquearem acesso.
+- The repository is the source of truth.
+- Every task must have a clear acceptance target.
+- Public documentation must not contain secrets, local paths, real payloads or expanded connection strings.
+- Real API calls are manual or locally configured; automated tests use mocks/fakes.
+- Keep documentation compact enough to be useful.
 
-## Fase 0 - Governanca do projeto
+## Phases
 
-Foco: criar o sistema operacional do projeto.
+| Phase | Focus | Status |
+| --- | --- | --- |
+| Phase 0 - Governance | Docs, task tracking, review contracts and safety rules. | Mostly done |
+| Phase 1 - MVP Core | Providers, raw storage, normalization and local PostgreSQL loading. | YouTube path done |
+| Phase 2 - Orchestration and History | Airflow, scheduled DAGs and catchup. | In progress |
+| Phase 3 - Resilience | Retries, rate limits, alerts and DLQ. | Pending |
+| Phase 4 - Quality and Scale | Data validation, metrics, profiling and scaling choices. | Pending |
 
-Entregaveis:
+## Near-Term Direction
 
-- Documentacao base.
-- Backlog inicial.
-- Script de status.
-- Script de verificacao documental.
-- Scripts para gerar pacotes de revisao contratual para Gemini ou ChatGPT.
+1. Validate the real YouTube DAG inside local Airflow.
+2. Add resilience around API failures and expired configuration.
+3. Add data validation before load.
+4. Decide whether to expand to another provider or harden YouTube first.
 
-## Fase 1 - Nucleo MVP e autenticacao
+## Out of Scope for Now
 
-Foco: provar que dados podem ser extraidos, preservados e normalizados corretamente.
-
-Entregaveis:
-
-- Mapeamento inicial de APIs e limitacoes.
-- Providers reais ou mockados.
-- Camada raw para salvar JSON bruto.
-- Schema unico para metricas sociais.
-- Transformacoes testadas.
-- Carga local em PostgreSQL via Docker.
-
-## Fase 2 - Orquestracao e historico
-
-Foco: automatizar o fluxo e permitir backfill.
-
-Entregaveis:
-
-- Airflow via Docker Compose.
-- DAGs por fonte.
-- Agendamento quinzenal.
-- Catchup historico.
-- Parametros por intervalo de dados.
-
-## Fase 3 - Resiliencia e alertas
-
-Foco: sobreviver a falhas comuns sem intervencao constante.
-
-Entregaveis:
-
-- Retries com backoff.
-- Tratamento de rate limit.
-- Alertas para tokens expirados.
-- Dead Letter Queue para registros invalidos.
-- Idempotencia de carga.
-
-## Fase 4 - Qualidade e escala
-
-Foco: aumentar confianca e preparar crescimento.
-
-Entregaveis:
-
-- Validacao com Great Expectations ou alternativa equivalente.
-- Testes unitarios e mocks de APIs.
-- Metricas do pipeline.
-- Rate limiter por provider.
-- Avaliacao de async ou CeleryExecutor quando houver volume real.
-
-## Fora de escopo inicial
-
-- Dashboard analitico completo.
-- Integracao paga com APIs antes de validar mocks.
-- Infraestrutura cloud.
-- CI/CD completo antes do MVP local.
+- Cloud deployment.
+- Full analytics dashboard.
+- Paid API integrations before the local MVP is stable.
+- Large-scale async fetching before real volume requires it.
