@@ -41,5 +41,6 @@ db/init/                        PostgreSQL schema
 data/fixtures/                  safe mock payloads
 tests/                          automated tests
 docs/                           compact project context
+SKILLS.md                       engineering standards and daily checklist
 scripts/                        status, docs and review helpers
 ```

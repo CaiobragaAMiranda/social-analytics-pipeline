@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $requiredFiles = @(
     "README.md",
+    "SKILLS.md",
     "docs/PLAN.md",
     "docs/TASKS.md",
     "docs/PROGRESS.md",
@@ -29,7 +30,7 @@ foreach ($file in $requiredFiles) {
 }
 
 if ($missing.Count -gt 0) {
-    Write-Host "Falha: arquivos obrigatorios ausentes."
+    Write-Host "Failure: required files are missing."
     $missing | ForEach-Object { Write-Host "- $_" }
     exit 1
 }
@@ -38,8 +39,8 @@ $tasks = Get-Content (Join-Path $root "docs/TASKS.md") -Raw
 $progress = Get-Content (Join-Path $root "docs/PROGRESS.md") -Raw
 $contract = Get-Content (Join-Path $root "docs/AGENT_CONTRACTS.md") -Raw
 
-if ($tasks -notmatch "TASK-031") {
-    throw "TASK-031 not found in docs/TASKS.md"
+if ($tasks -notmatch "TASK-\d{3}") {
+    throw "No task marker like TASK-000 found in docs/TASKS.md"
 }
 
 if ($progress -notmatch "Current phase:") {

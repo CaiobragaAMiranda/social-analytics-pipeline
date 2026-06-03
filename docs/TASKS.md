@@ -20,7 +20,7 @@ Goal: replace long Portuguese documentation with concise English documentation w
 Acceptance criteria:
 
 - Main documentation files are in English.
-- `README.md`, `docs/PLAN.md`, `docs/TASKS.md`, `docs/PROGRESS.md`, `docs/BOOTSTRAP.md`, `docs/ARCHITECTURE.md`, `docs/AGENT_CONTRACTS.md` and ADR-0001 remain present.
+- `README.md`, `SKILLS.md`, `docs/PLAN.md`, `docs/TASKS.md`, `docs/PROGRESS.md`, `docs/BOOTSTRAP.md`, `docs/ARCHITECTURE.md`, `docs/AGENT_CONTRACTS.md` and ADR-0001 remain present.
 - Historical task detail is summarized instead of repeated in full.
 - Safety rules about secrets, local paths, payloads and expanded DSNs remain explicit.
 - `scripts/project_status.ps1` and `scripts/verify_docs.ps1` still work.
@@ -30,6 +30,7 @@ Evidence:
 - `.\scripts\verify_docs.ps1` passed.
 - `.\scripts\project_status.ps1` passed.
 - Documentation was reduced from long historical logs to compact English summaries.
+- `SKILLS.md` added project engineering standards and a daily checklist.
 
 ## Completed Task Summary
 

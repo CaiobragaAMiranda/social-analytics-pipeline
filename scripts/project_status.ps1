@@ -39,6 +39,7 @@ Write-Host "---------------------"
 
 @(
     "README.md",
+    "SKILLS.md",
     "docs/PLAN.md",
     "docs/TASKS.md",
     "docs/PROGRESS.md",
