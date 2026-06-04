@@ -35,6 +35,9 @@ class YouTubeSmokeSummary:
     normalized_records: int
 
 
+DEFAULT_LOOKBACK_DAYS = 30
+
+
 def load_env_file(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
@@ -129,6 +132,31 @@ def resolve_smoke_channel_id(
     raise RuntimeError("YOUTUBE_CHANNEL_ID or YOUTUBE_CHANNEL_HANDLE required in local .env.")
 
 
+def resolve_backfill_interval(
+    runtime_env: Mapping[str, str],
+) -> tuple[datetime, datetime] | None:
+    start_value = runtime_env.get("YOUTUBE_BACKFILL_START_AT", "").strip()
+    end_value = runtime_env.get("YOUTUBE_BACKFILL_END_AT", "").strip()
+
+    if not start_value and not end_value:
+        return None
+
+    if not start_value or not end_value:
+        raise RuntimeError(
+            "YOUTUBE_BACKFILL_START_AT and YOUTUBE_BACKFILL_END_AT must be set together."
+        )
+
+    start_at = _parse_configured_datetime(start_value, "YOUTUBE_BACKFILL_START_AT")
+    end_at = _parse_configured_datetime(end_value, "YOUTUBE_BACKFILL_END_AT")
+    if start_at > end_at:
+        raise RuntimeError(
+            "YOUTUBE_BACKFILL_START_AT must be before or equal to "
+            "YOUTUBE_BACKFILL_END_AT."
+        )
+
+    return start_at, end_at
+
+
 def build_youtube_smoke_summary(
     provider: YouTubeCollector,
     channel_id: str,
@@ -158,12 +186,18 @@ def main(env: Mapping[str, str] | None = None, env_path: Path | None = None) -> 
         env_path,
     )
 
-    lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
-    if lookback_days < 1:
-        raise RuntimeError("YOUTUBE_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
+    backfill_interval = resolve_backfill_interval(runtime_env)
+    if backfill_interval:
+        start_at, end_at = backfill_interval
+    else:
+        lookback_days = int(
+            runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", str(DEFAULT_LOOKBACK_DAYS))
+        )
+        if lookback_days < 1:
+            raise RuntimeError("YOUTUBE_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
 
-    end_at = datetime.now(UTC)
-    start_at = end_at - timedelta(days=lookback_days)
+        end_at = datetime.now(UTC)
+        start_at = end_at - timedelta(days=lookback_days)
     provider = YouTubeDataApiProvider(YouTubeApiConfig.from_env(runtime_env))
     channel_id = resolve_smoke_channel_id({**runtime_env, **required_settings}, provider, env_path)
     summary = build_youtube_smoke_summary(provider, channel_id, start_at, end_at)
@@ -182,6 +216,18 @@ def _strip_env_value(value: str) -> str:
     if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
         return value[1:-1]
     return value
+
+
+def _parse_configured_datetime(value: str, key: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise RuntimeError(f"{key} must be a valid ISO-8601 datetime.") from exc
+
+    if parsed.tzinfo is None:
+        raise RuntimeError(f"{key} must include timezone information.")
+
+    return parsed.astimezone(UTC)
 
 
 if __name__ == "__main__":

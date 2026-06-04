@@ -67,6 +67,33 @@ class FakeHttpErrorResponse:
         raise requests.HTTPError("400 Client Error for url with key=secret", response=self)
 
 
+class FakeRetryableHttpErrorResponse:
+    def __init__(self, status_code: int) -> None:
+        self.status_code = status_code
+
+    def raise_for_status(self) -> None:
+        try:
+            import requests
+        except ImportError as exc:  # pragma: no cover
+            raise AssertionError("requests is required for this test") from exc
+
+        raise requests.HTTPError(
+            f"{self.status_code} Client Error for url with key=secret",
+            response=self,
+        )
+
+
+class FakeSuccessResponse:
+    def __init__(self, payload: dict[str, Any]) -> None:
+        self.payload = payload
+
+    def raise_for_status(self) -> None:
+        return None
+
+    def json(self) -> dict[str, Any]:
+        return self.payload
+
+
 class YouTubeProviderTest(unittest.TestCase):
     def test_config_from_env_requires_api_key(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "YOUTUBE_API_KEY"):
@@ -77,10 +104,14 @@ class YouTubeProviderTest(unittest.TestCase):
             {
                 "YOUTUBE_API_KEY": "test-api-key",
                 "YOUTUBE_MAX_PAGES": "3",
+                "YOUTUBE_HTTP_MAX_ATTEMPTS": "4",
+                "YOUTUBE_HTTP_BACKOFF_SECONDS": "2.5",
             }
         )
 
         self.assertEqual(config.max_pages, 3)
+        self.assertEqual(config.http_max_attempts, 4)
+        self.assertEqual(config.http_backoff_seconds, 2.5)
 
     def test_config_from_env_rejects_invalid_max_pages(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "YOUTUBE_MAX_PAGES"):
@@ -88,6 +119,23 @@ class YouTubeProviderTest(unittest.TestCase):
                 {
                     "YOUTUBE_API_KEY": "test-api-key",
                     "YOUTUBE_MAX_PAGES": "0",
+                }
+            )
+
+    def test_config_from_env_rejects_invalid_retry_values(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "YOUTUBE_HTTP_MAX_ATTEMPTS"):
+            YouTubeApiConfig.from_env(
+                {
+                    "YOUTUBE_API_KEY": "test-api-key",
+                    "YOUTUBE_HTTP_MAX_ATTEMPTS": "abc",
+                }
+            )
+
+        with self.assertRaisesRegex(RuntimeError, "YOUTUBE_HTTP_BACKOFF_SECONDS"):
+            YouTubeApiConfig.from_env(
+                {
+                    "YOUTUBE_API_KEY": "test-api-key",
+                    "YOUTUBE_HTTP_BACKOFF_SECONDS": "abc",
                 }
             )
 
@@ -103,6 +151,64 @@ class YouTubeProviderTest(unittest.TestCase):
 
         self.assertNotIn("secret", str(context.exception))
         self.assertNotIn("googleapis", str(context.exception))
+
+    def test_http_json_client_retries_retryable_status_codes(self) -> None:
+        responses = [
+            FakeRetryableHttpErrorResponse(429),
+            FakeSuccessResponse({"items": []}),
+        ]
+        sleep_calls: list[float] = []
+        client = HttpJsonClient(
+            max_attempts=3,
+            backoff_seconds=0.5,
+            sleeper=sleep_calls.append,
+        )
+
+        with patch("requests.get", side_effect=responses):
+            payload = client.get_json(
+                "https://www.googleapis.com/youtube/v3/search",
+                {"key": "secret", "channelId": "retry-channel"},
+            )
+
+        self.assertEqual(payload, {"items": []})
+        self.assertEqual(sleep_calls, [0.5])
+
+    def test_http_json_client_stops_on_credential_errors(self) -> None:
+        client = HttpJsonClient(
+            max_attempts=3,
+            backoff_seconds=0.5,
+            sleeper=lambda _seconds: None,
+        )
+
+        with (
+            patch("requests.get", return_value=FakeRetryableHttpErrorResponse(403)),
+            self.assertRaisesRegex(RuntimeError, "status 403") as context,
+        ):
+            client.get_json(
+                "https://www.googleapis.com/youtube/v3/search",
+                {"key": "secret", "channelId": "credential-channel"},
+            )
+
+        self.assertIn("quota", str(context.exception))
+        self.assertNotIn("secret", str(context.exception))
+
+    def test_http_json_client_reports_retry_exhaustion_without_leaking_secret(self) -> None:
+        client = HttpJsonClient(
+            max_attempts=3,
+            backoff_seconds=0.5,
+            sleeper=lambda _seconds: None,
+        )
+
+        with (
+            patch("requests.get", return_value=FakeRetryableHttpErrorResponse(503)),
+            self.assertRaisesRegex(RuntimeError, "after 3 attempts") as context,
+        ):
+            client.get_json(
+                "https://www.googleapis.com/youtube/v3/search",
+                {"key": "secret", "channelId": "unstable-channel"},
+            )
+
+        self.assertNotIn("secret", str(context.exception))
 
     def test_collect_metrics_uses_search_pagination_and_video_statistics(self) -> None:
         http_client = FakeHttpJsonClient()

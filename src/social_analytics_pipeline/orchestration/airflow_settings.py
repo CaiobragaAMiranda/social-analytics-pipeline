@@ -36,8 +36,8 @@ YOUTUBE_PIPELINE_DAG = AirflowDagSettings(
     description="Run the real YouTube social analytics pipeline inside Airflow.",
     schedule=timedelta(days=15),
     start_date=datetime(2026, 1, 1, tzinfo=UTC),
-    catchup=True,
-    tags=("social-analytics", "youtube", "pipeline", "catchup"),
+    catchup=False,
+    tags=("social-analytics", "youtube", "pipeline"),
 )
 
 MOCK_PIPELINE_LOAD = AirflowLoadSettings(

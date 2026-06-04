@@ -19,6 +19,8 @@ python -m pip install -r requirements-dev.txt
 
 Fill local `.env` values only on your machine. Never commit `.env`, raw API payloads, generated data, real channel IDs, expanded DSNs or local paths.
 
+For Airflow with CeleryExecutor, set `AIRFLOW_API_AUTH_JWT_SECRET` locally to the same non-empty random value for all containers. The Compose file passes it to `AIRFLOW__API_AUTH__JWT_SECRET` so workers can authenticate with the Airflow execution API.
+
 ## Local Checks
 
 ```powershell
@@ -65,10 +67,13 @@ YOUTUBE_CHANNEL_ID=<public-channel-id>
 YOUTUBE_CHANNEL_HANDLE=<optional-public-handle>
 YOUTUBE_MAX_PAGES=1
 YOUTUBE_SMOKE_LOOKBACK_DAYS=30
+YOUTUBE_BACKFILL_START_AT=<optional-iso-8601-start>
+YOUTUBE_BACKFILL_END_AT=<optional-iso-8601-end>
 YOUTUBE_LOCAL_LOAD_TARGET=json
 ```
 
 Use `YOUTUBE_CHANNEL_ID` when available. Otherwise use `YOUTUBE_CHANNEL_HANDLE`; the code resolves it without printing the resolved channel ID.
+Use `YOUTUBE_BACKFILL_START_AT` and `YOUTUBE_BACKFILL_END_AT` together only when you want a deliberate historical interval. Keep them empty for normal lookback-based runs.
 
 Safe smoke run:
 
@@ -84,6 +89,24 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_local_pipeline
 ```
 
+Simple local report from the latest processed artifact:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_report
+```
+
+Controlled backfill example:
+
+```powershell
+$env:PYTHONPATH = "src"
+$env:YOUTUBE_BACKFILL_START_AT = "2026-05-01T00:00:00Z"
+$env:YOUTUBE_BACKFILL_END_AT = "2026-05-15T00:00:00Z"
+python -m social_analytics_pipeline.cli.youtube_local_pipeline
+```
+
+Clear the backfill variables after the run if you want to return to normal lookback behavior.
+
 For PostgreSQL loading, set these locally:
 
 ```text
@@ -92,6 +115,31 @@ SOCIAL_ANALYTICS_POSTGRES_DSN=<local-dsn>
 ```
 
 The command may write to `data/raw/` and `data/processed/`; both are ignored by Git.
+
+## YouTube v1 Runbook
+
+Minimum local operator flow:
+
+1. Copy `.env.example` to `.env` and fill only local values.
+2. Set `YOUTUBE_API_KEY` and either `YOUTUBE_CHANNEL_ID` or `YOUTUBE_CHANNEL_HANDLE`.
+3. Run `python -m social_analytics_pipeline.cli.youtube_local_pipeline`.
+4. Confirm the terminal reports counts and `run_summary_path` without exposing secrets.
+5. If `YOUTUBE_LOCAL_LOAD_TARGET=postgres`, confirm records were loaded into PostgreSQL.
+
+Minimum Airflow operator flow:
+
+1. Start `postgres` plus the required Airflow services.
+2. Trigger `social_analytics_youtube_pipeline` deliberately.
+3. Confirm the run finishes successfully.
+4. Confirm logs and task results show counts and placeholders instead of secrets.
+
+Current closure checkpoint for YouTube v1:
+
+- Local YouTube execution works from `.env` only.
+- Raw payload persistence, normalization and load all complete in one run.
+- Invalid records are handled safely without exposing payloads.
+- The run generates a compact summary artifact.
+- The Airflow DAG remains manually triggerable without automatic catchup.
 
 ## Airflow
 

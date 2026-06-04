@@ -3,10 +3,12 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from social_analytics_pipeline.cli.youtube_smoke import (
     build_runtime_env,
     require_smoke_settings,
+    resolve_backfill_interval,
     resolve_smoke_channel_id,
 )
 from social_analytics_pipeline.load import PostgresMetricLoader
@@ -15,7 +17,9 @@ from social_analytics_pipeline.pipeline import (
     LocalPipelineResult,
     MetricLoader,
     build_interval_artifact_path,
+    build_run_summary_artifact_path,
     run_provider_pipeline,
+    write_json_artifact,
 )
 from social_analytics_pipeline.providers import YouTubeApiConfig, YouTubeDataApiProvider
 from social_analytics_pipeline.storage import RawStorage
@@ -26,6 +30,7 @@ class YouTubeLocalPipelineSummary:
     result: LocalPipelineResult
     processed_path: Path
     raw_root: Path
+    run_summary_path: Path
 
 
 def run_youtube_local_pipeline(
@@ -52,11 +57,30 @@ def run_youtube_local_pipeline(
         raw_storage=RawStorage(raw_root),
         loader=loader or JsonMetricArtifactLoader(processed_path),
     )
+    run_summary_path = build_run_summary_artifact_path(
+        project_root / "data" / "runs" / "youtube",
+        provider.name,
+        start_at,
+        end_at,
+    )
+    write_json_artifact(
+        run_summary_path,
+        build_run_summary_payload(
+            summary_result=result,
+            processed_path=processed_path,
+            raw_root=raw_root,
+            run_summary_path=run_summary_path,
+            start_at=start_at,
+            end_at=end_at,
+            project_root=project_root,
+        ),
+    )
 
     return YouTubeLocalPipelineSummary(
         result=result,
         processed_path=processed_path,
         raw_root=raw_root,
+        run_summary_path=run_summary_path,
     )
 
 
@@ -90,6 +114,53 @@ def build_youtube_local_loader(
     raise RuntimeError("YOUTUBE_LOCAL_LOAD_TARGET must be either 'json' or 'postgres'.")
 
 
+def enforce_invalid_record_policy(
+    runtime_env: Mapping[str, str],
+    summary: YouTubeLocalPipelineSummary,
+) -> None:
+    fail_on_invalid = runtime_env.get("YOUTUBE_FAIL_ON_INVALID_RECORDS", "").lower()
+    if fail_on_invalid not in {"1", "true", "yes", "on"}:
+        return
+
+    if summary.result.invalid_records < 1:
+        return
+
+    raise RuntimeError(
+        "YouTube local pipeline found invalid records and wrote them to the local DLQ. "
+        "Set YOUTUBE_FAIL_ON_INVALID_RECORDS to false to allow warning-only behavior."
+    )
+
+
+def build_run_summary_payload(
+    summary_result: LocalPipelineResult,
+    processed_path: Path,
+    raw_root: Path,
+    run_summary_path: Path,
+    start_at: datetime,
+    end_at: datetime,
+    project_root: Path,
+) -> dict[str, Any]:
+    return {
+        "provider": summary_result.provider,
+        "status": "warning" if summary_result.invalid_records else "ok",
+        "interval": {
+            "start_at": start_at.isoformat(),
+            "end_at": end_at.isoformat(),
+        },
+        "counts": {
+            "raw_records": summary_result.raw_records,
+            "valid_records": summary_result.valid_records,
+            "invalid_records": summary_result.invalid_records,
+            "loaded_records": summary_result.loaded_records,
+        },
+        "artifacts": {
+            "processed_path": processed_path.relative_to(project_root).as_posix(),
+            "raw_root": raw_root.relative_to(project_root).as_posix(),
+            "run_summary_path": run_summary_path.relative_to(project_root).as_posix(),
+        },
+    }
+
+
 def main(env: Mapping[str, str] | None = None, project_root: Path | None = None) -> int:
     root = project_root or Path.cwd()
     runtime_env = build_runtime_env(env, root / ".env")
@@ -99,12 +170,16 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
         root / ".env",
     )
 
-    lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
-    if lookback_days < 1:
-        raise RuntimeError("YOUTUBE_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
+    backfill_interval = resolve_backfill_interval(runtime_env)
+    if backfill_interval:
+        start_at, end_at = backfill_interval
+    else:
+        lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
+        if lookback_days < 1:
+            raise RuntimeError("YOUTUBE_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
 
-    end_at = datetime.now(UTC)
-    start_at = end_at - timedelta(days=lookback_days)
+        end_at = datetime.now(UTC)
+        start_at = end_at - timedelta(days=lookback_days)
     provider = YouTubeDataApiProvider(YouTubeApiConfig.from_env(runtime_env))
     channel_id = resolve_smoke_channel_id(
         {**runtime_env, **required_settings},
@@ -126,15 +201,19 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
         root,
         loader,
     )
+    enforce_invalid_record_policy(runtime_env, summary)
 
     print("YouTube local pipeline summary")
     print(f"provider={summary.result.provider}")
     print("channel_id=<configured>")
     print(f"raw_records={summary.result.raw_records}")
+    print(f"valid_records={summary.result.valid_records}")
+    print(f"invalid_records={summary.result.invalid_records}")
     print(f"loaded_records={summary.result.loaded_records}")
     print(f"load_target={runtime_env.get('YOUTUBE_LOCAL_LOAD_TARGET', 'json').lower()}")
     print(f"processed_path={processed_path.relative_to(root).as_posix()}")
     print(f"raw_root={summary.raw_root.relative_to(root).as_posix()}")
+    print(f"run_summary_path={summary.run_summary_path.relative_to(root).as_posix()}")
     return 0
 
 

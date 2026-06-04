@@ -12,6 +12,7 @@ Provider -> Raw Storage -> Normalization -> Load/Validation -> Orchestration
 - Raw storage writes original payloads under `data/raw/` for audit and reprocessing.
 - Normalizers convert provider-specific payloads into `SocialMetric`.
 - Loaders write normalized metrics to JSON artifacts or PostgreSQL.
+- Run summaries write compact execution snapshots under `data/runs/`.
 - Airflow DAGs orchestrate scheduled runs with 15-day intervals and catchup.
 
 ## Normalized Metric
@@ -44,18 +45,25 @@ provider + account_id + content_id + collected_at
 - `social_analytics_mock_pipeline`: runs mock providers through raw storage, normalization and configurable JSON/PostgreSQL loading.
 - `social_analytics_youtube_pipeline`: runs the real YouTube provider with settings from environment variables only.
 
-Both DAGs use:
+Current scheduling behavior:
 
 ```text
-schedule = 15 days
-catchup = True
-start_date = 2026-01-01 UTC
+social_analytics_mock_pipeline:
+  schedule = 15 days
+  catchup = True
+  start_date = 2026-01-01 UTC
+
+social_analytics_youtube_pipeline:
+  schedule = 15 days
+  catchup = False
+  start_date = 2026-01-01 UTC
 ```
 
 ## Configuration Safety
 
 - API keys, channel IDs, DSNs and passwords come from local environment variables or `.env`.
 - `.env`, `data/raw/`, `data/processed/` and review logs are ignored by Git.
+- `data/runs/` stays local and should not contain secrets, raw payloads or absolute machine paths.
 - Terminal output should show counts and placeholders, not raw payloads or sensitive values.
 
 ## Quality Gates
@@ -67,10 +75,14 @@ start_date = 2026-01-01 UTC
 - Gitleaks and GitHub Actions for secret scanning.
 - CodeRabbit for PR review.
 
+## Current Delivery Mode
+
+- The current priority is to close a usable YouTube v1 slice, not to maximize architectural sophistication.
+- Governance remains in place through tasks, progress tracking and review checkpoints.
+- New technical layers should only be added when they clearly help finish or safely operate the current delivery slice.
+
 ## Later Architecture Work
 
-- Data validation before load.
-- Retry/backoff and rate-limit handling.
-- Dead Letter Queue for invalid records.
-- Runtime metrics and alerting.
+- Extend persisted run summaries beyond the real YouTube path.
+- Decide whether warning states should trigger stronger alert delivery than local failures alone.
 - Async or Celery scaling only when real volume justifies it.

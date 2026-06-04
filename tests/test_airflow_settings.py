@@ -21,12 +21,13 @@ class AirflowSettingsTest(unittest.TestCase):
         self.assertFalse(MOCK_PIPELINE_LOAD.uses_postgres)
         self.assertEqual(MOCK_PIPELINE_LOAD.postgres_dsn_env_var, "SOCIAL_ANALYTICS_POSTGRES_DSN")
 
-    def test_youtube_pipeline_dag_is_scheduled_for_biweekly_catchup(self) -> None:
+    def test_youtube_pipeline_dag_is_scheduled_without_automatic_catchup(self) -> None:
         self.assertEqual(YOUTUBE_PIPELINE_DAG.dag_id, "social_analytics_youtube_pipeline")
         self.assertEqual(YOUTUBE_PIPELINE_DAG.schedule, timedelta(days=15))
         self.assertEqual(YOUTUBE_PIPELINE_DAG.start_date, datetime(2026, 1, 1, tzinfo=UTC))
-        self.assertTrue(YOUTUBE_PIPELINE_DAG.catchup)
+        self.assertFalse(YOUTUBE_PIPELINE_DAG.catchup)
         self.assertIn("youtube", YOUTUBE_PIPELINE_DAG.tags)
+        self.assertNotIn("catchup", YOUTUBE_PIPELINE_DAG.tags)
 
 
 if __name__ == "__main__":

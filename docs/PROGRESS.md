@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-03
+Date: 2026-06-04
 
-Current phase: Phase 2 - Orchestration and history
+Current phase: Post-v1 direction
 
-Current task: TASK-031 - Condense documentation in English.
+Current task: TASK-042 - Add a simple local YouTube report command for processed artifacts.
 
-Overall status: TASK-031 completed locally. Main documentation is now compact, English-first and still preserves current project state, workflow and safety rules.
+Overall status: the current YouTube v1 slice is closed, and the repository now has a minimal local reporting command so the collected YouTube data can be consumed without adding a dashboard or new infrastructure.
 
 ## Completed Milestones
 
@@ -23,14 +23,40 @@ Overall status: TASK-031 completed locally. Main documentation is now compact, E
 - Safe YouTube smoke and local pipeline commands were added.
 - Real YouTube local JSON and PostgreSQL loads were validated without printing secrets or payloads.
 - A real YouTube Airflow DAG was added and merged in PR #19.
+- Local Airflow validation completed for the real YouTube DAG.
+- YouTube provider resilience now includes retry/backoff and clearer credential failure handling.
+- Invalid normalized metrics are now blocked before artifact or PostgreSQL loading.
+- The next delivery direction is now explicit: controlled YouTube backfill before any new real provider expansion.
+- Controlled YouTube backfill now supports explicit start/end timestamps for local and fallback DAG runs.
+- Invalid normalized records now go to a local DLQ with a reason and raw file reference instead of stopping the full pipeline.
+
+## Latest Notes
+
+- Windows reserved the previous local metrics PostgreSQL port; the local `.env` now uses a non-reserved port.
+- Airflow 3.2.1 initialization now runs metadata migration without the incompatible user creation command.
+- Celery workers now use the Airflow execution API URL and a shared JWT secret from local environment configuration.
+- Automatic catchup is disabled for the real YouTube DAG to avoid unexpected YouTube API quota usage. Mock DAG catchup remains available for historical orchestration testing.
+- The successful YouTube Airflow run loaded 50 records and masked the configured channel in logs.
+- The YouTube HTTP client now retries transient statuses like `429` and `503`, but stops immediately on invalid credentials like `401` and `403`.
+- Validation now rejects empty identifiers, negative counters, and `published_at` values later than `collected_at`.
+- New provider breadth was intentionally deferred because only YouTube currently has a real end-to-end path.
+- Automatic YouTube DAG catchup is still disabled; historical recovery now happens only through explicit backfill settings.
+- Pipeline summaries now expose invalid record counts for local and Airflow-backed YouTube runs.
+- Real YouTube executions now persist a structured run summary with interval, status, counts and artifact locations.
+- The delivery strategy was simplified: keep governance, but prioritize cycle closure over new engineering layers.
+- The repository now documents what must be true to consider the current YouTube v1 delivery closed.
+- The repository now treats the YouTube v1 cycle as closed and shifts attention to the next functional slice.
+- The repository now includes a small local reporting step for processed YouTube artifacts.
 
 ## Current Constraints
 
 - `.env`, raw data and processed data must remain local and ignored by Git.
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
+- New work should prefer functional closure tasks over further sophistication unless the user explicitly asks for it.
 
 ## Next Actions
 
-- Validate the real YouTube DAG inside local Airflow.
-- Add targeted resilience around API failures and invalid configuration.
+- Decide whether the next slice should be another real provider or a simple consumption/reporting layer.
+- Keep additional infrastructure polish deferred unless it clearly unlocks the next slice.
+- Decide whether to deepen the simple consumption layer or open a second real provider.

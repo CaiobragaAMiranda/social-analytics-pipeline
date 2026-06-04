@@ -6,9 +6,9 @@ The repository is the source of truth. Work is split into small, reviewable task
 
 ## Current Status
 
-- Phase: Phase 2 - Orchestration and history
-- Current task: TASK-031 - Condense documentation in English
-- Last completed delivery: TASK-030 - Real YouTube Airflow DAG
+- Phase: Post-v1 direction
+- Current task: TASK-042 - Add a simple local YouTube report command for processed artifacts
+- Last completed delivery: TASK-041 - YouTube v1 closure recorded in repository context
 
 ## Workflow
 
@@ -20,6 +20,22 @@ Before coding a task:
 4. Update documentation and progress.
 5. Run local validation.
 6. Open a PR so GitHub Actions and CodeRabbit can review it.
+
+## YouTube v1 Closure
+
+The current delivery goal is to close one usable real-provider slice before adding more engineering depth.
+
+YouTube v1 is considered closed when all of the following are true:
+
+1. The local YouTube command runs with local `.env` settings only.
+2. The pipeline preserves raw payloads, normalizes metrics and loads them to JSON or PostgreSQL.
+3. The local run exposes a compact execution summary without leaking secrets.
+4. The Airflow YouTube DAG can be triggered deliberately and complete successfully.
+5. The repository documents the minimum safe operator steps to run and verify the flow.
+
+The repository now treats this YouTube v1 slice as closed. The next decision should favor product value, such as another real provider or a simple layer to consume the metrics already being collected.
+
+The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact and prints compact aggregate metrics.
 
 ## Useful Commands
 
