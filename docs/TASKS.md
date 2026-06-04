@@ -9,6 +9,29 @@
 
 ## Current Task
 
+### TASK-037 - Add a local DLQ for invalid records without breaking the main load
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: isolate invalid normalized records into a local dead letter queue so valid metrics can still load.
+
+Acceptance criteria:
+
+- Invalid records do not stop valid records from loading.
+- Invalid records are persisted in a local DLQ area with a reason and raw file reference.
+- The pipeline result reports invalid record counts.
+- Tests prove that invalid records are diverted while valid load behavior remains intact.
+
+Evidence:
+
+- Added `storage/dlq.py` with local dead letter storage for invalid records.
+- `run_provider_pipeline` now diverts invalid records to `data/dlq/` and continues loading valid metrics.
+- `LocalPipelineResult` now reports `invalid_records`.
+- YouTube local and Airflow summaries now include invalid record counts.
+- Tests confirm invalid records are persisted to the DLQ while the main load path remains usable.
+
 ### TASK-036 - Add controlled YouTube backfill support without re-enabling automatic DAG catchup
 
 Status: Done
@@ -148,11 +171,7 @@ Evidence:
 | TASK-034 | Metric validation now blocks impossible data before JSON/PostgreSQL load. | Done |
 | TASK-035 | Decision recorded: harden the real YouTube path before expanding to another real provider. | Done |
 | TASK-036 | Controlled YouTube backfill now supports explicit intervals without re-enabling DAG catchup. | Done |
-
-## Backlog
-
-| ID | Task | Status |
-| --- | --- | --- |
+| TASK-037 | Invalid records now go to a local DLQ without blocking valid loads. | Done |
 
 ## Review Rule
 

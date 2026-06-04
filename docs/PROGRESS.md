@@ -6,9 +6,9 @@ Date: 2026-06-04
 
 Current phase: Phase 3 - Resilience
 
-Current task: TASK-036 - Add controlled YouTube backfill support without re-enabling automatic DAG catchup.
+Current task: TASK-037 - Add a local DLQ for invalid records without breaking the main load.
 
-Overall status: TASK-036 completed locally in code and tests. The real YouTube path now supports deliberate explicit intervals without turning automatic DAG catchup back on.
+Overall status: TASK-037 completed locally in code and tests. Invalid records are now isolated in a local DLQ while valid metrics continue through the load path.
 
 ## Completed Milestones
 
@@ -28,6 +28,7 @@ Overall status: TASK-036 completed locally in code and tests. The real YouTube p
 - Invalid normalized metrics are now blocked before artifact or PostgreSQL loading.
 - The next delivery direction is now explicit: controlled YouTube backfill before any new real provider expansion.
 - Controlled YouTube backfill now supports explicit start/end timestamps for local and fallback DAG runs.
+- Invalid normalized records now go to a local DLQ with a reason and raw file reference instead of stopping the full pipeline.
 
 ## Latest Notes
 
@@ -40,6 +41,7 @@ Overall status: TASK-036 completed locally in code and tests. The real YouTube p
 - Validation now rejects empty identifiers, negative counters, and `published_at` values later than `collected_at`.
 - New provider breadth was intentionally deferred because only YouTube currently has a real end-to-end path.
 - Automatic YouTube DAG catchup is still disabled; historical recovery now happens only through explicit backfill settings.
+- Pipeline summaries now expose invalid record counts for local and Airflow-backed YouTube runs.
 
 ## Current Constraints
 
@@ -48,3 +50,5 @@ Overall status: TASK-036 completed locally in code and tests. The real YouTube p
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
 
 ## Next Actions
+
+- Decide whether the next work should add runtime metrics/alerts or broaden DLQ behavior across more entry points.

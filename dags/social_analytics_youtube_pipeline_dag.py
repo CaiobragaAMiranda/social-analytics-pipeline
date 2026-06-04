@@ -95,6 +95,7 @@ def social_analytics_youtube_pipeline() -> None:
             "provider": summary.result.provider,
             "channel_id": "<configured>",
             "raw_records": summary.result.raw_records,
+            "invalid_records": summary.result.invalid_records,
             "loaded_records": summary.result.loaded_records,
         }
 
