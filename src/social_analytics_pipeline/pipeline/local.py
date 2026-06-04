@@ -4,7 +4,11 @@ from typing import Protocol
 
 from social_analytics_pipeline.providers import SocialProvider
 from social_analytics_pipeline.storage import RawRecord, RawStorage
-from social_analytics_pipeline.transform import SocialMetric, normalize_payload
+from social_analytics_pipeline.transform import (
+    SocialMetric,
+    normalize_payload,
+    validate_metrics,
+)
 
 
 class MetricLoader(Protocol):
@@ -42,11 +46,12 @@ def run_provider_pipeline(
         )
         metrics.append(normalize_payload(payload, raw_path))
 
-    loaded_records = loader.load(metrics)
+    valid_metrics = validate_metrics(metrics)
+    loaded_records = loader.load(valid_metrics)
 
     return LocalPipelineResult(
         provider=provider.name,
         raw_records=len(payloads),
-        metrics=metrics,
+        metrics=valid_metrics,
         loaded_records=loaded_records,
     )

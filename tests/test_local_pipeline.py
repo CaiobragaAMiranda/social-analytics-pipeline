@@ -6,7 +6,7 @@ from pathlib import Path
 from social_analytics_pipeline.pipeline import run_provider_pipeline
 from social_analytics_pipeline.providers import FixtureProvider, build_mock_providers
 from social_analytics_pipeline.storage import RawStorage
-from social_analytics_pipeline.transform import SocialMetric
+from social_analytics_pipeline.transform import MetricValidationError, SocialMetric
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -75,6 +75,48 @@ class LocalPipelineTest(unittest.TestCase):
         self.assertEqual(result.metrics, [])
         self.assertEqual(raw_files, [])
         self.assertEqual(loader.loaded_batches, [[]])
+
+    def test_rejects_invalid_normalized_metric_before_load(self) -> None:
+        loader = FakeMetricLoader()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_root = Path(tmpdir)
+            invalid_fixture = temp_root / "invalid_metrics.json"
+            invalid_fixture.write_text(
+                """
+                [
+                  {
+                    "id": "ig-post-001",
+                    "media_type": "IMAGE",
+                    "timestamp": "2026-05-28T14:30:00Z",
+                    "like_count": -1,
+                    "comments_count": 14,
+                    "impressions": 2300,
+                    "account": {"followers_count": 5400},
+                    "_collection": {
+                      "provider": "instagram",
+                      "account_id": "ig-account-1",
+                      "start_at": "2026-05-01T00:00:00+00:00",
+                      "end_at": "2026-05-27T00:00:00+00:00"
+                    }
+                  }
+                ]
+                """.strip(),
+                encoding="utf-8",
+            )
+            provider = FixtureProvider(name="instagram", fixture_path=invalid_fixture)
+
+            with self.assertRaisesRegex(MetricValidationError, "likes"):
+                run_provider_pipeline(
+                    provider=provider,
+                    account_id="ig-account-1",
+                    start_at=datetime(2026, 5, 1, tzinfo=UTC),
+                    end_at=datetime(2026, 5, 27, tzinfo=UTC),
+                    raw_storage=RawStorage(temp_root / "raw"),
+                    loader=loader,
+                )
+
+        self.assertEqual(loader.loaded_batches, [])
 
 
 if __name__ == "__main__":

@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-03
+Date: 2026-06-04
 
-Current phase: Phase 2 - Orchestration and history
+Current phase: Phase 3 - Resilience
 
-Current task: TASK-032 - Validate `social_analytics_youtube_pipeline` inside local Airflow.
+Current task: TASK-034 - Add data validation before loading metrics.
 
-Overall status: TASK-032 completed locally. The real YouTube Airflow DAG was parsed, triggered and completed successfully in local Docker Airflow.
+Overall status: TASK-034 completed locally in code and tests. The pipeline now validates normalized metrics before JSON and PostgreSQL load paths.
 
 ## Completed Milestones
 
@@ -24,6 +24,8 @@ Overall status: TASK-032 completed locally. The real YouTube Airflow DAG was par
 - Real YouTube local JSON and PostgreSQL loads were validated without printing secrets or payloads.
 - A real YouTube Airflow DAG was added and merged in PR #19.
 - Local Airflow validation completed for the real YouTube DAG.
+- YouTube provider resilience now includes retry/backoff and clearer credential failure handling.
+- Invalid normalized metrics are now blocked before artifact or PostgreSQL loading.
 
 ## Latest Notes
 
@@ -32,6 +34,8 @@ Overall status: TASK-032 completed locally. The real YouTube Airflow DAG was par
 - Celery workers now use the Airflow execution API URL and a shared JWT secret from local environment configuration.
 - Automatic catchup is disabled for the real YouTube DAG to avoid unexpected YouTube API quota usage. Mock DAG catchup remains available for historical orchestration testing.
 - The successful YouTube Airflow run loaded 50 records and masked the configured channel in logs.
+- The YouTube HTTP client now retries transient statuses like `429` and `503`, but stops immediately on invalid credentials like `401` and `403`.
+- Validation now rejects empty identifiers, negative counters, and `published_at` values later than `collected_at`.
 
 ## Current Constraints
 
@@ -41,5 +45,5 @@ Overall status: TASK-032 completed locally. The real YouTube Airflow DAG was par
 
 ## Next Actions
 
-- Add targeted resilience around API failures and invalid configuration.
-- Decide whether the next work should harden YouTube errors/retries or add explicit controlled backfill.
+- Decide whether the next work should expand provider coverage or deepen controlled backfill behavior for YouTube.
+- Decide whether the next work should expand provider coverage or deepen controlled backfill behavior for YouTube.
