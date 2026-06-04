@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-043 - Add a shareable local YouTube markdown report
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the existing YouTube data easier to consume by generating a small shareable markdown report instead of adding a dashboard or new infrastructure.
+
+Acceptance criteria:
+
+- The local report command generates a markdown file from the latest processed YouTube artifact.
+- The markdown report includes compact aggregate metrics and a top-content ranking.
+- The command still fails clearly when no processed artifact exists or the artifact is invalid.
+- Tests cover summary aggregation and markdown persistence.
+
+Evidence:
+
+- `youtube_report.py` now writes a markdown report under `data/reports/youtube/`.
+- The report includes totals plus a top-content table ranked by views.
+- The command still reads the latest file from `data/processed/youtube/` by default.
+- Tests cover latest-file selection, summary aggregation, markdown generation and invalid artifact handling.
+
 ### TASK-042 - Add a simple local YouTube report command for processed artifacts
 
 Status: Done
@@ -300,6 +322,7 @@ Evidence:
 | TASK-040 | The repository now includes a concise YouTube v1 runbook and closure checkpoint. | Done |
 | TASK-041 | The repository now treats the YouTube v1 slice as closed and sets up the next decision. | Done |
 | TASK-042 | A simple local YouTube report command now consumes processed artifacts. | Done |
+| TASK-043 | The local YouTube report command now generates a shareable markdown report. | Done |
 
 ## Deferred Until After v1 Closure
 

@@ -4,9 +4,11 @@ import unittest
 from pathlib import Path
 
 from social_analytics_pipeline.cli.youtube_report import (
+    build_youtube_report_markdown,
     build_youtube_report_summary,
     find_latest_youtube_processed_artifact,
     load_youtube_report_rows,
+    write_youtube_report_markdown,
 )
 
 
@@ -61,6 +63,8 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.max_followers, 1200)
         self.assertEqual(summary.top_content_id, "video-2")
         self.assertEqual(summary.top_views, 250)
+        self.assertEqual(len(summary.top_rows), 2)
+        self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
 
     def test_load_youtube_report_rows_rejects_non_list_payload(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -69,6 +73,46 @@ class YouTubeReportTest(unittest.TestCase):
 
             with self.assertRaisesRegex(RuntimeError, "JSON list"):
                 load_youtube_report_rows(artifact_path)
+
+    def test_write_youtube_report_markdown_persists_ranked_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            artifact_path = artifact_dir / "youtube-20260516T000000-20260531T000000.json"
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "likes": 10,
+                            "comments": 2,
+                            "shares": 1,
+                            "views": 100,
+                            "followers": 1000,
+                        },
+                        {
+                            "content_id": "video-2",
+                            "likes": 5,
+                            "comments": 3,
+                            "shares": 0,
+                            "views": 250,
+                            "followers": 1200,
+                        },
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            summary = build_youtube_report_summary(artifact_path)
+            markdown = build_youtube_report_markdown(summary, project_root)
+            report_path = write_youtube_report_markdown(summary, project_root)
+
+            self.assertIn("# YouTube Report", markdown)
+            self.assertIn("video-2", markdown)
+            self.assertTrue(report_path.exists())
+            saved = report_path.read_text(encoding="utf-8")
+            self.assertIn("| video-2 | 250 | 5 | 3 | 0 | 1200 |", saved)
 
 
 if __name__ == "__main__":

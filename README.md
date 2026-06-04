@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-042 - Add a simple local YouTube report command for processed artifacts
-- Last completed delivery: TASK-041 - YouTube v1 closure recorded in repository context
+- Current task: TASK-043 - Add a shareable local YouTube markdown report
+- Last completed delivery: TASK-042 - Local YouTube report command
 
 ## Workflow
 
@@ -35,7 +35,7 @@ YouTube v1 is considered closed when all of the following are true:
 
 The repository now treats this YouTube v1 slice as closed. The next decision should favor product value, such as another real provider or a simple layer to consume the metrics already being collected.
 
-The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact and prints compact aggregate metrics.
+The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact, prints compact aggregate metrics and writes a markdown report.
 
 ## Useful Commands
 
