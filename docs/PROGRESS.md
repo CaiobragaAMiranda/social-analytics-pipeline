@@ -6,9 +6,9 @@ Date: 2026-06-04
 
 Current phase: Phase 3 - Resilience
 
-Current task: TASK-037 - Add a local DLQ for invalid records without breaking the main load.
+Current task: TASK-038 - Add runtime metrics and simple invalid-record alerting.
 
-Overall status: TASK-037 completed locally in code and tests. Invalid records are now isolated in a local DLQ while valid metrics continue through the load path.
+Overall status: TASK-038 completed locally in code and tests. The pipeline now exposes clearer execution counts and supports fail-on-invalid warning escalation for the YouTube path.
 
 ## Completed Milestones
 

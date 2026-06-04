@@ -91,6 +91,23 @@ def build_youtube_local_loader(
     raise RuntimeError("YOUTUBE_LOCAL_LOAD_TARGET must be either 'json' or 'postgres'.")
 
 
+def enforce_invalid_record_policy(
+    runtime_env: Mapping[str, str],
+    summary: YouTubeLocalPipelineSummary,
+) -> None:
+    fail_on_invalid = runtime_env.get("YOUTUBE_FAIL_ON_INVALID_RECORDS", "").lower()
+    if fail_on_invalid not in {"1", "true", "yes", "on"}:
+        return
+
+    if summary.result.invalid_records < 1:
+        return
+
+    raise RuntimeError(
+        "YouTube local pipeline found invalid records and wrote them to the local DLQ. "
+        "Set YOUTUBE_FAIL_ON_INVALID_RECORDS to false to allow warning-only behavior."
+    )
+
+
 def main(env: Mapping[str, str] | None = None, project_root: Path | None = None) -> int:
     root = project_root or Path.cwd()
     runtime_env = build_runtime_env(env, root / ".env")
@@ -131,11 +148,13 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
         root,
         loader,
     )
+    enforce_invalid_record_policy(runtime_env, summary)
 
     print("YouTube local pipeline summary")
     print(f"provider={summary.result.provider}")
     print("channel_id=<configured>")
     print(f"raw_records={summary.result.raw_records}")
+    print(f"valid_records={summary.result.valid_records}")
     print(f"invalid_records={summary.result.invalid_records}")
     print(f"loaded_records={summary.result.loaded_records}")
     print(f"load_target={runtime_env.get('YOUTUBE_LOCAL_LOAD_TARGET', 'json').lower()}")

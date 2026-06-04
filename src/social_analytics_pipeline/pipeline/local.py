@@ -30,6 +30,10 @@ class LocalPipelineResult:
     invalid_records: int
     loaded_records: int
 
+    @property
+    def valid_records(self) -> int:
+        return len(self.metrics)
+
 
 def run_provider_pipeline(
     provider: SocialProvider,

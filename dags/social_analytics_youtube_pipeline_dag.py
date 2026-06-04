@@ -39,6 +39,7 @@ def social_analytics_youtube_pipeline() -> None:
         from social_analytics_pipeline.cli.youtube_local_pipeline import (
             build_runtime_env,
             build_youtube_local_loader,
+            enforce_invalid_record_policy,
             require_smoke_settings,
             resolve_backfill_interval,
             resolve_smoke_channel_id,
@@ -90,11 +91,14 @@ def social_analytics_youtube_pipeline() -> None:
             project_root,
             loader,
         )
+        enforce_invalid_record_policy(runtime_env, summary)
 
         return {
             "provider": summary.result.provider,
             "channel_id": "<configured>",
+            "status": "warning" if summary.result.invalid_records else "ok",
             "raw_records": summary.result.raw_records,
+            "valid_records": summary.result.valid_records,
             "invalid_records": summary.result.invalid_records,
             "loaded_records": summary.result.loaded_records,
         }

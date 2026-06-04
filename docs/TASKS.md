@@ -32,6 +32,28 @@ Evidence:
 - YouTube local and Airflow summaries now include invalid record counts.
 - Tests confirm invalid records are persisted to the DLQ while the main load path remains usable.
 
+### TASK-038 - Add runtime metrics and simple invalid-record alerting
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: expose execution counts more clearly and allow deliberate failure when invalid records are detected.
+
+Acceptance criteria:
+
+- Pipeline results expose valid record counts.
+- YouTube local and Airflow summaries include a simple execution status.
+- A local environment flag can fail the run when invalid records were sent to the DLQ.
+- Tests cover the invalid-record alert policy.
+
+Evidence:
+
+- `LocalPipelineResult` now exposes `valid_records`.
+- YouTube local output now reports `valid_records` and can fail when `YOUTUBE_FAIL_ON_INVALID_RECORDS=true`.
+- The YouTube Airflow DAG now reports `status`, `valid_records`, `invalid_records`, and `loaded_records`.
+- Tests cover warning-only behavior and fail-on-invalid behavior.
+
 ### TASK-036 - Add controlled YouTube backfill support without re-enabling automatic DAG catchup
 
 Status: Done
