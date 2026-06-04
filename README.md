@@ -6,9 +6,9 @@ The repository is the source of truth. Work is split into small, reviewable task
 
 ## Current Status
 
-- Phase: Phase 2 - Orchestration and history
-- Current task: TASK-032 - Validate real YouTube Airflow DAG locally
-- Last completed delivery: TASK-032 - Real YouTube Airflow validation
+- Phase: Delivery simplification and YouTube v1 closure
+- Current task: TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint
+- Last completed delivery: TASK-039 - Real YouTube run summary artifact
 
 ## Workflow
 
@@ -20,6 +20,18 @@ Before coding a task:
 4. Update documentation and progress.
 5. Run local validation.
 6. Open a PR so GitHub Actions and CodeRabbit can review it.
+
+## YouTube v1 Closure
+
+The current delivery goal is to close one usable real-provider slice before adding more engineering depth.
+
+YouTube v1 is considered closed when all of the following are true:
+
+1. The local YouTube command runs with local `.env` settings only.
+2. The pipeline preserves raw payloads, normalizes metrics and loads them to JSON or PostgreSQL.
+3. The local run exposes a compact execution summary without leaking secrets.
+4. The Airflow YouTube DAG can be triggered deliberately and complete successfully.
+5. The repository documents the minimum safe operator steps to run and verify the flow.
 
 ## Useful Commands
 

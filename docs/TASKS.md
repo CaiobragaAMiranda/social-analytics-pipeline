@@ -7,7 +7,64 @@
 - Review: waiting for reviewer or user decision.
 - Done: completed and documented.
 
+## Delivery Focus
+
+- Close the current YouTube v1 cycle before adding more engineering layers.
+- Keep the governance pattern, but prefer larger functional tasks over tiny infrastructure refinements.
+- Defer extra observability, stronger alerting and broader orchestration work until the core delivery is closed.
+
 ## Current Task
+
+### TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint
+
+Status: Done
+
+Phase: Phase 1 - MVP Core
+
+Goal: make the existing real YouTube path easy to run, verify and hand off without adding new technical layers first.
+
+Acceptance criteria:
+
+- The repository documents the minimum steps to run the real YouTube path locally.
+- The repository documents the minimum steps to run the YouTube Airflow DAG deliberately.
+- The repository states what counts as "YouTube v1 closed" for the current cycle.
+- The guidance stays compact and does not expose secrets, local paths or raw payloads.
+
+Notes:
+
+- This task is intentionally operational, not architectural.
+- Its purpose is to close the current delivery cycle before expanding scope again.
+
+Evidence:
+
+- `README.md` now states the YouTube v1 closure target in compact form.
+- `docs/BOOTSTRAP.md` now includes a minimal local and Airflow operator runbook.
+- The repository now records a concrete closure checkpoint for the current YouTube cycle.
+- The guidance stays compact and avoids secrets, local paths and raw payload details.
+
+### TASK-039 - Persist a structured run summary for the real YouTube pipeline
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: keep a compact execution summary artifact for each real YouTube run so troubleshooting does not depend on terminal output or Airflow task logs alone.
+
+Acceptance criteria:
+
+- Each local YouTube run writes a structured JSON run summary artifact.
+- The summary captures interval, status, execution counts and artifact locations.
+- The local CLI output shows the run summary path.
+- The YouTube Airflow DAG result includes the run summary path.
+- Tests prove the summary file is created for both healthy and warning runs.
+
+Evidence:
+
+- Added run summary artifact helpers in `pipeline/artifacts.py`.
+- `run_youtube_local_pipeline` now writes a run summary under `data/runs/youtube/`.
+- The local CLI output now prints `run_summary_path`.
+- The YouTube Airflow DAG return payload now includes `run_summary_path`.
+- Tests confirm summary creation and warning status behavior when invalid records are diverted to the DLQ.
 
 ### TASK-037 - Add a local DLQ for invalid records without breaking the main load
 
@@ -194,6 +251,16 @@ Evidence:
 | TASK-035 | Decision recorded: harden the real YouTube path before expanding to another real provider. | Done |
 | TASK-036 | Controlled YouTube backfill now supports explicit intervals without re-enabling DAG catchup. | Done |
 | TASK-037 | Invalid records now go to a local DLQ without blocking valid loads. | Done |
+| TASK-038 | Runtime metrics and simple invalid-record alerting were added to the YouTube path. | Done |
+| TASK-039 | Real YouTube runs now persist a compact structured run summary artifact. | Done |
+| TASK-040 | The repository now includes a concise YouTube v1 runbook and closure checkpoint. | Done |
+
+## Deferred Until After v1 Closure
+
+- Broaden run summaries beyond the real YouTube path.
+- Add stronger alert delivery beyond the current local fail-on-invalid mode.
+- Revisit broader Airflow/observability refinements.
+- Expand to additional real providers only after the current YouTube cycle is clearly closed.
 
 ## Review Rule
 

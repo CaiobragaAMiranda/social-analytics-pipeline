@@ -84,6 +84,8 @@ class YouTubeLocalPipelineTest(unittest.TestCase):
 
             raw_files = sorted((project_root / "data" / "raw").glob("youtube/**/*.json"))
             processed_rows = json.loads(summary.processed_path.read_text(encoding="utf-8"))
+            run_summary = json.loads(summary.run_summary_path.read_text(encoding="utf-8"))
+            run_summary_exists = summary.run_summary_path.exists()
 
         self.assertEqual(summary.result.provider, "youtube")
         self.assertEqual(summary.result.raw_records, 1)
@@ -91,8 +93,16 @@ class YouTubeLocalPipelineTest(unittest.TestCase):
         self.assertEqual(summary.result.loaded_records, 1)
         self.assertEqual(len(raw_files), 1)
         self.assertEqual(len(processed_rows), 1)
+        self.assertTrue(run_summary_exists)
         self.assertEqual(processed_rows[0]["provider"], "youtube")
         self.assertEqual(processed_rows[0]["content_id"], "yt-video-001")
+        self.assertEqual(run_summary["provider"], "youtube")
+        self.assertEqual(run_summary["status"], "ok")
+        self.assertEqual(run_summary["counts"]["valid_records"], 1)
+        self.assertEqual(
+            run_summary["artifacts"]["processed_path"],
+            summary.processed_path.relative_to(project_root).as_posix(),
+        )
 
     def test_enforce_invalid_record_policy_raises_when_enabled(self) -> None:
         provider = YouTubeDataApiProvider(
@@ -131,10 +141,13 @@ class YouTubeLocalPipelineTest(unittest.TestCase):
                 end_at=datetime(2026, 5, 27, tzinfo=UTC),
                 project_root=project_root,
             )
+            run_summary = json.loads(summary.run_summary_path.read_text(encoding="utf-8"))
 
         self.assertEqual(summary.result.valid_records, 0)
         self.assertEqual(summary.result.invalid_records, 1)
         enforce_invalid_record_policy({}, summary)
+        self.assertEqual(run_summary["status"], "warning")
+        self.assertEqual(run_summary["counts"]["invalid_records"], 1)
 
     def test_build_youtube_local_loader_defaults_to_json_artifact(self) -> None:
         loader, processed_path = build_youtube_local_loader(

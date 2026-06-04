@@ -109,6 +109,31 @@ SOCIAL_ANALYTICS_POSTGRES_DSN=<local-dsn>
 
 The command may write to `data/raw/` and `data/processed/`; both are ignored by Git.
 
+## YouTube v1 Runbook
+
+Minimum local operator flow:
+
+1. Copy `.env.example` to `.env` and fill only local values.
+2. Set `YOUTUBE_API_KEY` and either `YOUTUBE_CHANNEL_ID` or `YOUTUBE_CHANNEL_HANDLE`.
+3. Run `python -m social_analytics_pipeline.cli.youtube_local_pipeline`.
+4. Confirm the terminal reports counts and `run_summary_path` without exposing secrets.
+5. If `YOUTUBE_LOCAL_LOAD_TARGET=postgres`, confirm records were loaded into PostgreSQL.
+
+Minimum Airflow operator flow:
+
+1. Start `postgres` plus the required Airflow services.
+2. Trigger `social_analytics_youtube_pipeline` deliberately.
+3. Confirm the run finishes successfully.
+4. Confirm logs and task results show counts and placeholders instead of secrets.
+
+Current closure checkpoint for YouTube v1:
+
+- Local YouTube execution works from `.env` only.
+- Raw payload persistence, normalization and load all complete in one run.
+- Invalid records are handled safely without exposing payloads.
+- The run generates a compact summary artifact.
+- The Airflow DAG remains manually triggerable without automatic catchup.
+
 ## Airflow
 
 Initialize Airflow metadata:

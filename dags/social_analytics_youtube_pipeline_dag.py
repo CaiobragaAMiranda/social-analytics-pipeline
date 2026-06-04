@@ -101,6 +101,7 @@ def social_analytics_youtube_pipeline() -> None:
             "valid_records": summary.result.valid_records,
             "invalid_records": summary.result.invalid_records,
             "loaded_records": summary.result.loaded_records,
+            "run_summary_path": summary.run_summary_path.relative_to(project_root).as_posix(),
         }
 
     run_youtube_pipeline()

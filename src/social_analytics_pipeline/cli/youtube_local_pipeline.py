@@ -3,6 +3,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from social_analytics_pipeline.cli.youtube_smoke import (
     build_runtime_env,
@@ -16,7 +17,9 @@ from social_analytics_pipeline.pipeline import (
     LocalPipelineResult,
     MetricLoader,
     build_interval_artifact_path,
+    build_run_summary_artifact_path,
     run_provider_pipeline,
+    write_json_artifact,
 )
 from social_analytics_pipeline.providers import YouTubeApiConfig, YouTubeDataApiProvider
 from social_analytics_pipeline.storage import RawStorage
@@ -27,6 +30,7 @@ class YouTubeLocalPipelineSummary:
     result: LocalPipelineResult
     processed_path: Path
     raw_root: Path
+    run_summary_path: Path
 
 
 def run_youtube_local_pipeline(
@@ -53,11 +57,30 @@ def run_youtube_local_pipeline(
         raw_storage=RawStorage(raw_root),
         loader=loader or JsonMetricArtifactLoader(processed_path),
     )
+    run_summary_path = build_run_summary_artifact_path(
+        project_root / "data" / "runs" / "youtube",
+        provider.name,
+        start_at,
+        end_at,
+    )
+    write_json_artifact(
+        run_summary_path,
+        build_run_summary_payload(
+            summary_result=result,
+            processed_path=processed_path,
+            raw_root=raw_root,
+            run_summary_path=run_summary_path,
+            start_at=start_at,
+            end_at=end_at,
+            project_root=project_root,
+        ),
+    )
 
     return YouTubeLocalPipelineSummary(
         result=result,
         processed_path=processed_path,
         raw_root=raw_root,
+        run_summary_path=run_summary_path,
     )
 
 
@@ -106,6 +129,36 @@ def enforce_invalid_record_policy(
         "YouTube local pipeline found invalid records and wrote them to the local DLQ. "
         "Set YOUTUBE_FAIL_ON_INVALID_RECORDS to false to allow warning-only behavior."
     )
+
+
+def build_run_summary_payload(
+    summary_result: LocalPipelineResult,
+    processed_path: Path,
+    raw_root: Path,
+    run_summary_path: Path,
+    start_at: datetime,
+    end_at: datetime,
+    project_root: Path,
+) -> dict[str, Any]:
+    return {
+        "provider": summary_result.provider,
+        "status": "warning" if summary_result.invalid_records else "ok",
+        "interval": {
+            "start_at": start_at.isoformat(),
+            "end_at": end_at.isoformat(),
+        },
+        "counts": {
+            "raw_records": summary_result.raw_records,
+            "valid_records": summary_result.valid_records,
+            "invalid_records": summary_result.invalid_records,
+            "loaded_records": summary_result.loaded_records,
+        },
+        "artifacts": {
+            "processed_path": processed_path.relative_to(project_root).as_posix(),
+            "raw_root": raw_root.relative_to(project_root).as_posix(),
+            "run_summary_path": run_summary_path.relative_to(project_root).as_posix(),
+        },
+    }
 
 
 def main(env: Mapping[str, str] | None = None, project_root: Path | None = None) -> int:
@@ -160,6 +213,7 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
     print(f"load_target={runtime_env.get('YOUTUBE_LOCAL_LOAD_TARGET', 'json').lower()}")
     print(f"processed_path={processed_path.relative_to(root).as_posix()}")
     print(f"raw_root={summary.raw_root.relative_to(root).as_posix()}")
+    print(f"run_summary_path={summary.run_summary_path.relative_to(root).as_posix()}")
     return 0
 
 

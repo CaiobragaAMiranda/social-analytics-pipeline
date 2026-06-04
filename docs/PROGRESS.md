@@ -4,11 +4,11 @@
 
 Date: 2026-06-04
 
-Current phase: Phase 3 - Resilience
+Current phase: Delivery simplification and YouTube v1 closure
 
-Current task: TASK-038 - Add runtime metrics and simple invalid-record alerting.
+Current task: TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint.
 
-Overall status: TASK-038 completed locally in code and tests. The pipeline now exposes clearer execution counts and supports fail-on-invalid warning escalation for the YouTube path.
+Overall status: TASK-040 completed. The repository now states the minimum operator flow and a concrete closure checkpoint for the current YouTube v1 cycle.
 
 ## Completed Milestones
 
@@ -42,13 +42,19 @@ Overall status: TASK-038 completed locally in code and tests. The pipeline now e
 - New provider breadth was intentionally deferred because only YouTube currently has a real end-to-end path.
 - Automatic YouTube DAG catchup is still disabled; historical recovery now happens only through explicit backfill settings.
 - Pipeline summaries now expose invalid record counts for local and Airflow-backed YouTube runs.
+- Real YouTube executions now persist a structured run summary with interval, status, counts and artifact locations.
+- The delivery strategy was simplified: keep governance, but prioritize cycle closure over new engineering layers.
+- The repository now documents what must be true to consider the current YouTube v1 delivery closed.
 
 ## Current Constraints
 
 - `.env`, raw data and processed data must remain local and ignored by Git.
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
+- New work should prefer functional closure tasks over further sophistication unless the user explicitly asks for it.
 
 ## Next Actions
 
-- Decide whether the next work should add runtime metrics/alerts or broaden DLQ behavior across more entry points.
+- Commit the current YouTube v1 closure docs and the already validated TASK-039 changes.
+- Re-run the compact review cycle for the updated branch.
+- After that checkpoint, decide whether to expand breadth or deepen engineering again.
