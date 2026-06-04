@@ -6,9 +6,9 @@ The repository is the source of truth. Work is split into small, reviewable task
 
 ## Current Status
 
-- Phase: Delivery simplification and YouTube v1 closure
-- Current task: TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint
-- Last completed delivery: TASK-039 - Real YouTube run summary artifact
+- Phase: Post-v1 direction
+- Current task: TASK-042 - Add a simple local YouTube report command for processed artifacts
+- Last completed delivery: TASK-041 - YouTube v1 closure recorded in repository context
 
 ## Workflow
 
@@ -32,6 +32,10 @@ YouTube v1 is considered closed when all of the following are true:
 3. The local run exposes a compact execution summary without leaking secrets.
 4. The Airflow YouTube DAG can be triggered deliberately and complete successfully.
 5. The repository documents the minimum safe operator steps to run and verify the flow.
+
+The repository now treats this YouTube v1 slice as closed. The next decision should favor product value, such as another real provider or a simple layer to consume the metrics already being collected.
+
+The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact and prints compact aggregate metrics.
 
 ## Useful Commands
 

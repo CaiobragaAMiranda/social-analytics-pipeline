@@ -89,6 +89,13 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_local_pipeline
 ```
 
+Simple local report from the latest processed artifact:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_report
+```
+
 Controlled backfill example:
 
 ```powershell

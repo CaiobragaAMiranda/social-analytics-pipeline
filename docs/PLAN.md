@@ -18,16 +18,17 @@ Build a local-first social analytics pipeline that can collect public social dat
 | Phase | Focus | Status |
 | --- | --- | --- |
 | Phase 0 - Governance | Docs, task tracking, review contracts and safety rules. | Mostly done |
-| Phase 1 - MVP Core | Providers, raw storage, normalization and local PostgreSQL loading. | Closing current YouTube v1 |
+| Phase 1 - MVP Core | Providers, raw storage, normalization and local PostgreSQL loading. | YouTube v1 closed |
 | Phase 2 - Orchestration and History | Airflow, scheduled DAGs and catchup. | Usable for YouTube |
 | Phase 3 - Resilience | Retries, rate limits, alerts and DLQ. | Baseline done for YouTube |
 | Phase 4 - Quality and Scale | Data validation, metrics, profiling and scaling choices. | Deferred until after v1 closure |
+| Phase 5 - Next Delivery Decision | Choose the next functional slice before new technical breadth. | Current |
 
 ## Near-Term Direction
 
-1. Close the current YouTube v1 cycle with a concise operator runbook and closure checkpoint.
-2. Publish the already completed YouTube hardening work in a clean review cycle.
-3. Only then decide between another real provider or the next layer of engineering refinement.
+1. Treat the current YouTube v1 slice as closed in repository context.
+2. Choose the next functional delivery before adding more engineering polish.
+3. Prefer either a second real provider or a simple consumption/reporting layer over deeper infrastructure work.
 
 ## Out of Scope for Now
 

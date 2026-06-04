@@ -4,11 +4,11 @@
 
 Date: 2026-06-04
 
-Current phase: Delivery simplification and YouTube v1 closure
+Current phase: Post-v1 direction
 
-Current task: TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint.
+Current task: TASK-042 - Add a simple local YouTube report command for processed artifacts.
 
-Overall status: TASK-040 completed. The repository now states the minimum operator flow and a concrete closure checkpoint for the current YouTube v1 cycle.
+Overall status: the current YouTube v1 slice is closed, and the repository now has a minimal local reporting command so the collected YouTube data can be consumed without adding a dashboard or new infrastructure.
 
 ## Completed Milestones
 
@@ -45,6 +45,8 @@ Overall status: TASK-040 completed. The repository now states the minimum operat
 - Real YouTube executions now persist a structured run summary with interval, status, counts and artifact locations.
 - The delivery strategy was simplified: keep governance, but prioritize cycle closure over new engineering layers.
 - The repository now documents what must be true to consider the current YouTube v1 delivery closed.
+- The repository now treats the YouTube v1 cycle as closed and shifts attention to the next functional slice.
+- The repository now includes a small local reporting step for processed YouTube artifacts.
 
 ## Current Constraints
 
@@ -55,6 +57,6 @@ Overall status: TASK-040 completed. The repository now states the minimum operat
 
 ## Next Actions
 
-- Commit the current YouTube v1 closure docs and the already validated TASK-039 changes.
-- Re-run the compact review cycle for the updated branch.
-- After that checkpoint, decide whether to expand breadth or deepen engineering again.
+- Decide whether the next slice should be another real provider or a simple consumption/reporting layer.
+- Keep additional infrastructure polish deferred unless it clearly unlocks the next slice.
+- Decide whether to deepen the simple consumption layer or open a second real provider.

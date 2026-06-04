@@ -15,6 +15,50 @@
 
 ## Current Task
 
+### TASK-042 - Add a simple local YouTube report command for processed artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the existing YouTube data immediately useful by adding a small local consumption command instead of more infrastructure.
+
+Acceptance criteria:
+
+- A local command can read the latest processed YouTube artifact.
+- The command prints compact aggregated metrics from processed data.
+- The command fails clearly when no processed artifact exists or the artifact is invalid.
+- Tests cover artifact selection and summary aggregation.
+
+Evidence:
+
+- Added `src/social_analytics_pipeline/cli/youtube_report.py`.
+- The command reads the latest file from `data/processed/youtube/` by default.
+- The command prints totals for views, likes, comments, shares, followers and top content.
+- Tests cover latest-file selection, summary aggregation and invalid artifact handling.
+
+### TASK-041 - Record YouTube v1 closure and define the next delivery decision
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: formally close the current YouTube v1 slice in repository context and make the next step explicit before new implementation work starts.
+
+Acceptance criteria:
+
+- The repository states that the YouTube v1 closure checkpoint has been met.
+- The repository no longer presents the current cycle as still "closing".
+- The next delivery decision is explicit and compact.
+- The next options stay focused on product value instead of additional engineering polish.
+
+Evidence:
+
+- `README.md` now reflects the post-v1 decision phase.
+- `docs/PLAN.md` now records the next delivery options after YouTube v1 closure.
+- `docs/PROGRESS.md` now states that the YouTube v1 cycle is closed in repository context.
+- The backlog now points to a deliberate next decision instead of more implicit closure work.
+
 ### TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint
 
 Status: Done
@@ -254,6 +298,8 @@ Evidence:
 | TASK-038 | Runtime metrics and simple invalid-record alerting were added to the YouTube path. | Done |
 | TASK-039 | Real YouTube runs now persist a compact structured run summary artifact. | Done |
 | TASK-040 | The repository now includes a concise YouTube v1 runbook and closure checkpoint. | Done |
+| TASK-041 | The repository now treats the YouTube v1 slice as closed and sets up the next decision. | Done |
+| TASK-042 | A simple local YouTube report command now consumes processed artifacts. | Done |
 
 ## Deferred Until After v1 Closure
 
@@ -261,6 +307,12 @@ Evidence:
 - Add stronger alert delivery beyond the current local fail-on-invalid mode.
 - Revisit broader Airflow/observability refinements.
 - Expand to additional real providers only after the current YouTube cycle is clearly closed.
+
+## Next Candidate Deliveries
+
+- Add a second real provider path only if a public and stable source is practical.
+- Add a simple consumption layer for the existing YouTube metrics before deepening infrastructure again.
+- Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
 
