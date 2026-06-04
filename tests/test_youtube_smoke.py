@@ -12,6 +12,7 @@ from social_analytics_pipeline.cli.youtube_smoke import (
     require_smoke_setting,
     require_smoke_settings,
     require_youtube_channel_id,
+    resolve_backfill_interval,
     resolve_smoke_channel_id,
 )
 
@@ -166,6 +167,44 @@ class YouTubeSmokeTest(unittest.TestCase):
             expected_error = "YOUTUBE_CHANNEL_ID or YOUTUBE_CHANNEL_HANDLE"
             with self.assertRaisesRegex(RuntimeError, expected_error):
                 resolve_smoke_channel_id({}, FakeYouTubeResolver(), env_path)
+
+    def test_resolve_backfill_interval_returns_none_when_unset(self) -> None:
+        self.assertIsNone(resolve_backfill_interval({}))
+
+    def test_resolve_backfill_interval_reads_explicit_utc_range(self) -> None:
+        interval = resolve_backfill_interval(
+            {
+                "YOUTUBE_BACKFILL_START_AT": "2026-05-01T00:00:00Z",
+                "YOUTUBE_BACKFILL_END_AT": "2026-05-15T00:00:00Z",
+            }
+        )
+
+        assert interval is not None
+        start_at, end_at = interval
+        self.assertEqual(start_at, datetime(2026, 5, 1, tzinfo=UTC))
+        self.assertEqual(end_at, datetime(2026, 5, 15, tzinfo=UTC))
+
+    def test_resolve_backfill_interval_requires_both_values(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "must be set together"):
+            resolve_backfill_interval({"YOUTUBE_BACKFILL_START_AT": "2026-05-01T00:00:00Z"})
+
+    def test_resolve_backfill_interval_rejects_missing_timezone(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "timezone"):
+            resolve_backfill_interval(
+                {
+                    "YOUTUBE_BACKFILL_START_AT": "2026-05-01T00:00:00",
+                    "YOUTUBE_BACKFILL_END_AT": "2026-05-15T00:00:00Z",
+                }
+            )
+
+    def test_resolve_backfill_interval_rejects_reversed_range(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "before or equal"):
+            resolve_backfill_interval(
+                {
+                    "YOUTUBE_BACKFILL_START_AT": "2026-05-16T00:00:00Z",
+                    "YOUTUBE_BACKFILL_END_AT": "2026-05-15T00:00:00Z",
+                }
+            )
 
     def test_load_env_file_reads_simple_values_without_logging_secrets(self) -> None:
         with TemporaryDirectory() as tmpdir:

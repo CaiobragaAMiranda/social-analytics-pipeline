@@ -7,6 +7,7 @@ from pathlib import Path
 from social_analytics_pipeline.cli.youtube_smoke import (
     build_runtime_env,
     require_smoke_settings,
+    resolve_backfill_interval,
     resolve_smoke_channel_id,
 )
 from social_analytics_pipeline.load import PostgresMetricLoader
@@ -99,12 +100,16 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
         root / ".env",
     )
 
-    lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
-    if lookback_days < 1:
-        raise RuntimeError("YOUTUBE_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
+    backfill_interval = resolve_backfill_interval(runtime_env)
+    if backfill_interval:
+        start_at, end_at = backfill_interval
+    else:
+        lookback_days = int(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS", "30"))
+        if lookback_days < 1:
+            raise RuntimeError("YOUTUBE_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
 
-    end_at = datetime.now(UTC)
-    start_at = end_at - timedelta(days=lookback_days)
+        end_at = datetime.now(UTC)
+        start_at = end_at - timedelta(days=lookback_days)
     provider = YouTubeDataApiProvider(YouTubeApiConfig.from_env(runtime_env))
     channel_id = resolve_smoke_channel_id(
         {**runtime_env, **required_settings},

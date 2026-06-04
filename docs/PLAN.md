@@ -27,7 +27,7 @@ Build a local-first social analytics pipeline that can collect public social dat
 1. Validate the real YouTube DAG inside local Airflow.
 2. Add resilience around API failures and expired configuration.
 3. Add data validation before load.
-4. Decide whether to expand to another provider or harden YouTube first.
+4. Harden the real YouTube path with controlled backfill before expanding to another real provider.
 
 ## Out of Scope for Now
 

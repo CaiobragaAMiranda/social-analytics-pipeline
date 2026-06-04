@@ -9,6 +9,57 @@
 
 ## Current Task
 
+### TASK-036 - Add controlled YouTube backfill support without re-enabling automatic DAG catchup
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: support deliberate historical YouTube intervals without restoring automatic catchup behavior in Airflow.
+
+Acceptance criteria:
+
+- Explicit backfill start and end settings are supported for local YouTube runs.
+- The real YouTube DAG can use explicit backfill settings only when Airflow interval context is absent.
+- Invalid or partial backfill configuration fails early with clear errors.
+- Automatic DAG catchup remains disabled.
+- Tests cover explicit backfill interval parsing and validation.
+
+Evidence:
+
+- Added `YOUTUBE_BACKFILL_START_AT` and `YOUTUBE_BACKFILL_END_AT` parsing in `youtube_smoke.py`.
+- Local YouTube commands now reuse the explicit backfill interval when both values are present.
+- The real YouTube DAG uses the explicit backfill interval only as a controlled fallback when no Airflow data interval is provided.
+- Tests cover missing pair behavior, timezone validation, reversed ranges, and explicit UTC parsing.
+- `.env.example` and `docs/BOOTSTRAP.md` document the new backfill variables.
+
+### TASK-035 - Decide whether to expand to another provider or harden YouTube first
+
+Status: Done
+
+Phase: Phase 4 - Quality and scale
+
+Goal: choose the next implementation direction based on the real maturity of the repository, not on mock coverage alone.
+
+Acceptance criteria:
+
+- The decision is documented in repository context.
+- The decision explains why the chosen path is lower risk and higher value.
+- A concrete follow-up task is created for the chosen direction.
+
+Evidence:
+
+- The repository currently has one real provider path end to end: YouTube.
+- Instagram and TikTok are still represented by mock providers only.
+- The real YouTube path already includes local CLI execution, raw storage, normalization, validation, PostgreSQL loading, Airflow orchestration, resilience, and tests.
+- The next implementation direction is to harden YouTube further with controlled backfill before expanding to another real provider.
+
+Decision:
+
+- Choose depth before breadth.
+- Continue with YouTube first.
+- Defer new real provider expansion until the YouTube path supports deliberate historical recovery behavior.
+
 ### TASK-034 - Add data validation before loading metrics
 
 Status: Done
@@ -95,12 +146,13 @@ Evidence:
 | TASK-032 | Real YouTube Airflow DAG validated locally with a successful manual run. | Done |
 | TASK-033 | Retry/backoff and clearer YouTube failure handling with targeted tests. | Done |
 | TASK-034 | Metric validation now blocks impossible data before JSON/PostgreSQL load. | Done |
+| TASK-035 | Decision recorded: harden the real YouTube path before expanding to another real provider. | Done |
+| TASK-036 | Controlled YouTube backfill now supports explicit intervals without re-enabling DAG catchup. | Done |
 
 ## Backlog
 
 | ID | Task | Status |
 | --- | --- | --- |
-| TASK-035 | Decide whether to expand to another provider or harden YouTube first. | Pending |
 
 ## Review Rule
 

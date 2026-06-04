@@ -67,10 +67,13 @@ YOUTUBE_CHANNEL_ID=<public-channel-id>
 YOUTUBE_CHANNEL_HANDLE=<optional-public-handle>
 YOUTUBE_MAX_PAGES=1
 YOUTUBE_SMOKE_LOOKBACK_DAYS=30
+YOUTUBE_BACKFILL_START_AT=<optional-iso-8601-start>
+YOUTUBE_BACKFILL_END_AT=<optional-iso-8601-end>
 YOUTUBE_LOCAL_LOAD_TARGET=json
 ```
 
 Use `YOUTUBE_CHANNEL_ID` when available. Otherwise use `YOUTUBE_CHANNEL_HANDLE`; the code resolves it without printing the resolved channel ID.
+Use `YOUTUBE_BACKFILL_START_AT` and `YOUTUBE_BACKFILL_END_AT` together only when you want a deliberate historical interval. Keep them empty for normal lookback-based runs.
 
 Safe smoke run:
 
@@ -85,6 +88,17 @@ Safe local load:
 $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_local_pipeline
 ```
+
+Controlled backfill example:
+
+```powershell
+$env:PYTHONPATH = "src"
+$env:YOUTUBE_BACKFILL_START_AT = "2026-05-01T00:00:00Z"
+$env:YOUTUBE_BACKFILL_END_AT = "2026-05-15T00:00:00Z"
+python -m social_analytics_pipeline.cli.youtube_local_pipeline
+```
+
+Clear the backfill variables after the run if you want to return to normal lookback behavior.
 
 For PostgreSQL loading, set these locally:
 

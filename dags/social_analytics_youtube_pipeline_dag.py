@@ -40,6 +40,7 @@ def social_analytics_youtube_pipeline() -> None:
             build_runtime_env,
             build_youtube_local_loader,
             require_smoke_settings,
+            resolve_backfill_interval,
             resolve_smoke_channel_id,
             run_youtube_local_pipeline,
         )
@@ -54,8 +55,15 @@ def social_analytics_youtube_pipeline() -> None:
         fallback_end_at = datetime.now(UTC)
         lookback_days = _resolve_lookback_days(runtime_env.get("YOUTUBE_SMOKE_LOOKBACK_DAYS"))
         fallback_start_at = fallback_end_at - timedelta(days=lookback_days)
-        start_at = context.get("data_interval_start") or fallback_start_at
-        end_at = context.get("data_interval_end") or fallback_end_at
+        backfill_interval = resolve_backfill_interval(runtime_env)
+        start_at = context.get("data_interval_start")
+        end_at = context.get("data_interval_end")
+        if start_at is None or end_at is None:
+            if backfill_interval:
+                start_at, end_at = backfill_interval
+            else:
+                start_at = fallback_start_at
+                end_at = fallback_end_at
         required_settings = require_smoke_settings(
             runtime_env,
             ("YOUTUBE_API_KEY",),

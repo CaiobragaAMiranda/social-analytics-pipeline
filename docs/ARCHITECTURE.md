@@ -44,12 +44,18 @@ provider + account_id + content_id + collected_at
 - `social_analytics_mock_pipeline`: runs mock providers through raw storage, normalization and configurable JSON/PostgreSQL loading.
 - `social_analytics_youtube_pipeline`: runs the real YouTube provider with settings from environment variables only.
 
-Both DAGs use:
+Current scheduling behavior:
 
 ```text
-schedule = 15 days
-catchup = True
-start_date = 2026-01-01 UTC
+social_analytics_mock_pipeline:
+  schedule = 15 days
+  catchup = True
+  start_date = 2026-01-01 UTC
+
+social_analytics_youtube_pipeline:
+  schedule = 15 days
+  catchup = False
+  start_date = 2026-01-01 UTC
 ```
 
 ## Configuration Safety
@@ -69,8 +75,7 @@ start_date = 2026-01-01 UTC
 
 ## Later Architecture Work
 
-- Data validation before load.
-- Retry/backoff and rate-limit handling.
+- Controlled backfill for the real YouTube path.
 - Dead Letter Queue for invalid records.
 - Runtime metrics and alerting.
 - Async or Celery scaling only when real volume justifies it.
