@@ -49,7 +49,7 @@ class HttpJsonClient:
         raise RuntimeError("YouTube API request failed before a response was returned.")
 
     def _should_retry(self, exc: Exception, requests_module: Any) -> bool:
-        if isinstance(exc, (requests_module.Timeout, requests_module.ConnectionError)):
+        if isinstance(exc, requests_module.Timeout | requests_module.ConnectionError):
             return True
 
         status_code = getattr(getattr(exc, "response", None), "status_code", None)

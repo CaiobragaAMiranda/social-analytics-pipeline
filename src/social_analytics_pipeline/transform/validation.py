@@ -41,7 +41,9 @@ def _require_non_negative(value: int | None, field_name: str, metric: SocialMetr
     if value is None or value >= 0:
         return
 
-    raise MetricValidationError(_error_message(metric, field_name, "must be greater than or equal to 0"))
+    raise MetricValidationError(
+        _error_message(metric, field_name, "must be greater than or equal to 0")
+    )
 
 
 def _error_message(metric: SocialMetric, field_name: str, reason: str) -> str:

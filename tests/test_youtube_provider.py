@@ -158,9 +158,14 @@ class YouTubeProviderTest(unittest.TestCase):
             FakeSuccessResponse({"items": []}),
         ]
         sleep_calls: list[float] = []
+        client = HttpJsonClient(
+            max_attempts=3,
+            backoff_seconds=0.5,
+            sleeper=sleep_calls.append,
+        )
 
         with patch("requests.get", side_effect=responses):
-            payload = HttpJsonClient(max_attempts=3, backoff_seconds=0.5, sleeper=sleep_calls.append).get_json(
+            payload = client.get_json(
                 "https://www.googleapis.com/youtube/v3/search",
                 {"key": "secret", "channelId": "retry-channel"},
             )
@@ -169,11 +174,17 @@ class YouTubeProviderTest(unittest.TestCase):
         self.assertEqual(sleep_calls, [0.5])
 
     def test_http_json_client_stops_on_credential_errors(self) -> None:
+        client = HttpJsonClient(
+            max_attempts=3,
+            backoff_seconds=0.5,
+            sleeper=lambda _seconds: None,
+        )
+
         with (
             patch("requests.get", return_value=FakeRetryableHttpErrorResponse(403)),
             self.assertRaisesRegex(RuntimeError, "status 403") as context,
         ):
-            HttpJsonClient(max_attempts=3, backoff_seconds=0.5, sleeper=lambda _seconds: None).get_json(
+            client.get_json(
                 "https://www.googleapis.com/youtube/v3/search",
                 {"key": "secret", "channelId": "credential-channel"},
             )
@@ -182,11 +193,17 @@ class YouTubeProviderTest(unittest.TestCase):
         self.assertNotIn("secret", str(context.exception))
 
     def test_http_json_client_reports_retry_exhaustion_without_leaking_secret(self) -> None:
+        client = HttpJsonClient(
+            max_attempts=3,
+            backoff_seconds=0.5,
+            sleeper=lambda _seconds: None,
+        )
+
         with (
             patch("requests.get", return_value=FakeRetryableHttpErrorResponse(503)),
             self.assertRaisesRegex(RuntimeError, "after 3 attempts") as context,
         ):
-            HttpJsonClient(max_attempts=3, backoff_seconds=0.5, sleeper=lambda _seconds: None).get_json(
+            client.get_json(
                 "https://www.googleapis.com/youtube/v3/search",
                 {"key": "secret", "channelId": "unstable-channel"},
             )
