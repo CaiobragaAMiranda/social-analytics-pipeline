@@ -16,6 +16,7 @@ class YouTubeReportSummary:
     max_followers: int
     top_content_id: str | None
     top_views: int
+    top_rows: list[dict[str, Any]]
 
 
 def list_youtube_processed_artifacts(project_root: Path) -> list[Path]:
@@ -41,7 +42,8 @@ def load_youtube_report_rows(artifact_path: Path) -> list[dict[str, Any]]:
 
 def build_youtube_report_summary(artifact_path: Path) -> YouTubeReportSummary:
     rows = load_youtube_report_rows(artifact_path)
-    top_row = max(rows, key=lambda row: _metric_value(row, "views"), default=None)
+    top_rows = sorted(rows, key=lambda row: _metric_value(row, "views"), reverse=True)[:5]
+    top_row = top_rows[0] if top_rows else None
 
     return YouTubeReportSummary(
         artifact_path=artifact_path,
@@ -53,13 +55,71 @@ def build_youtube_report_summary(artifact_path: Path) -> YouTubeReportSummary:
         max_followers=max((_metric_value(row, "followers") for row in rows), default=0),
         top_content_id=top_row.get("content_id") if top_row else None,
         top_views=_metric_value(top_row, "views") if top_row else 0,
+        top_rows=top_rows,
     )
+
+
+def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: Path) -> str:
+    artifact_path = summary.artifact_path.relative_to(project_root).as_posix()
+    lines = [
+        "# YouTube Report",
+        "",
+        f"- Artifact: `{artifact_path}`",
+        f"- Records: `{summary.records}`",
+        f"- Total views: `{summary.total_views}`",
+        f"- Total likes: `{summary.total_likes}`",
+        f"- Total comments: `{summary.total_comments}`",
+        f"- Total shares: `{summary.total_shares}`",
+        f"- Max followers: `{summary.max_followers}`",
+        f"- Top content: `{summary.top_content_id or '<none>'}`",
+        f"- Top views: `{summary.top_views}`",
+        "",
+        "## Top Content by Views",
+        "",
+        "| Content ID | Views | Likes | Comments | Shares | Followers |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+
+    for row in summary.top_rows:
+        lines.append(
+            "| "
+            f"{row.get('content_id', '<none>')} | "
+            f"{_metric_value(row, 'views')} | "
+            f"{_metric_value(row, 'likes')} | "
+            f"{_metric_value(row, 'comments')} | "
+            f"{_metric_value(row, 'shares')} | "
+            f"{_metric_value(row, 'followers')} |"
+        )
+
+    if not summary.top_rows:
+        lines.append("| <none> | 0 | 0 | 0 | 0 | 0 |")
+
+    return "\n".join(lines) + "\n"
+
+
+def build_youtube_report_output_path(project_root: Path, artifact_path: Path) -> Path:
+    stem = artifact_path.stem
+    return project_root / "data" / "reports" / "youtube" / f"{stem}.md"
+
+
+def write_youtube_report_markdown(
+    summary: YouTubeReportSummary,
+    project_root: Path,
+) -> Path:
+    output_path = build_youtube_report_output_path(project_root, summary.artifact_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        build_youtube_report_markdown(summary, project_root),
+        encoding="utf-8",
+    )
+    return output_path
 
 
 def main(project_root: Path | None = None, artifact_path: Path | None = None) -> int:
     root = project_root or Path.cwd()
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary(target)
+    report_path = write_youtube_report_markdown(summary, root)
 
     print("YouTube report summary")
     print(f"artifact_path={summary.artifact_path.relative_to(root).as_posix()}")
@@ -71,6 +131,7 @@ def main(project_root: Path | None = None, artifact_path: Path | None = None) ->
     print(f"max_followers={summary.max_followers}")
     print(f"top_content_id={summary.top_content_id or '<none>'}")
     print(f"top_views={summary.top_views}")
+    print(f"report_path={report_path.relative_to(root).as_posix()}")
     return 0
 
 
