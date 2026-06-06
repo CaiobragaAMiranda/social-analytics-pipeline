@@ -1,3 +1,4 @@
+import argparse
 import json
 import sys
 from dataclasses import dataclass
@@ -105,21 +106,26 @@ def build_youtube_report_output_path(project_root: Path, artifact_path: Path) ->
 def write_youtube_report_markdown(
     summary: YouTubeReportSummary,
     project_root: Path,
+    output_path: Path | None = None,
 ) -> Path:
-    output_path = build_youtube_report_output_path(project_root, summary.artifact_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
+    target = output_path or build_youtube_report_output_path(project_root, summary.artifact_path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
         build_youtube_report_markdown(summary, project_root),
         encoding="utf-8",
     )
-    return output_path
+    return target
 
 
-def main(project_root: Path | None = None, artifact_path: Path | None = None) -> int:
+def main(
+    project_root: Path | None = None,
+    artifact_path: Path | None = None,
+    output_path: Path | None = None,
+) -> int:
     root = project_root or Path.cwd()
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary(target)
-    report_path = write_youtube_report_markdown(summary, root)
+    report_path = write_youtube_report_markdown(summary, root, output_path)
 
     print("YouTube report summary")
     print(f"artifact_path={summary.artifact_path.relative_to(root).as_posix()}")
@@ -135,6 +141,23 @@ def main(project_root: Path | None = None, artifact_path: Path | None = None) ->
     return 0
 
 
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Build a local YouTube report from processed metrics artifacts."
+    )
+    parser.add_argument(
+        "--artifact",
+        type=Path,
+        help="Processed YouTube JSON artifact to report. Defaults to the latest artifact.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Markdown output path. Defaults to data/reports/youtube/<artifact>.md.",
+    )
+    return parser.parse_args(argv)
+
+
 def _metric_value(row: dict[str, Any] | None, field: str) -> int:
     if not row:
         return 0
@@ -146,7 +169,8 @@ def _metric_value(row: dict[str, Any] | None, field: str) -> int:
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        args = parse_args()
+        raise SystemExit(main(artifact_path=args.artifact, output_path=args.output))
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1) from None

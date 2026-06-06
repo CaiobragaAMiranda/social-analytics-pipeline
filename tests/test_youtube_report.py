@@ -8,6 +8,8 @@ from social_analytics_pipeline.cli.youtube_report import (
     build_youtube_report_summary,
     find_latest_youtube_processed_artifact,
     load_youtube_report_rows,
+    main,
+    parse_args,
     write_youtube_report_markdown,
 )
 
@@ -113,6 +115,60 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertTrue(report_path.exists())
             saved = report_path.read_text(encoding="utf-8")
             self.assertIn("| video-2 | 250 | 5 | 3 | 0 | 1200 |", saved)
+
+    def test_write_youtube_report_markdown_allows_custom_output_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+            output_path = project_root / "custom" / "youtube-report.md"
+
+            summary = build_youtube_report_summary(artifact_path)
+            report_path = write_youtube_report_markdown(summary, project_root, output_path)
+
+            self.assertEqual(report_path, output_path)
+            self.assertTrue(output_path.exists())
+
+    def test_parse_args_accepts_artifact_and_output_paths(self) -> None:
+        args = parse_args(
+            [
+                "--artifact",
+                "data/processed/youtube/sample.json",
+                "--output",
+                "data/reports/youtube/sample.md",
+            ]
+        )
+
+        self.assertEqual(args.artifact, Path("data/processed/youtube/sample.json"))
+        self.assertEqual(args.output, Path("data/reports/youtube/sample.md"))
+
+    def test_main_uses_explicit_artifact_and_output_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "likes": 1,
+                            "comments": 2,
+                            "shares": 3,
+                            "views": 4,
+                            "followers": 5,
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            output_path = project_root / "custom" / "report.md"
+
+            exit_code = main(project_root, artifact_path, output_path)
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output_path.exists())
 
 
 if __name__ == "__main__":

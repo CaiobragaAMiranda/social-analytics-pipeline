@@ -99,6 +99,13 @@ python -m social_analytics_pipeline.cli.youtube_report
 The report command prints aggregate metrics and writes a markdown file under
 `data/reports/youtube/`.
 
+To report a specific processed artifact or choose a custom output path:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_report --artifact data/processed/youtube/<artifact>.json --output data/reports/youtube/<report>.md
+```
+
 Controlled backfill example:
 
 ```powershell
