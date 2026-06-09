@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-047 - Add optional JSON output to the YouTube report CLI.
+Current task: TASK-048 - List processed YouTube report artifacts.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow can now generate markdown summaries plus optional compact JSON summaries for automation.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow can now list processed artifacts before generating markdown or JSON summaries.
 
 ## Completed Milestones
 
@@ -52,6 +52,7 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--top` to control the top-content ranking size.
 - The report CLI now accepts `--sort-by` to choose the ranking metric.
 - The report CLI now accepts `--json-output` to save a compact structured summary.
+- The report CLI now accepts `--list-artifacts` to show available processed artifacts.
 
 ## Current Constraints
 

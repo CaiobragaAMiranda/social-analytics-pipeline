@@ -1,9 +1,12 @@
+import contextlib
+import io
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from social_analytics_pipeline.cli.youtube_report import (
+    build_youtube_artifact_listing,
     build_youtube_report_json_payload,
     build_youtube_report_markdown,
     build_youtube_report_summary,
@@ -31,6 +34,26 @@ class YouTubeReportTest(unittest.TestCase):
             latest = find_latest_youtube_processed_artifact(Path(tmpdir))
 
         self.assertEqual(latest.name, second.name)
+
+    def test_build_youtube_artifact_listing_returns_relative_sorted_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            first = artifact_dir / "youtube-20260501T000000-20260515T000000.json"
+            second = artifact_dir / "youtube-20260516T000000-20260531T000000.json"
+            second.write_text("[]", encoding="utf-8")
+            first.write_text("[]", encoding="utf-8")
+
+            artifacts = build_youtube_artifact_listing(project_root)
+
+        self.assertEqual(
+            artifacts,
+            [
+                "data/processed/youtube/youtube-20260501T000000-20260515T000000.json",
+                "data/processed/youtube/youtube-20260516T000000-20260531T000000.json",
+            ],
+        )
 
     def test_build_youtube_report_summary_aggregates_processed_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -254,6 +277,7 @@ class YouTubeReportTest(unittest.TestCase):
                 "data/reports/youtube/sample.md",
                 "--json-output",
                 "data/reports/youtube/sample.json",
+                "--list-artifacts",
                 "--top",
                 "3",
                 "--sort-by",
@@ -264,6 +288,7 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(args.artifact, Path("data/processed/youtube/sample.json"))
         self.assertEqual(args.output, Path("data/reports/youtube/sample.md"))
         self.assertEqual(args.json_output, Path("data/reports/youtube/sample.json"))
+        self.assertTrue(args.list_artifacts)
         self.assertEqual(args.top, 3)
         self.assertEqual(args.sort_by, "likes")
 
@@ -306,6 +331,24 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
             self.assertTrue(json_output_path.exists())
+
+    def test_main_lists_artifacts_without_writing_reports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            artifact_path = artifact_dir / "youtube-sample.json"
+            artifact_path.write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root, list_artifacts=True)
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("data/processed/youtube/youtube-sample.json", stdout.getvalue())
+        self.assertFalse(report_dir.exists())
 
     def test_main_allows_explicit_output_path_outside_project_root(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

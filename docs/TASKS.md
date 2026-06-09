@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-048 - List processed YouTube report artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make it easier to choose a processed YouTube artifact before generating a local report.
+
+Acceptance criteria:
+
+- The report CLI supports `--list-artifacts`.
+- Listing artifacts exits without writing markdown or JSON reports.
+- Listed paths are project-relative and safe for repository documentation.
+- Tests cover listing behavior and argument parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--list-artifacts`.
+- Artifact listing reuses the existing processed artifact discovery path.
+- Tests cover sorted relative artifact listing and list-only CLI execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-047 - Add optional JSON output to the YouTube report CLI
 
 Status: Done
@@ -415,6 +437,7 @@ Evidence:
 | TASK-045 | The local YouTube report command now supports configurable top-content ranking size. | Done |
 | TASK-046 | The local YouTube report command now supports configurable ranking metrics. | Done |
 | TASK-047 | The local YouTube report command now supports optional compact JSON summaries. | Done |
+| TASK-048 | The local YouTube report command can list processed artifacts before reporting. | Done |
 
 ## Deferred Until After v1 Closure
 

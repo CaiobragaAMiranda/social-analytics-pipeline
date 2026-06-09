@@ -31,6 +31,13 @@ def list_youtube_processed_artifacts(project_root: Path) -> list[Path]:
     return sorted(artifact_dir.glob("youtube-*.json"))
 
 
+def build_youtube_artifact_listing(project_root: Path) -> list[str]:
+    return [
+        _display_path(path, project_root)
+        for path in list_youtube_processed_artifacts(project_root)
+    ]
+
+
 def find_latest_youtube_processed_artifact(project_root: Path) -> Path:
     artifacts = list_youtube_processed_artifacts(project_root)
     if not artifacts:
@@ -201,8 +208,20 @@ def main(
     json_output_path: Path | None = None,
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
+    list_artifacts: bool = False,
 ) -> int:
     root = project_root or Path.cwd()
+
+    if list_artifacts:
+        artifacts = build_youtube_artifact_listing(root)
+        if not artifacts:
+            print("No processed YouTube artifacts found.")
+            return 0
+
+        for artifact in artifacts:
+            print(artifact)
+        return 0
+
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary_with_options(target, top_limit, sort_by)
     report_path = write_youtube_report_markdown(summary, root, output_path)
@@ -247,6 +266,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--json-output",
         type=Path,
         help="Optional JSON summary output path.",
+    )
+    parser.add_argument(
+        "--list-artifacts",
+        action="store_true",
+        help="List processed YouTube artifacts and exit without writing reports.",
     )
     parser.add_argument(
         "--top",
@@ -318,6 +342,7 @@ if __name__ == "__main__":
                 json_output_path=args.json_output,
                 top_limit=args.top,
                 sort_by=args.sort_by,
+                list_artifacts=args.list_artifacts,
             )
         )
     except RuntimeError as exc:
