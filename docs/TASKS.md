@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-045 - Add configurable top-content size to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make local YouTube reports easier to tune by allowing users to choose how many ranked content rows appear in the markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports a `--top` option.
+- The default top-content ranking remains five rows.
+- Invalid `--top` values fail clearly before report generation.
+- Tests cover custom top limits and invalid values.
+
+Evidence:
+
+- `youtube_report.py` now supports `--top` with a positive integer validator.
+- `build_youtube_report_summary_with_limit` controls the ranking size while preserving the existing default behavior.
+- Tests cover explicit top limits, invalid top limits and CLI parsing.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-044 - Add explicit input and output options to the YouTube report CLI
 
 Status: Done
@@ -346,6 +368,7 @@ Evidence:
 | TASK-042 | A simple local YouTube report command now consumes processed artifacts. | Done |
 | TASK-043 | The local YouTube report command now generates a shareable markdown report. | Done |
 | TASK-044 | The local YouTube report command now accepts explicit input and output paths. | Done |
+| TASK-045 | The local YouTube report command now supports configurable top-content ranking size. | Done |
 
 ## Deferred Until After v1 Closure
 

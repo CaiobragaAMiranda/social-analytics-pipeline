@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+DEFAULT_TOP_LIMIT = 5
+
 
 @dataclass(frozen=True)
 class YouTubeReportSummary:
@@ -43,8 +45,20 @@ def load_youtube_report_rows(artifact_path: Path) -> list[dict[str, Any]]:
 
 
 def build_youtube_report_summary(artifact_path: Path) -> YouTubeReportSummary:
+    return build_youtube_report_summary_with_limit(artifact_path, DEFAULT_TOP_LIMIT)
+
+
+def build_youtube_report_summary_with_limit(
+    artifact_path: Path,
+    top_limit: int,
+) -> YouTubeReportSummary:
+    if top_limit < 1:
+        raise RuntimeError("top_limit must be greater than or equal to 1.")
+
     rows = load_youtube_report_rows(artifact_path)
-    top_rows = sorted(rows, key=lambda row: _metric_value(row, "views"), reverse=True)[:5]
+    top_rows = sorted(rows, key=lambda row: _metric_value(row, "views"), reverse=True)[
+        :top_limit
+    ]
     top_row = top_rows[0] if top_rows else None
 
     return YouTubeReportSummary(
@@ -122,10 +136,11 @@ def main(
     project_root: Path | None = None,
     artifact_path: Path | None = None,
     output_path: Path | None = None,
+    top_limit: int = DEFAULT_TOP_LIMIT,
 ) -> int:
     root = project_root or Path.cwd()
     target = artifact_path or find_latest_youtube_processed_artifact(root)
-    summary = build_youtube_report_summary(target)
+    summary = build_youtube_report_summary_with_limit(target, top_limit)
     report_path = write_youtube_report_markdown(summary, root, output_path)
 
     print("YouTube report summary")
@@ -156,6 +171,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         help="Markdown output path. Defaults to data/reports/youtube/<artifact>.md.",
     )
+    parser.add_argument(
+        "--top",
+        type=_positive_int,
+        default=DEFAULT_TOP_LIMIT,
+        help=f"Number of top content rows to include. Defaults to {DEFAULT_TOP_LIMIT}.",
+    )
     return parser.parse_args(argv)
 
 
@@ -178,10 +199,27 @@ def _display_path(path: Path, project_root: Path) -> str:
             return path.as_posix()
 
 
+def _positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("--top must be an integer.") from exc
+
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("--top must be greater than or equal to 1.")
+    return parsed
+
+
 if __name__ == "__main__":
     try:
         args = parse_args()
-        raise SystemExit(main(artifact_path=args.artifact, output_path=args.output))
+        raise SystemExit(
+            main(
+                artifact_path=args.artifact,
+                output_path=args.output,
+                top_limit=args.top,
+            )
+        )
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1) from None

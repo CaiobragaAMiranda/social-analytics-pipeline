@@ -6,6 +6,7 @@ from pathlib import Path
 from social_analytics_pipeline.cli.youtube_report import (
     build_youtube_report_markdown,
     build_youtube_report_summary,
+    build_youtube_report_summary_with_limit,
     find_latest_youtube_processed_artifact,
     load_youtube_report_rows,
     main,
@@ -67,6 +68,33 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.top_views, 250)
         self.assertEqual(len(summary.top_rows), 2)
         self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
+
+    def test_build_youtube_report_summary_with_limit_controls_top_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_path = Path(tmpdir) / "youtube-20260516T000000-20260531T000000.json"
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {"content_id": "video-1", "views": 100},
+                        {"content_id": "video-2", "views": 250},
+                        {"content_id": "video-3", "views": 50},
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            summary = build_youtube_report_summary_with_limit(artifact_path, 1)
+
+        self.assertEqual(len(summary.top_rows), 1)
+        self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
+
+    def test_build_youtube_report_summary_with_limit_rejects_invalid_limit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_path = Path(tmpdir) / "youtube-empty.json"
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "top_limit"):
+                build_youtube_report_summary_with_limit(artifact_path, 0)
 
     def test_load_youtube_report_rows_rejects_non_list_payload(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -137,11 +165,18 @@ class YouTubeReportTest(unittest.TestCase):
                 "data/processed/youtube/sample.json",
                 "--output",
                 "data/reports/youtube/sample.md",
+                "--top",
+                "3",
             ]
         )
 
         self.assertEqual(args.artifact, Path("data/processed/youtube/sample.json"))
         self.assertEqual(args.output, Path("data/reports/youtube/sample.md"))
+        self.assertEqual(args.top, 3)
+
+    def test_parse_args_rejects_invalid_top_limit(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--top", "0"])
 
     def test_main_uses_explicit_artifact_and_output_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -165,7 +200,7 @@ class YouTubeReportTest(unittest.TestCase):
             )
             output_path = project_root / "custom" / "report.md"
 
-            exit_code = main(project_root, artifact_path, output_path)
+            exit_code = main(project_root, artifact_path, output_path, top_limit=1)
 
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
@@ -193,7 +228,7 @@ class YouTubeReportTest(unittest.TestCase):
             )
             output_path = workspace / "external" / "report.md"
 
-            exit_code = main(project_root, artifact_path, output_path)
+            exit_code = main(project_root, artifact_path, output_path, top_limit=1)
 
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())

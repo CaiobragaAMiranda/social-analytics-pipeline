@@ -106,6 +106,8 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_report --artifact data/processed/youtube/<artifact>.json --output data/reports/youtube/<report>.md
 ```
 
+Use `--top <n>` to control how many rows are included in the top-content ranking.
+
 Controlled backfill example:
 
 ```powershell
