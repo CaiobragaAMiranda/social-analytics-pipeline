@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-054 - Suppress YouTube report summary output
-- Last completed delivery: TASK-053 - JSON-only YouTube report output
+- Current task: TASK-057 - Configure YouTube report JSON indentation
+- Last completed delivery: TASK-056 - JSON output directory for YouTube reports
 
 ## Workflow
 

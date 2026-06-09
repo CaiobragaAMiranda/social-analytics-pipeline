@@ -8,6 +8,7 @@ from typing import Any
 
 DEFAULT_TOP_LIMIT = 5
 DEFAULT_SORT_BY = "views"
+DEFAULT_JSON_INDENT = 2
 SORTABLE_METRICS = ("views", "likes", "comments", "shares")
 
 
@@ -154,6 +155,17 @@ def build_youtube_report_output_path(project_root: Path, artifact_path: Path) ->
     return project_root / "data" / "reports" / "youtube" / f"{stem}.md"
 
 
+def build_youtube_report_output_path_in_dir(output_dir: Path, artifact_path: Path) -> Path:
+    return output_dir / f"{artifact_path.stem}.md"
+
+
+def build_youtube_report_json_output_path_in_dir(
+    output_dir: Path,
+    artifact_path: Path,
+) -> Path:
+    return output_dir / f"{artifact_path.stem}.json"
+
+
 def write_youtube_report_markdown(
     summary: YouTubeReportSummary,
     project_root: Path,
@@ -195,12 +207,14 @@ def write_youtube_report_json(
     summary: YouTubeReportSummary,
     project_root: Path,
     output_path: Path,
+    indent: int = DEFAULT_JSON_INDENT,
 ) -> Path:
+    json_indent = None if indent == 0 else indent
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(
             build_youtube_report_json_payload(summary, project_root),
-            indent=2,
+            indent=json_indent,
             sort_keys=True,
         )
         + "\n",
@@ -214,8 +228,11 @@ def main(
     artifact_path: Path | None = None,
     output_path: Path | None = None,
     json_output_path: Path | None = None,
+    json_output_dir: Path | None = None,
     no_markdown: bool = False,
     quiet: bool = False,
+    output_dir: Path | None = None,
+    json_indent: int = DEFAULT_JSON_INDENT,
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
     list_artifacts: bool = False,
@@ -246,15 +263,34 @@ def main(
 
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary_with_options(target, top_limit, sort_by)
-    if no_markdown and not json_output_path:
-        raise RuntimeError("--no-markdown requires --json-output.")
+    if no_markdown and not (json_output_path or json_output_dir):
+        raise RuntimeError("--no-markdown requires --json-output or --json-output-dir.")
+    if output_path and output_dir:
+        raise RuntimeError("--output and --output-dir cannot be used together.")
+    if json_output_path and json_output_dir:
+        raise RuntimeError("--json-output and --json-output-dir cannot be used together.")
 
+    markdown_output_path = (
+        build_youtube_report_output_path_in_dir(output_dir, target) if output_dir else output_path
+    )
     report_path = (
-        None if no_markdown else write_youtube_report_markdown(summary, root, output_path)
+        None
+        if no_markdown
+        else write_youtube_report_markdown(summary, root, markdown_output_path)
+    )
+    json_report_output_path = (
+        build_youtube_report_json_output_path_in_dir(json_output_dir, target)
+        if json_output_dir
+        else json_output_path
     )
     json_report_path = (
-        write_youtube_report_json(summary, root, json_output_path)
-        if json_output_path
+        write_youtube_report_json(
+            summary,
+            root,
+            json_report_output_path,
+            indent=json_indent,
+        )
+        if json_report_output_path
         else None
     )
 
@@ -292,9 +328,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Markdown output path. Defaults to data/reports/youtube/<artifact>.md.",
     )
     parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="Markdown output directory. Uses the artifact stem as the file name.",
+    )
+    parser.add_argument(
         "--json-output",
         type=Path,
         help="Optional JSON summary output path.",
+    )
+    parser.add_argument(
+        "--json-output-dir",
+        type=Path,
+        help="JSON summary output directory. Uses the artifact stem as the file name.",
+    )
+    parser.add_argument(
+        "--json-indent",
+        type=_non_negative_int,
+        default=DEFAULT_JSON_INDENT,
+        help=(
+            "JSON summary indentation. Use 0 for compact output. "
+            f"Defaults to {DEFAULT_JSON_INDENT}."
+        ),
     )
     parser.add_argument(
         "--no-markdown",
@@ -340,8 +395,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help=f"Metric used for top-content ranking. Defaults to {DEFAULT_SORT_BY}.",
     )
     args = parser.parse_args(argv)
-    if args.no_markdown and not args.json_output:
-        parser.error("--no-markdown requires --json-output.")
+    if args.no_markdown and not (args.json_output or args.json_output_dir):
+        parser.error("--no-markdown requires --json-output or --json-output-dir.")
+    if args.output and args.output_dir:
+        parser.error("--output and --output-dir cannot be used together.")
+    if args.json_output and args.json_output_dir:
+        parser.error("--json-output and --json-output-dir cannot be used together.")
     return args
 
 
@@ -390,6 +449,19 @@ def _positive_int(value: str) -> int:
     return parsed
 
 
+def _non_negative_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("--json-indent must be an integer.") from exc
+
+    if parsed < 0:
+        raise argparse.ArgumentTypeError(
+            "--json-indent must be greater than or equal to 0."
+        )
+    return parsed
+
+
 if __name__ == "__main__":
     try:
         args = parse_args()
@@ -397,10 +469,13 @@ if __name__ == "__main__":
             main(
                 artifact_path=args.artifact,
                 output_path=args.output,
+                output_dir=args.output_dir,
                 json_output_path=args.json_output,
+                json_output_dir=args.json_output_dir,
                 no_markdown=args.no_markdown,
                 quiet=args.quiet,
                 top_limit=args.top,
+                json_indent=args.json_indent,
                 sort_by=args.sort_by,
                 list_artifacts=args.list_artifacts,
                 latest_artifact=args.latest_artifact,

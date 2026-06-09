@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-054 - Suppress YouTube report summary output.
+Current task: TASK-057 - Configure YouTube report JSON indentation.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports quieter automation-friendly report generation.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports configurable JSON report formatting.
 
 ## Completed Milestones
 
@@ -59,6 +59,9 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--count-artifacts` to print only the processed artifact count.
 - The report CLI now accepts `--no-markdown` with `--json-output` for JSON-only report generation.
 - The report CLI now accepts `--quiet` to suppress report-generation summary output.
+- The report CLI now accepts `--output-dir` to choose the markdown report directory while preserving artifact-based file names.
+- The report CLI now accepts `--json-output-dir` to choose the JSON report directory while preserving artifact-based file names.
+- The report CLI now accepts `--json-indent` to choose pretty or compact JSON output.
 
 ## Current Constraints
 

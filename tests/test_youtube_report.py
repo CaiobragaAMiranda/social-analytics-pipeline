@@ -8,8 +8,10 @@ from pathlib import Path
 from social_analytics_pipeline.cli.youtube_report import (
     build_latest_youtube_artifact_listing,
     build_youtube_artifact_listing,
+    build_youtube_report_json_output_path_in_dir,
     build_youtube_report_json_payload,
     build_youtube_report_markdown,
+    build_youtube_report_output_path_in_dir,
     build_youtube_report_summary,
     build_youtube_report_summary_with_limit,
     build_youtube_report_summary_with_options,
@@ -285,6 +287,24 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(saved["top_rows"][0]["content_id"], "video-1")
         self.assertNotIn("ignored_extra_field", saved["top_rows"][0])
 
+    def test_write_youtube_report_json_allows_compact_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            output_path = project_root / "data" / "reports" / "youtube" / "summary.json"
+
+            summary = build_youtube_report_summary(artifact_path)
+            write_youtube_report_json(summary, project_root, output_path, indent=0)
+            saved = output_path.read_text(encoding="utf-8")
+
+        self.assertNotIn("\n  ", saved)
+        self.assertTrue(saved.endswith("\n"))
+
     def test_write_youtube_report_markdown_allows_custom_output_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
@@ -299,15 +319,33 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertEqual(report_path, output_path)
             self.assertTrue(output_path.exists())
 
+    def test_build_youtube_report_output_path_in_dir_uses_artifact_stem(self) -> None:
+        output_path = build_youtube_report_output_path_in_dir(
+            Path("custom/reports"),
+            Path("data/processed/youtube/youtube-sample.json"),
+        )
+
+        self.assertEqual(output_path, Path("custom/reports/youtube-sample.md"))
+
+    def test_build_youtube_report_json_output_path_in_dir_uses_artifact_stem(self) -> None:
+        output_path = build_youtube_report_json_output_path_in_dir(
+            Path("custom/reports"),
+            Path("data/processed/youtube/youtube-sample.json"),
+        )
+
+        self.assertEqual(output_path, Path("custom/reports/youtube-sample.json"))
+
     def test_parse_args_accepts_artifact_and_output_paths(self) -> None:
         args = parse_args(
             [
                 "--artifact",
                 "data/processed/youtube/sample.json",
-                "--output",
-                "data/reports/youtube/sample.md",
-                "--json-output",
-                "data/reports/youtube/sample.json",
+                "--output-dir",
+                "data/reports/youtube",
+                "--json-output-dir",
+                "data/reports/youtube-json",
+                "--json-indent",
+                "0",
                 "--no-markdown",
                 "--quiet",
                 "--list-artifacts",
@@ -320,8 +358,11 @@ class YouTubeReportTest(unittest.TestCase):
         )
 
         self.assertEqual(args.artifact, Path("data/processed/youtube/sample.json"))
-        self.assertEqual(args.output, Path("data/reports/youtube/sample.md"))
-        self.assertEqual(args.json_output, Path("data/reports/youtube/sample.json"))
+        self.assertIsNone(args.output)
+        self.assertEqual(args.output_dir, Path("data/reports/youtube"))
+        self.assertIsNone(args.json_output)
+        self.assertEqual(args.json_output_dir, Path("data/reports/youtube-json"))
+        self.assertEqual(args.json_indent, 0)
         self.assertTrue(args.no_markdown)
         self.assertTrue(args.quiet)
         self.assertTrue(args.list_artifacts)
@@ -356,9 +397,28 @@ class YouTubeReportTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             parse_args(["--top", "0"])
 
-    def test_parse_args_rejects_no_markdown_without_json_output(self) -> None:
+    def test_parse_args_rejects_invalid_json_indent(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--json-indent", "-1"])
+
+    def test_parse_args_rejects_no_markdown_without_json_destination(self) -> None:
         with self.assertRaises(SystemExit):
             parse_args(["--no-markdown"])
+
+    def test_parse_args_rejects_output_and_output_dir_together(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--output", "report.md", "--output-dir", "reports"])
+
+    def test_parse_args_rejects_json_output_and_json_output_dir_together(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(
+                [
+                    "--json-output",
+                    "report.json",
+                    "--json-output-dir",
+                    "reports",
+                ]
+            )
 
     def test_main_uses_explicit_artifact_and_output_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -396,6 +456,76 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertTrue(output_path.exists())
             self.assertTrue(json_output_path.exists())
 
+    def test_main_uses_output_dir_with_artifact_file_name(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+            output_dir = project_root / "custom-reports"
+
+            exit_code = main(
+                project_root,
+                artifact_path=artifact_path,
+                output_dir=output_dir,
+                quiet=True,
+            )
+
+            output_path = output_dir / "youtube-sample.md"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output_path.exists())
+
+    def test_main_uses_json_output_dir_with_artifact_file_name(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+            json_output_dir = project_root / "custom-json-reports"
+
+            exit_code = main(
+                project_root,
+                artifact_path=artifact_path,
+                json_output_dir=json_output_dir,
+                json_indent=0,
+                quiet=True,
+            )
+
+            output_path = json_output_dir / "youtube-sample.json"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output_path.exists())
+            self.assertNotIn("\n  ", output_path.read_text(encoding="utf-8"))
+
+    def test_main_rejects_json_output_and_json_output_dir_together(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "--json-output"):
+                main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    json_output_path=project_root / "report.json",
+                    json_output_dir=project_root / "reports",
+                )
+
+    def test_main_rejects_output_and_output_dir_together(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "--output"):
+                main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    output_path=project_root / "report.md",
+                    output_dir=project_root / "reports",
+                )
+
     def test_main_can_write_json_without_markdown(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
@@ -430,14 +560,14 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertTrue(json_output_path.exists())
             self.assertFalse(markdown_path.exists())
 
-    def test_main_rejects_no_markdown_without_json_output(self) -> None:
+    def test_main_rejects_no_markdown_without_json_destination(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
             artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
             artifact_path.parent.mkdir(parents=True, exist_ok=True)
             artifact_path.write_text("[]", encoding="utf-8")
 
-            with self.assertRaisesRegex(RuntimeError, "--no-markdown"):
+            with self.assertRaisesRegex(RuntimeError, "--json-output"):
                 main(
                     project_root,
                     artifact_path=artifact_path,

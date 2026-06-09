@@ -15,6 +15,77 @@
 
 ## Current Task
 
+### TASK-057 - Configure YouTube report JSON indentation
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation choose between pretty and compact JSON report output.
+
+Acceptance criteria:
+
+- The report CLI supports `--json-indent`.
+- The default JSON indentation remains `2`.
+- `--json-indent 0` writes compact JSON output.
+- Negative indentation values fail during argument parsing.
+- Tests cover parser support, invalid values and compact JSON writing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-indent`.
+- JSON writing accepts an indentation setting while preserving the previous default.
+- Tests cover compact JSON output and invalid indentation values.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-056 - Allow YouTube report JSON output directory
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let operators choose a JSON report directory without manually composing the output file name.
+
+Acceptance criteria:
+
+- The report CLI supports `--json-output-dir`.
+- `--json-output-dir` writes JSON using the processed artifact stem as the file name.
+- `--json-output` and `--json-output-dir` cannot be used together.
+- `--no-markdown` accepts either `--json-output` or `--json-output-dir`.
+- Tests cover path construction, parser validation and JSON output-dir execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-output-dir`.
+- JSON output-dir mode keeps artifact-based JSON file names.
+- Parser and direct `main` calls reject conflicting JSON output arguments.
+- Tests cover JSON output-dir path generation and execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-055 - Allow YouTube report markdown output directory
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let operators choose a markdown report directory without manually composing the output file name.
+
+Acceptance criteria:
+
+- The report CLI supports `--output-dir`.
+- `--output-dir` writes markdown using the processed artifact stem as the file name.
+- `--output` and `--output-dir` cannot be used together.
+- Existing explicit `--output` behavior remains supported.
+- Tests cover path construction, parser validation and output-dir execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--output-dir`.
+- Output-dir mode keeps artifact-based markdown file names.
+- Parser and direct `main` calls reject conflicting output arguments.
+- Tests cover output-dir path generation and execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-054 - Suppress YouTube report summary output
 
 Status: Done
@@ -579,6 +650,9 @@ Evidence:
 | TASK-052 | The local YouTube report command can print only the processed artifact count. | Done |
 | TASK-053 | The local YouTube report command can write JSON output without markdown. | Done |
 | TASK-054 | The local YouTube report command can suppress report-generation summary output. | Done |
+| TASK-055 | The local YouTube report command can write markdown into a chosen output directory. | Done |
+| TASK-056 | The local YouTube report command can write JSON into a chosen output directory. | Done |
+| TASK-057 | The local YouTube report command can configure JSON indentation. | Done |
 
 ## Deferred Until After v1 Closure
 
