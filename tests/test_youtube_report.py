@@ -6,12 +6,14 @@ import unittest
 from pathlib import Path
 
 from social_analytics_pipeline.cli.youtube_report import (
+    build_latest_youtube_artifact_listing,
     build_youtube_artifact_listing,
     build_youtube_report_json_payload,
     build_youtube_report_markdown,
     build_youtube_report_summary,
     build_youtube_report_summary_with_limit,
     build_youtube_report_summary_with_options,
+    count_youtube_processed_artifacts,
     find_latest_youtube_processed_artifact,
     load_youtube_report_rows,
     main,
@@ -54,6 +56,35 @@ class YouTubeReportTest(unittest.TestCase):
                 "data/processed/youtube/youtube-20260516T000000-20260531T000000.json",
             ],
         )
+
+    def test_build_latest_youtube_artifact_listing_returns_latest_relative_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            first = artifact_dir / "youtube-20260501T000000-20260515T000000.json"
+            second = artifact_dir / "youtube-20260516T000000-20260531T000000.json"
+            first.write_text("[]", encoding="utf-8")
+            second.write_text("[]", encoding="utf-8")
+
+            artifact = build_latest_youtube_artifact_listing(project_root)
+
+        self.assertEqual(
+            artifact,
+            "data/processed/youtube/youtube-20260516T000000-20260531T000000.json",
+        )
+
+    def test_count_youtube_processed_artifacts_returns_artifact_count(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            (artifact_dir / "youtube-1.json").write_text("[]", encoding="utf-8")
+            (artifact_dir / "youtube-2.json").write_text("[]", encoding="utf-8")
+
+            count = count_youtube_processed_artifacts(project_root)
+
+        self.assertEqual(count, 2)
 
     def test_build_youtube_report_summary_aggregates_processed_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -278,6 +309,7 @@ class YouTubeReportTest(unittest.TestCase):
                 "--json-output",
                 "data/reports/youtube/sample.json",
                 "--list-artifacts",
+                "--fail-if-missing",
                 "--top",
                 "3",
                 "--sort-by",
@@ -289,8 +321,32 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(args.output, Path("data/reports/youtube/sample.md"))
         self.assertEqual(args.json_output, Path("data/reports/youtube/sample.json"))
         self.assertTrue(args.list_artifacts)
+        self.assertFalse(args.latest_artifact)
+        self.assertTrue(args.fail_if_missing)
         self.assertEqual(args.top, 3)
         self.assertEqual(args.sort_by, "likes")
+
+    def test_parse_args_accepts_latest_artifact_mode(self) -> None:
+        args = parse_args(["--latest-artifact"])
+
+        self.assertFalse(args.list_artifacts)
+        self.assertTrue(args.latest_artifact)
+        self.assertFalse(args.count_artifacts)
+
+    def test_parse_args_accepts_count_artifacts_mode(self) -> None:
+        args = parse_args(["--count-artifacts", "--fail-if-missing"])
+
+        self.assertFalse(args.list_artifacts)
+        self.assertFalse(args.latest_artifact)
+        self.assertTrue(args.count_artifacts)
+        self.assertTrue(args.fail_if_missing)
+
+    def test_parse_args_rejects_multiple_list_only_modes(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--list-artifacts", "--latest-artifact"])
+
+        with self.assertRaises(SystemExit):
+            parse_args(["--latest-artifact", "--count-artifacts"])
 
     def test_parse_args_rejects_invalid_top_limit(self) -> None:
         with self.assertRaises(SystemExit):
@@ -349,6 +405,77 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertIn("data/processed/youtube/youtube-sample.json", stdout.getvalue())
         self.assertFalse(report_dir.exists())
+
+    def test_main_list_artifacts_can_fail_when_artifacts_are_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    list_artifacts=True,
+                    fail_if_missing=True,
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("No processed YouTube artifacts found.", stdout.getvalue())
+
+    def test_main_prints_latest_artifact_without_writing_reports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            first = artifact_dir / "youtube-20260501T000000-20260515T000000.json"
+            second = artifact_dir / "youtube-20260516T000000-20260531T000000.json"
+            first.write_text("[]", encoding="utf-8")
+            second.write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root, latest_artifact=True)
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            stdout.getvalue().strip(),
+            "data/processed/youtube/youtube-20260516T000000-20260531T000000.json",
+        )
+        self.assertFalse(report_dir.exists())
+
+    def test_main_counts_artifacts_without_writing_reports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "youtube"
+            artifact_dir.mkdir(parents=True, exist_ok=True)
+            (artifact_dir / "youtube-1.json").write_text("[]", encoding="utf-8")
+            (artifact_dir / "youtube-2.json").write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root, count_artifacts=True)
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stdout.getvalue().strip(), "2")
+        self.assertFalse(report_dir.exists())
+
+    def test_main_count_artifacts_can_fail_when_artifacts_are_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    count_artifacts=True,
+                    fail_if_missing=True,
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue().strip(), "0")
 
     def test_main_allows_explicit_output_path_outside_project_root(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

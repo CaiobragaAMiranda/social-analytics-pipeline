@@ -110,6 +110,10 @@ Use `--top <n>` to control how many rows are included in the top-content ranking
 Use `--sort-by views|likes|comments|shares` to choose the ranking metric.
 Use `--json-output <path>` to also save a compact JSON summary for automation.
 Use `--list-artifacts` to list processed YouTube artifacts without writing reports.
+Use `--latest-artifact` to print only the latest processed YouTube artifact.
+Use `--count-artifacts` to print only the number of processed YouTube artifacts.
+Use `--fail-if-missing` with list-only modes when automation should fail if no artifact exists.
+Use only one list-only mode at a time: `--list-artifacts`, `--latest-artifact` or `--count-artifacts`.
 
 Controlled backfill example:
 

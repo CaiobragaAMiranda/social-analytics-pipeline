@@ -38,6 +38,14 @@ def build_youtube_artifact_listing(project_root: Path) -> list[str]:
     ]
 
 
+def build_latest_youtube_artifact_listing(project_root: Path) -> str:
+    return _display_path(find_latest_youtube_processed_artifact(project_root), project_root)
+
+
+def count_youtube_processed_artifacts(project_root: Path) -> int:
+    return len(list_youtube_processed_artifacts(project_root))
+
+
 def find_latest_youtube_processed_artifact(project_root: Path) -> Path:
     artifacts = list_youtube_processed_artifacts(project_root)
     if not artifacts:
@@ -209,14 +217,26 @@ def main(
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
     list_artifacts: bool = False,
+    latest_artifact: bool = False,
+    count_artifacts: bool = False,
+    fail_if_missing: bool = False,
 ) -> int:
     root = project_root or Path.cwd()
+
+    if count_artifacts:
+        artifact_count = count_youtube_processed_artifacts(root)
+        print(artifact_count)
+        return 1 if fail_if_missing and artifact_count == 0 else 0
+
+    if latest_artifact:
+        print(build_latest_youtube_artifact_listing(root))
+        return 0
 
     if list_artifacts:
         artifacts = build_youtube_artifact_listing(root)
         if not artifacts:
             print("No processed YouTube artifacts found.")
-            return 0
+            return 1 if fail_if_missing else 0
 
         for artifact in artifacts:
             print(artifact)
@@ -267,10 +287,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         help="Optional JSON summary output path.",
     )
-    parser.add_argument(
+    list_mode = parser.add_mutually_exclusive_group()
+    list_mode.add_argument(
         "--list-artifacts",
         action="store_true",
         help="List processed YouTube artifacts and exit without writing reports.",
+    )
+    list_mode.add_argument(
+        "--latest-artifact",
+        action="store_true",
+        help="Print the latest processed YouTube artifact and exit without writing reports.",
+    )
+    list_mode.add_argument(
+        "--count-artifacts",
+        action="store_true",
+        help="Print the processed YouTube artifact count and exit without writing reports.",
+    )
+    parser.add_argument(
+        "--fail-if-missing",
+        action="store_true",
+        help="Exit with failure when list-only mode finds no processed artifacts.",
     )
     parser.add_argument(
         "--top",
@@ -343,6 +379,9 @@ if __name__ == "__main__":
                 top_limit=args.top,
                 sort_by=args.sort_by,
                 list_artifacts=args.list_artifacts,
+                latest_artifact=args.latest_artifact,
+                count_artifacts=args.count_artifacts,
+                fail_if_missing=args.fail_if_missing,
             )
         )
     except RuntimeError as exc:

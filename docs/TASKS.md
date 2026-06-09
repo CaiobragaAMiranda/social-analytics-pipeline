@@ -15,6 +15,95 @@
 
 ## Current Task
 
+### TASK-052 - Count processed YouTube report artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: give local automation a small count-only artifact discovery mode before report generation.
+
+Acceptance criteria:
+
+- The report CLI supports `--count-artifacts`.
+- Count-only mode prints only the number of processed YouTube artifacts.
+- Count-only mode does not write markdown or JSON reports.
+- `--count-artifacts --fail-if-missing` returns a failure code when no processed artifacts exist.
+- Tests cover parser support, count output, failure behavior and conflicting list-only modes.
+
+Evidence:
+
+- `youtube_report.py` now supports `--count-artifacts`.
+- Count-only mode uses the existing processed artifact discovery path.
+- Tests cover successful count output, missing-artifact failure and parser exclusivity.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-051 - Prevent ambiguous YouTube report list-only modes
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: keep artifact discovery commands predictable by rejecting conflicting list-only modes.
+
+Acceptance criteria:
+
+- `--list-artifacts` and `--latest-artifact` cannot be used together.
+- Each list-only mode remains available on its own.
+- `--fail-if-missing` remains compatible with list-only automation.
+- Tests cover accepted and rejected parser combinations.
+
+Evidence:
+
+- `youtube_report.py` now uses an argparse mutually exclusive group for list-only modes.
+- Tests cover `--latest-artifact` alone and conflicting list-only arguments.
+- Existing list-only execution tests still pass.
+- `docs/BOOTSTRAP.md` documents that only one list-only mode should be used at a time.
+
+### TASK-050 - Fail list-only report automation when artifacts are missing
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let simple automation fail clearly when it expects processed YouTube artifacts but none are available.
+
+Acceptance criteria:
+
+- The report CLI supports `--fail-if-missing`.
+- `--list-artifacts --fail-if-missing` returns a failure code when no processed artifacts exist.
+- Existing list behavior remains successful when the flag is not used.
+- Tests cover parser support and missing-artifact failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--fail-if-missing`.
+- List-only mode can return exit code 1 when no processed artifacts exist.
+- Tests cover argument parsing and missing-artifact failure behavior.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-049 - Print the latest processed YouTube report artifact
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make automation and local operation simpler when only the latest processed artifact path is needed.
+
+Acceptance criteria:
+
+- The report CLI supports `--latest-artifact`.
+- The command prints only the latest processed artifact path and exits.
+- The command does not write markdown or JSON reports in this mode.
+- Tests cover latest-artifact behavior and argument parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--latest-artifact`.
+- Latest artifact output reuses the existing processed artifact discovery path.
+- Tests cover relative latest-artifact output and list-only execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-048 - List processed YouTube report artifacts
 
 Status: Done
@@ -438,6 +527,10 @@ Evidence:
 | TASK-046 | The local YouTube report command now supports configurable ranking metrics. | Done |
 | TASK-047 | The local YouTube report command now supports optional compact JSON summaries. | Done |
 | TASK-048 | The local YouTube report command can list processed artifacts before reporting. | Done |
+| TASK-049 | The local YouTube report command can print only the latest processed artifact. | Done |
+| TASK-050 | The local YouTube report command can fail list-only automation when artifacts are missing. | Done |
+| TASK-051 | The local YouTube report command rejects ambiguous list-only mode combinations. | Done |
+| TASK-052 | The local YouTube report command can print only the processed artifact count. | Done |
 
 ## Deferred Until After v1 Closure
 
