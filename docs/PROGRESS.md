@@ -2,7 +2,7 @@
 
 ## Current Snapshot
 
-Date: 2026-06-04
+Date: 2026-06-08
 
 Current phase: Post-v1 direction
 

@@ -9,9 +9,9 @@
 
 ## Delivery Focus
 
-- Close the current YouTube v1 cycle before adding more engineering layers.
+- Keep the YouTube v1 cycle closed and continue with small functional slices.
 - Keep the governance pattern, but prefer larger functional tasks over tiny infrastructure refinements.
-- Defer extra observability, stronger alerting and broader orchestration work until the core delivery is closed.
+- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the next delivery.
 
 ## Current Task
 
