@@ -15,6 +15,50 @@
 
 ## Current Task
 
+### TASK-047 - Add optional JSON output to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the local YouTube report easier to reuse in automation by saving a compact structured summary when requested.
+
+Acceptance criteria:
+
+- The report CLI supports an optional `--json-output` path.
+- Markdown output remains the default behavior.
+- The JSON summary includes aggregate totals, ranking metadata and sanitized top rows.
+- Tests cover JSON payload generation, persistence and CLI parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-output`.
+- JSON output is written only when explicitly requested.
+- The JSON payload exports compact report fields instead of raw processed rows.
+- Tests cover JSON persistence, argument parsing and explicit CLI execution.
+
+### TASK-046 - Add configurable ranking metric to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let users choose which engagement metric drives the top-content ranking in the local YouTube markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports a `--sort-by` option.
+- The default ranking metric remains `views`.
+- Supported metrics are `views`, `likes`, `comments` and `shares`.
+- Tests cover custom ranking behavior and invalid metrics.
+
+Evidence:
+
+- `youtube_report.py` now supports `--sort-by`.
+- Ranking generation now uses the selected metric while preserving the previous default.
+- Tests cover `likes` ranking, invalid ranking metrics and CLI parsing.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-045 - Add configurable top-content size to the YouTube report CLI
 
 Status: Done
@@ -369,6 +413,8 @@ Evidence:
 | TASK-043 | The local YouTube report command now generates a shareable markdown report. | Done |
 | TASK-044 | The local YouTube report command now accepts explicit input and output paths. | Done |
 | TASK-045 | The local YouTube report command now supports configurable top-content ranking size. | Done |
+| TASK-046 | The local YouTube report command now supports configurable ranking metrics. | Done |
+| TASK-047 | The local YouTube report command now supports optional compact JSON summaries. | Done |
 
 ## Deferred Until After v1 Closure
 

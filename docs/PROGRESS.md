@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-045 - Add configurable top-content size to the YouTube report CLI.
+Current task: TASK-047 - Add optional JSON output to the YouTube report CLI.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow can now generate markdown summaries from explicit artifacts and configurable top-content ranking sizes.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow can now generate markdown summaries plus optional compact JSON summaries for automation.
 
 ## Completed Milestones
 
@@ -50,6 +50,8 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The local YouTube reporting step now also writes a markdown report with ranked content.
 - The report CLI now accepts explicit processed artifact and markdown output paths.
 - The report CLI now accepts `--top` to control the top-content ranking size.
+- The report CLI now accepts `--sort-by` to choose the ranking metric.
+- The report CLI now accepts `--json-output` to save a compact structured summary.
 
 ## Current Constraints
 

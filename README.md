@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-045 - Add configurable top-content size to the YouTube report CLI
-- Last completed delivery: TASK-044 - Explicit input and output options for the YouTube report CLI
+- Current task: TASK-047 - Add optional JSON output to the YouTube report CLI
+- Last completed delivery: TASK-046 - Configurable ranking metric for the YouTube report CLI
 
 ## Workflow
 

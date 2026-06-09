@@ -107,6 +107,8 @@ python -m social_analytics_pipeline.cli.youtube_report --artifact data/processed
 ```
 
 Use `--top <n>` to control how many rows are included in the top-content ranking.
+Use `--sort-by views|likes|comments|shares` to choose the ranking metric.
+Use `--json-output <path>` to also save a compact JSON summary for automation.
 
 Controlled backfill example:
 
