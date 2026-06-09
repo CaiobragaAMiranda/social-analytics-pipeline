@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-052 - Count processed YouTube report artifacts.
+Current task: TASK-054 - Suppress YouTube report summary output.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now has explicit controls to list, identify or count processed artifacts before report generation.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports quieter automation-friendly report generation.
 
 ## Completed Milestones
 
@@ -57,6 +57,8 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--fail-if-missing` so list-only automation can fail when no processed artifact exists.
 - The report CLI now rejects using `--list-artifacts` and `--latest-artifact` together.
 - The report CLI now accepts `--count-artifacts` to print only the processed artifact count.
+- The report CLI now accepts `--no-markdown` with `--json-output` for JSON-only report generation.
+- The report CLI now accepts `--quiet` to suppress report-generation summary output.
 
 ## Current Constraints
 

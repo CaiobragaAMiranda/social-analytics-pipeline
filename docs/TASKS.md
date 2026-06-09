@@ -15,6 +15,52 @@
 
 ## Current Task
 
+### TASK-054 - Suppress YouTube report summary output
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation generate report files without printing the human-readable summary.
+
+Acceptance criteria:
+
+- The report CLI supports `--quiet`.
+- Quiet mode still writes the requested report files.
+- Quiet mode suppresses report-generation summary output.
+- List-only modes keep their required output.
+- Tests cover parser support and quiet report execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--quiet`.
+- Quiet mode skips summary printing after report generation.
+- Tests cover quiet execution while still writing markdown output.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-053 - Allow JSON-only YouTube report output
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation generate a compact JSON report without also writing a markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports `--no-markdown`.
+- `--no-markdown` requires `--json-output`.
+- JSON-only mode writes the JSON summary and skips markdown output.
+- Default behavior still writes markdown.
+- Tests cover parser validation and JSON-only execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--no-markdown`.
+- Parser and direct `main` calls reject `--no-markdown` without JSON output.
+- Tests cover JSON-only execution and invalid no-output usage.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-052 - Count processed YouTube report artifacts
 
 Status: Done
@@ -531,6 +577,8 @@ Evidence:
 | TASK-050 | The local YouTube report command can fail list-only automation when artifacts are missing. | Done |
 | TASK-051 | The local YouTube report command rejects ambiguous list-only mode combinations. | Done |
 | TASK-052 | The local YouTube report command can print only the processed artifact count. | Done |
+| TASK-053 | The local YouTube report command can write JSON output without markdown. | Done |
+| TASK-054 | The local YouTube report command can suppress report-generation summary output. | Done |
 
 ## Deferred Until After v1 Closure
 

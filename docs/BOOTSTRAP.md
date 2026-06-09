@@ -109,6 +109,8 @@ python -m social_analytics_pipeline.cli.youtube_report --artifact data/processed
 Use `--top <n>` to control how many rows are included in the top-content ranking.
 Use `--sort-by views|likes|comments|shares` to choose the ranking metric.
 Use `--json-output <path>` to also save a compact JSON summary for automation.
+Use `--no-markdown --json-output <path>` to write only the JSON summary.
+Use `--quiet` to suppress report-generation summary output.
 Use `--list-artifacts` to list processed YouTube artifacts without writing reports.
 Use `--latest-artifact` to print only the latest processed YouTube artifact.
 Use `--count-artifacts` to print only the number of processed YouTube artifacts.

@@ -308,6 +308,8 @@ class YouTubeReportTest(unittest.TestCase):
                 "data/reports/youtube/sample.md",
                 "--json-output",
                 "data/reports/youtube/sample.json",
+                "--no-markdown",
+                "--quiet",
                 "--list-artifacts",
                 "--fail-if-missing",
                 "--top",
@@ -320,6 +322,8 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(args.artifact, Path("data/processed/youtube/sample.json"))
         self.assertEqual(args.output, Path("data/reports/youtube/sample.md"))
         self.assertEqual(args.json_output, Path("data/reports/youtube/sample.json"))
+        self.assertTrue(args.no_markdown)
+        self.assertTrue(args.quiet)
         self.assertTrue(args.list_artifacts)
         self.assertFalse(args.latest_artifact)
         self.assertTrue(args.fail_if_missing)
@@ -351,6 +355,10 @@ class YouTubeReportTest(unittest.TestCase):
     def test_parse_args_rejects_invalid_top_limit(self) -> None:
         with self.assertRaises(SystemExit):
             parse_args(["--top", "0"])
+
+    def test_parse_args_rejects_no_markdown_without_json_output(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--no-markdown"])
 
     def test_main_uses_explicit_artifact_and_output_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -387,6 +395,84 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
             self.assertTrue(json_output_path.exists())
+
+    def test_main_can_write_json_without_markdown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "likes": 1,
+                            "comments": 2,
+                            "shares": 3,
+                            "views": 4,
+                            "followers": 5,
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            json_output_path = project_root / "custom" / "report.json"
+
+            exit_code = main(
+                project_root,
+                artifact_path=artifact_path,
+                json_output_path=json_output_path,
+                no_markdown=True,
+            )
+
+            markdown_path = project_root / "data" / "reports" / "youtube" / "youtube-sample.md"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(json_output_path.exists())
+            self.assertFalse(markdown_path.exists())
+
+    def test_main_rejects_no_markdown_without_json_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "--no-markdown"):
+                main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    no_markdown=True,
+                )
+
+    def test_main_quiet_writes_report_without_summary_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "likes": 1,
+                            "comments": 2,
+                            "shares": 3,
+                            "views": 4,
+                            "followers": 5,
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root, artifact_path=artifact_path, quiet=True)
+
+            markdown_path = project_root / "data" / "reports" / "youtube" / "youtube-sample.md"
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertTrue(markdown_path.exists())
 
     def test_main_lists_artifacts_without_writing_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

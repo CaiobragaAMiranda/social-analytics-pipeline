@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-052 - Count processed YouTube report artifacts
-- Last completed delivery: TASK-051 - Non-ambiguous YouTube report list-only modes
+- Current task: TASK-054 - Suppress YouTube report summary output
+- Last completed delivery: TASK-053 - JSON-only YouTube report output
 
 ## Workflow
 

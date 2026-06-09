@@ -214,6 +214,8 @@ def main(
     artifact_path: Path | None = None,
     output_path: Path | None = None,
     json_output_path: Path | None = None,
+    no_markdown: bool = False,
+    quiet: bool = False,
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
     list_artifacts: bool = False,
@@ -244,27 +246,34 @@ def main(
 
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary_with_options(target, top_limit, sort_by)
-    report_path = write_youtube_report_markdown(summary, root, output_path)
+    if no_markdown and not json_output_path:
+        raise RuntimeError("--no-markdown requires --json-output.")
+
+    report_path = (
+        None if no_markdown else write_youtube_report_markdown(summary, root, output_path)
+    )
     json_report_path = (
         write_youtube_report_json(summary, root, json_output_path)
         if json_output_path
         else None
     )
 
-    print("YouTube report summary")
-    print(f"artifact_path={_display_path(summary.artifact_path, root)}")
-    print(f"records={summary.records}")
-    print(f"total_views={summary.total_views}")
-    print(f"total_likes={summary.total_likes}")
-    print(f"total_comments={summary.total_comments}")
-    print(f"total_shares={summary.total_shares}")
-    print(f"max_followers={summary.max_followers}")
-    print(f"top_content_id={summary.top_content_id or '<none>'}")
-    print(f"top_views={summary.top_views}")
-    print(f"sort_by={summary.sort_by}")
-    print(f"report_path={_display_path(report_path, root)}")
-    if json_report_path:
-        print(f"json_report_path={_display_path(json_report_path, root)}")
+    if not quiet:
+        print("YouTube report summary")
+        print(f"artifact_path={_display_path(summary.artifact_path, root)}")
+        print(f"records={summary.records}")
+        print(f"total_views={summary.total_views}")
+        print(f"total_likes={summary.total_likes}")
+        print(f"total_comments={summary.total_comments}")
+        print(f"total_shares={summary.total_shares}")
+        print(f"max_followers={summary.max_followers}")
+        print(f"top_content_id={summary.top_content_id or '<none>'}")
+        print(f"top_views={summary.top_views}")
+        print(f"sort_by={summary.sort_by}")
+        if report_path:
+            print(f"report_path={_display_path(report_path, root)}")
+        if json_report_path:
+            print(f"json_report_path={_display_path(json_report_path, root)}")
     return 0
 
 
@@ -286,6 +295,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--json-output",
         type=Path,
         help="Optional JSON summary output path.",
+    )
+    parser.add_argument(
+        "--no-markdown",
+        action="store_true",
+        help="Skip markdown output. Requires --json-output.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress report-generation summary output.",
     )
     list_mode = parser.add_mutually_exclusive_group()
     list_mode.add_argument(
@@ -320,7 +339,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=DEFAULT_SORT_BY,
         help=f"Metric used for top-content ranking. Defaults to {DEFAULT_SORT_BY}.",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.no_markdown and not args.json_output:
+        parser.error("--no-markdown requires --json-output.")
+    return args
 
 
 def _metric_value(row: dict[str, Any] | None, field: str) -> int:
@@ -376,6 +398,8 @@ if __name__ == "__main__":
                 artifact_path=args.artifact,
                 output_path=args.output,
                 json_output_path=args.json_output,
+                no_markdown=args.no_markdown,
+                quiet=args.quiet,
                 top_limit=args.top,
                 sort_by=args.sort_by,
                 list_artifacts=args.list_artifacts,
