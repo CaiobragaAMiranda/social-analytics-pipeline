@@ -170,6 +170,34 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
 
+    def test_main_allows_explicit_output_path_outside_project_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workspace = Path(tmpdir)
+            project_root = workspace / "project"
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "likes": 1,
+                            "comments": 2,
+                            "shares": 3,
+                            "views": 4,
+                            "followers": 5,
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            output_path = workspace / "external" / "report.md"
+
+            exit_code = main(project_root, artifact_path, output_path)
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(output_path.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

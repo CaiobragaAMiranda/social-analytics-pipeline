@@ -34,7 +34,7 @@ Evidence:
 
 - `youtube_report.py` now supports `--artifact` and `--output`.
 - `write_youtube_report_markdown` accepts a custom output path while preserving the default path behavior.
-- Tests cover argument parsing, custom output persistence and explicit-path CLI execution.
+- Tests cover argument parsing, custom output persistence, explicit-path CLI execution and output paths outside the project root.
 - `docs/BOOTSTRAP.md` documents the optional arguments.
 
 ### TASK-043 - Add a shareable local YouTube markdown report

@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -61,7 +62,7 @@ def build_youtube_report_summary(artifact_path: Path) -> YouTubeReportSummary:
 
 
 def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: Path) -> str:
-    artifact_path = summary.artifact_path.relative_to(project_root).as_posix()
+    artifact_path = _display_path(summary.artifact_path, project_root)
     lines = [
         "# YouTube Report",
         "",
@@ -128,7 +129,7 @@ def main(
     report_path = write_youtube_report_markdown(summary, root, output_path)
 
     print("YouTube report summary")
-    print(f"artifact_path={summary.artifact_path.relative_to(root).as_posix()}")
+    print(f"artifact_path={_display_path(summary.artifact_path, root)}")
     print(f"records={summary.records}")
     print(f"total_views={summary.total_views}")
     print(f"total_likes={summary.total_likes}")
@@ -137,7 +138,7 @@ def main(
     print(f"max_followers={summary.max_followers}")
     print(f"top_content_id={summary.top_content_id or '<none>'}")
     print(f"top_views={summary.top_views}")
-    print(f"report_path={report_path.relative_to(root).as_posix()}")
+    print(f"report_path={_display_path(report_path, root)}")
     return 0
 
 
@@ -165,6 +166,16 @@ def _metric_value(row: dict[str, Any] | None, field: str) -> int:
     if isinstance(value, int):
         return value
     return 0
+
+
+def _display_path(path: Path, project_root: Path) -> str:
+    try:
+        return path.relative_to(project_root).as_posix()
+    except ValueError:
+        try:
+            return Path(os.path.relpath(path, project_root)).as_posix()
+        except ValueError:
+            return path.as_posix()
 
 
 if __name__ == "__main__":
