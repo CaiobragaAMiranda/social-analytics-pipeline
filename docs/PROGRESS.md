@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-04
+Date: 2026-06-08
 
 Current phase: Post-v1 direction
 
-Current task: TASK-043 - Add a shareable local YouTube markdown report.
+Current task: TASK-044 - Add explicit input and output options to the YouTube report CLI.
 
-Overall status: the current YouTube v1 slice is closed, and the repository now has a minimal local reporting flow that can generate a shareable markdown summary from processed YouTube artifacts.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow can now generate markdown summaries from either the latest processed YouTube artifact or an explicitly selected artifact.
 
 ## Completed Milestones
 
@@ -48,6 +48,7 @@ Overall status: the current YouTube v1 slice is closed, and the repository now h
 - The repository now treats the YouTube v1 cycle as closed and shifts attention to the next functional slice.
 - The repository now includes a small local reporting step for processed YouTube artifacts.
 - The local YouTube reporting step now also writes a markdown report with ranked content.
+- The report CLI now accepts explicit processed artifact and markdown output paths.
 
 ## Current Constraints
 

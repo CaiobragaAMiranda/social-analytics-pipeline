@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-043 - Add a shareable local YouTube markdown report
-- Last completed delivery: TASK-042 - Local YouTube report command
+- Current task: TASK-044 - Add explicit input and output options to the YouTube report CLI
+- Last completed delivery: TASK-043 - Shareable local YouTube markdown report
 
 ## Workflow
 

@@ -9,11 +9,33 @@
 
 ## Delivery Focus
 
-- Close the current YouTube v1 cycle before adding more engineering layers.
+- Keep the YouTube v1 cycle closed and continue with small functional slices.
 - Keep the governance pattern, but prefer larger functional tasks over tiny infrastructure refinements.
-- Defer extra observability, stronger alerting and broader orchestration work until the core delivery is closed.
+- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the next delivery.
 
 ## Current Task
+
+### TASK-044 - Add explicit input and output options to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make local YouTube reporting easier to operate by allowing users to choose the processed artifact and markdown output path.
+
+Acceptance criteria:
+
+- The report CLI supports an explicit processed artifact path.
+- The report CLI supports an explicit markdown output path.
+- Default behavior still uses the latest processed artifact and default report location.
+- Tests cover argument parsing and explicit path behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--artifact` and `--output`.
+- `write_youtube_report_markdown` accepts a custom output path while preserving the default path behavior.
+- Tests cover argument parsing, custom output persistence, explicit-path CLI execution and output paths outside the project root.
+- `docs/BOOTSTRAP.md` documents the optional arguments.
 
 ### TASK-043 - Add a shareable local YouTube markdown report
 
@@ -323,6 +345,7 @@ Evidence:
 | TASK-041 | The repository now treats the YouTube v1 slice as closed and sets up the next decision. | Done |
 | TASK-042 | A simple local YouTube report command now consumes processed artifacts. | Done |
 | TASK-043 | The local YouTube report command now generates a shareable markdown report. | Done |
+| TASK-044 | The local YouTube report command now accepts explicit input and output paths. | Done |
 
 ## Deferred Until After v1 Closure
 

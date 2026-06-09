@@ -1,4 +1,6 @@
+import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -60,7 +62,7 @@ def build_youtube_report_summary(artifact_path: Path) -> YouTubeReportSummary:
 
 
 def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: Path) -> str:
-    artifact_path = summary.artifact_path.relative_to(project_root).as_posix()
+    artifact_path = _display_path(summary.artifact_path, project_root)
     lines = [
         "# YouTube Report",
         "",
@@ -105,24 +107,29 @@ def build_youtube_report_output_path(project_root: Path, artifact_path: Path) ->
 def write_youtube_report_markdown(
     summary: YouTubeReportSummary,
     project_root: Path,
+    output_path: Path | None = None,
 ) -> Path:
-    output_path = build_youtube_report_output_path(project_root, summary.artifact_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
+    target = output_path or build_youtube_report_output_path(project_root, summary.artifact_path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
         build_youtube_report_markdown(summary, project_root),
         encoding="utf-8",
     )
-    return output_path
+    return target
 
 
-def main(project_root: Path | None = None, artifact_path: Path | None = None) -> int:
+def main(
+    project_root: Path | None = None,
+    artifact_path: Path | None = None,
+    output_path: Path | None = None,
+) -> int:
     root = project_root or Path.cwd()
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary(target)
-    report_path = write_youtube_report_markdown(summary, root)
+    report_path = write_youtube_report_markdown(summary, root, output_path)
 
     print("YouTube report summary")
-    print(f"artifact_path={summary.artifact_path.relative_to(root).as_posix()}")
+    print(f"artifact_path={_display_path(summary.artifact_path, root)}")
     print(f"records={summary.records}")
     print(f"total_views={summary.total_views}")
     print(f"total_likes={summary.total_likes}")
@@ -131,8 +138,25 @@ def main(project_root: Path | None = None, artifact_path: Path | None = None) ->
     print(f"max_followers={summary.max_followers}")
     print(f"top_content_id={summary.top_content_id or '<none>'}")
     print(f"top_views={summary.top_views}")
-    print(f"report_path={report_path.relative_to(root).as_posix()}")
+    print(f"report_path={_display_path(report_path, root)}")
     return 0
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Build a local YouTube report from processed metrics artifacts."
+    )
+    parser.add_argument(
+        "--artifact",
+        type=Path,
+        help="Processed YouTube JSON artifact to report. Defaults to the latest artifact.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Markdown output path. Defaults to data/reports/youtube/<artifact>.md.",
+    )
+    return parser.parse_args(argv)
 
 
 def _metric_value(row: dict[str, Any] | None, field: str) -> int:
@@ -144,9 +168,20 @@ def _metric_value(row: dict[str, Any] | None, field: str) -> int:
     return 0
 
 
+def _display_path(path: Path, project_root: Path) -> str:
+    try:
+        return path.relative_to(project_root).as_posix()
+    except ValueError:
+        try:
+            return Path(os.path.relpath(path, project_root)).as_posix()
+        except ValueError:
+            return path.as_posix()
+
+
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        args = parse_args()
+        raise SystemExit(main(artifact_path=args.artifact, output_path=args.output))
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1) from None
