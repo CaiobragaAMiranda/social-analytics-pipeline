@@ -203,21 +203,31 @@ def build_youtube_report_json_payload(
     }
 
 
+def build_youtube_report_json_text(
+    summary: YouTubeReportSummary,
+    project_root: Path,
+    indent: int = DEFAULT_JSON_INDENT,
+) -> str:
+    json_indent = None if indent == 0 else indent
+    return (
+        json.dumps(
+            build_youtube_report_json_payload(summary, project_root),
+            indent=json_indent,
+            sort_keys=True,
+        )
+        + "\n"
+    )
+
+
 def write_youtube_report_json(
     summary: YouTubeReportSummary,
     project_root: Path,
     output_path: Path,
     indent: int = DEFAULT_JSON_INDENT,
 ) -> Path:
-    json_indent = None if indent == 0 else indent
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        json.dumps(
-            build_youtube_report_json_payload(summary, project_root),
-            indent=json_indent,
-            sort_keys=True,
-        )
-        + "\n",
+        build_youtube_report_json_text(summary, project_root, indent),
         encoding="utf-8",
     )
     return output_path
@@ -233,6 +243,7 @@ def main(
     quiet: bool = False,
     output_dir: Path | None = None,
     json_indent: int = DEFAULT_JSON_INDENT,
+    print_json: bool = False,
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
     list_artifacts: bool = False,
@@ -310,6 +321,8 @@ def main(
             print(f"report_path={_display_path(report_path, root)}")
         if json_report_path:
             print(f"json_report_path={_display_path(json_report_path, root)}")
+    if print_json:
+        print(build_youtube_report_json_text(summary, root, json_indent), end="")
     return 0
 
 
@@ -360,6 +373,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--quiet",
         action="store_true",
         help="Suppress report-generation summary output.",
+    )
+    parser.add_argument(
+        "--print-json",
+        action="store_true",
+        help="Print the JSON summary payload to stdout.",
     )
     list_mode = parser.add_mutually_exclusive_group()
     list_mode.add_argument(
@@ -476,6 +494,7 @@ if __name__ == "__main__":
                 quiet=args.quiet,
                 top_limit=args.top,
                 json_indent=args.json_indent,
+                print_json=args.print_json,
                 sort_by=args.sort_by,
                 list_artifacts=args.list_artifacts,
                 latest_artifact=args.latest_artifact,

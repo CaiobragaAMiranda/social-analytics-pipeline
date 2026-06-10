@@ -10,6 +10,7 @@ from social_analytics_pipeline.cli.youtube_report import (
     build_youtube_artifact_listing,
     build_youtube_report_json_output_path_in_dir,
     build_youtube_report_json_payload,
+    build_youtube_report_json_text,
     build_youtube_report_markdown,
     build_youtube_report_output_path_in_dir,
     build_youtube_report_summary,
@@ -305,6 +306,22 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertNotIn("\n  ", saved)
         self.assertTrue(saved.endswith("\n"))
 
+    def test_build_youtube_report_json_text_allows_compact_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+
+            summary = build_youtube_report_summary(artifact_path)
+            text = build_youtube_report_json_text(summary, project_root, indent=0)
+
+        self.assertNotIn("\n  ", text)
+        self.assertEqual(json.loads(text)["records"], 1)
+
     def test_write_youtube_report_markdown_allows_custom_output_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
@@ -348,6 +365,7 @@ class YouTubeReportTest(unittest.TestCase):
                 "0",
                 "--no-markdown",
                 "--quiet",
+                "--print-json",
                 "--list-artifacts",
                 "--fail-if-missing",
                 "--top",
@@ -365,6 +383,7 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(args.json_indent, 0)
         self.assertTrue(args.no_markdown)
         self.assertTrue(args.quiet)
+        self.assertTrue(args.print_json)
         self.assertTrue(args.list_artifacts)
         self.assertFalse(args.latest_artifact)
         self.assertTrue(args.fail_if_missing)
@@ -603,6 +622,41 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(stdout.getvalue(), "")
             self.assertTrue(markdown_path.exists())
+
+    def test_main_can_print_json_without_summary_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "likes": 1,
+                            "comments": 2,
+                            "shares": 3,
+                            "views": 4,
+                            "followers": 5,
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    quiet=True,
+                    print_json=True,
+                    json_indent=0,
+                )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(json.loads(stdout.getvalue())["records"], 1)
+        self.assertNotIn("YouTube report summary", stdout.getvalue())
 
     def test_main_lists_artifacts_without_writing_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

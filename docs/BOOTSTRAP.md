@@ -112,6 +112,7 @@ Use `--output-dir <path>` to choose the markdown report directory while keeping 
 Use `--json-output <path>` to also save a compact JSON summary for automation.
 Use `--json-output-dir <path>` to choose the JSON report directory while keeping the artifact-based file name.
 Use `--json-indent <n>` to control JSON indentation; use `0` for compact output.
+Use `--print-json` to print the JSON summary payload to stdout.
 Use `--no-markdown --json-output <path>` to write only the JSON summary.
 Use `--quiet` to suppress report-generation summary output.
 Use `--list-artifacts` to list processed YouTube artifacts without writing reports.

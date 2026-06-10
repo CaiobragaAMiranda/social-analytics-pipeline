@@ -15,6 +15,29 @@
 
 ## Current Task
 
+### TASK-058 - Print YouTube report JSON to stdout
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation consume the compact JSON report directly from stdout without requiring a file.
+
+Acceptance criteria:
+
+- The report CLI supports `--print-json`.
+- Printed JSON uses the same payload as JSON file output.
+- `--print-json` respects `--json-indent`.
+- `--quiet --print-json` prints only the JSON payload.
+- Tests cover JSON rendering and quiet stdout JSON behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--print-json`.
+- JSON rendering is shared between file writing and stdout printing.
+- Tests cover compact JSON text rendering and quiet JSON stdout execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-057 - Configure YouTube report JSON indentation
 
 Status: Done
@@ -653,6 +676,7 @@ Evidence:
 | TASK-055 | The local YouTube report command can write markdown into a chosen output directory. | Done |
 | TASK-056 | The local YouTube report command can write JSON into a chosen output directory. | Done |
 | TASK-057 | The local YouTube report command can configure JSON indentation. | Done |
+| TASK-058 | The local YouTube report command can print the JSON summary payload to stdout. | Done |
 
 ## Deferred Until After v1 Closure
 
