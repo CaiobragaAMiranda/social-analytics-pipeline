@@ -114,6 +114,7 @@ Use `--json-output-dir <path>` to choose the JSON report directory while keeping
 Use `--json-indent <n>` to control JSON indentation; use `0` for compact output.
 Use `--print-json` to print the JSON summary payload to stdout.
 Use `--no-markdown --json-output <path>` to write only the JSON summary.
+Use `--no-markdown --print-json --quiet` to print only the JSON summary without writing report files.
 Use `--quiet` to suppress report-generation summary output.
 Use `--fail-if-empty` when automation should fail if the selected artifact has no records.
 Use `--min-records <n>` when automation should require at least `n` records.

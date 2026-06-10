@@ -311,8 +311,10 @@ def main(
             )
         return 1
 
-    if no_markdown and not (json_output_path or json_output_dir):
-        raise RuntimeError("--no-markdown requires --json-output or --json-output-dir.")
+    if no_markdown and not (json_output_path or json_output_dir or print_json):
+        raise RuntimeError(
+            "--no-markdown requires --json-output, --json-output-dir or --print-json."
+        )
     if output_path and output_dir:
         raise RuntimeError("--output and --output-dir cannot be used together.")
     if json_output_path and json_output_dir:
@@ -426,7 +428,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--no-markdown",
         action="store_true",
-        help="Skip markdown output. Requires --json-output.",
+        help="Skip markdown output. Requires a JSON file destination or --print-json.",
     )
     parser.add_argument(
         "--quiet",
@@ -488,8 +490,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help=f"Metric used for top-content ranking. Defaults to {DEFAULT_SORT_BY}.",
     )
     args = parser.parse_args(argv)
-    if args.no_markdown and not (args.json_output or args.json_output_dir):
-        parser.error("--no-markdown requires --json-output or --json-output-dir.")
+    if args.no_markdown and not (
+        args.json_output or args.json_output_dir or args.print_json
+    ):
+        parser.error(
+            "--no-markdown requires --json-output, --json-output-dir or --print-json."
+        )
     if args.output and args.output_dir:
         parser.error("--output and --output-dir cannot be used together.")
     if args.json_output and args.json_output_dir:

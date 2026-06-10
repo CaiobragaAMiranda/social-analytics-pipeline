@@ -15,6 +15,27 @@
 
 ## Current Task
 
+### TASK-062 - Stdout-only JSON YouTube reports
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation consume a JSON report from stdout without writing markdown or JSON files.
+
+Acceptance criteria:
+
+- The report CLI accepts `--no-markdown --print-json`.
+- The parser still rejects `--no-markdown` when no JSON destination exists.
+- Stdout-only JSON mode does not create report files.
+- Tests cover parser support and file-free JSON execution.
+
+Evidence:
+
+- `youtube_report.py` now treats `--print-json` as a valid JSON destination for `--no-markdown`.
+- Tests cover stdout-only JSON output without creating `data/reports`.
+- `docs/BOOTSTRAP.md` documents the new usage.
+
 ### TASK-061 - Dry-run YouTube report generation
 
 Status: Done
@@ -750,6 +771,7 @@ Evidence:
 | TASK-059 | The local YouTube report command can fail before writing reports for empty artifacts. | Done |
 | TASK-060 | The local YouTube report command can require a minimum record count before writing reports. | Done |
 | TASK-061 | The local YouTube report command can dry-run planned report outputs without writing files. | Done |
+| TASK-062 | The local YouTube report command can print JSON without writing report files. | Done |
 
 ## Deferred Until After v1 Closure
 

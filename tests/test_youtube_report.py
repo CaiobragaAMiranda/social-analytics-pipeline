@@ -435,6 +435,12 @@ class YouTubeReportTest(unittest.TestCase):
         with self.assertRaises(SystemExit):
             parse_args(["--no-markdown"])
 
+    def test_parse_args_allows_no_markdown_with_print_json(self) -> None:
+        args = parse_args(["--no-markdown", "--print-json"])
+
+        self.assertTrue(args.no_markdown)
+        self.assertTrue(args.print_json)
+
     def test_parse_args_rejects_output_and_output_dir_together(self) -> None:
         with self.assertRaises(SystemExit):
             parse_args(["--output", "report.md", "--output-dir", "reports"])
@@ -589,6 +595,32 @@ class YouTubeReportTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(json_output_path.exists())
             self.assertFalse(markdown_path.exists())
+
+    def test_main_can_print_json_without_writing_report_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    no_markdown=True,
+                    print_json=True,
+                    quiet=True,
+                )
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(json.loads(stdout.getvalue())["records"], 1)
+        self.assertFalse(report_dir.exists())
 
     def test_main_rejects_no_markdown_without_json_destination(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
