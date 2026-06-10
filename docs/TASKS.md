@@ -15,6 +15,52 @@
 
 ## Current Task
 
+### TASK-060 - Require a minimum YouTube report record count
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation require a minimum number of records before report output is written.
+
+Acceptance criteria:
+
+- The report CLI supports `--min-records`.
+- Negative values fail during argument parsing.
+- Report generation fails before writing outputs when the selected artifact has fewer records than required.
+- `--fail-if-empty` remains supported as a convenience for requiring at least one record.
+- Tests cover parser support, invalid values, failure behavior and successful minimum checks.
+
+Evidence:
+
+- `youtube_report.py` now supports `--min-records`.
+- Minimum-record checks happen after loading the selected artifact and before report writing.
+- Tests cover below-minimum failure and successful report output when the minimum is met.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-059 - Fail YouTube report generation for empty artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation fail clearly when the selected processed artifact has no records.
+
+Acceptance criteria:
+
+- The report CLI supports `--fail-if-empty`.
+- Empty selected artifacts return a failure code before writing markdown or JSON reports.
+- Non-empty report generation remains unchanged.
+- Quiet mode suppresses the empty-artifact message.
+- Tests cover parser support, empty-artifact failure and quiet failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--fail-if-empty`.
+- Empty-artifact failure happens after loading the selected artifact and before report writing.
+- Tests cover failing empty artifacts without creating report output.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-058 - Print YouTube report JSON to stdout
 
 Status: Done
@@ -677,6 +723,8 @@ Evidence:
 | TASK-056 | The local YouTube report command can write JSON into a chosen output directory. | Done |
 | TASK-057 | The local YouTube report command can configure JSON indentation. | Done |
 | TASK-058 | The local YouTube report command can print the JSON summary payload to stdout. | Done |
+| TASK-059 | The local YouTube report command can fail before writing reports for empty artifacts. | Done |
+| TASK-060 | The local YouTube report command can require a minimum record count before writing reports. | Done |
 
 ## Deferred Until After v1 Closure
 

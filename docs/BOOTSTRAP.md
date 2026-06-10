@@ -115,6 +115,8 @@ Use `--json-indent <n>` to control JSON indentation; use `0` for compact output.
 Use `--print-json` to print the JSON summary payload to stdout.
 Use `--no-markdown --json-output <path>` to write only the JSON summary.
 Use `--quiet` to suppress report-generation summary output.
+Use `--fail-if-empty` when automation should fail if the selected artifact has no records.
+Use `--min-records <n>` when automation should require at least `n` records.
 Use `--list-artifacts` to list processed YouTube artifacts without writing reports.
 Use `--latest-artifact` to print only the latest processed YouTube artifact.
 Use `--count-artifacts` to print only the number of processed YouTube artifacts.

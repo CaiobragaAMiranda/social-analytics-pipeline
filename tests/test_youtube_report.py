@@ -368,6 +368,9 @@ class YouTubeReportTest(unittest.TestCase):
                 "--print-json",
                 "--list-artifacts",
                 "--fail-if-missing",
+                "--fail-if-empty",
+                "--min-records",
+                "2",
                 "--top",
                 "3",
                 "--sort-by",
@@ -387,6 +390,8 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertTrue(args.list_artifacts)
         self.assertFalse(args.latest_artifact)
         self.assertTrue(args.fail_if_missing)
+        self.assertTrue(args.fail_if_empty)
+        self.assertEqual(args.min_records, 2)
         self.assertEqual(args.top, 3)
         self.assertEqual(args.sort_by, "likes")
 
@@ -419,6 +424,10 @@ class YouTubeReportTest(unittest.TestCase):
     def test_parse_args_rejects_invalid_json_indent(self) -> None:
         with self.assertRaises(SystemExit):
             parse_args(["--json-indent", "-1"])
+
+    def test_parse_args_rejects_invalid_min_records(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--min-records", "-1"])
 
     def test_parse_args_rejects_no_markdown_without_json_destination(self) -> None:
         with self.assertRaises(SystemExit):
@@ -657,6 +666,91 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(json.loads(stdout.getvalue())["records"], 1)
         self.assertNotIn("YouTube report summary", stdout.getvalue())
+
+    def test_main_can_fail_when_selected_artifact_is_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-empty.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    fail_if_empty=True,
+                )
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("required at least 1", stdout.getvalue())
+        self.assertFalse(report_dir.exists())
+
+    def test_main_quiet_empty_failure_does_not_print_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-empty.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    fail_if_empty=True,
+                    quiet=True,
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+
+    def test_main_can_fail_when_selected_artifact_is_below_min_records(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    min_records=2,
+                )
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("required at least 2", stdout.getvalue())
+        self.assertFalse(report_dir.exists())
+
+    def test_main_allows_selected_artifact_that_meets_min_records(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                project_root,
+                artifact_path=artifact_path,
+                min_records=1,
+                quiet=True,
+            )
+
+            report_path = project_root / "data" / "reports" / "youtube" / "youtube-sample.md"
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(report_path.exists())
 
     def test_main_lists_artifacts_without_writing_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -244,6 +244,8 @@ def main(
     output_dir: Path | None = None,
     json_indent: int = DEFAULT_JSON_INDENT,
     print_json: bool = False,
+    fail_if_empty: bool = False,
+    min_records: int = 0,
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
     list_artifacts: bool = False,
@@ -274,6 +276,15 @@ def main(
 
     target = artifact_path or find_latest_youtube_processed_artifact(root)
     summary = build_youtube_report_summary_with_options(target, top_limit, sort_by)
+    required_records = max(min_records, 1 if fail_if_empty else 0)
+    if summary.records < required_records:
+        if not quiet:
+            print(
+                "Selected YouTube artifact has "
+                f"{summary.records} records; required at least {required_records}."
+            )
+        return 1
+
     if no_markdown and not (json_output_path or json_output_dir):
         raise RuntimeError("--no-markdown requires --json-output or --json-output-dir.")
     if output_path and output_dir:
@@ -357,7 +368,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--json-indent",
-        type=_non_negative_int,
+        type=_non_negative_int("--json-indent"),
         default=DEFAULT_JSON_INDENT,
         help=(
             "JSON summary indentation. Use 0 for compact output. "
@@ -399,6 +410,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--fail-if-missing",
         action="store_true",
         help="Exit with failure when list-only mode finds no processed artifacts.",
+    )
+    parser.add_argument(
+        "--fail-if-empty",
+        action="store_true",
+        help="Exit with failure when the selected processed artifact has no records.",
+    )
+    parser.add_argument(
+        "--min-records",
+        type=_non_negative_int("--min-records"),
+        default=0,
+        help="Minimum records required in the selected processed artifact.",
     )
     parser.add_argument(
         "--top",
@@ -467,17 +489,22 @@ def _positive_int(value: str) -> int:
     return parsed
 
 
-def _non_negative_int(value: str) -> int:
-    try:
-        parsed = int(value)
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError("--json-indent must be an integer.") from exc
+def _non_negative_int(option_name: str) -> Any:
+    def parse(value: str) -> int:
+        try:
+            parsed = int(value)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError(
+                f"{option_name} must be an integer."
+            ) from exc
 
-    if parsed < 0:
-        raise argparse.ArgumentTypeError(
-            "--json-indent must be greater than or equal to 0."
-        )
-    return parsed
+        if parsed < 0:
+            raise argparse.ArgumentTypeError(
+                f"{option_name} must be greater than or equal to 0."
+            )
+        return parsed
+
+    return parse
 
 
 if __name__ == "__main__":
@@ -495,6 +522,8 @@ if __name__ == "__main__":
                 top_limit=args.top,
                 json_indent=args.json_indent,
                 print_json=args.print_json,
+                fail_if_empty=args.fail_if_empty,
+                min_records=args.min_records,
                 sort_by=args.sort_by,
                 list_artifacts=args.list_artifacts,
                 latest_artifact=args.latest_artifact,

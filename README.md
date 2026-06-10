@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-058 - Print YouTube report JSON to stdout
-- Last completed delivery: TASK-057 - Configurable JSON indentation for YouTube reports
+- Current task: TASK-060 - Require a minimum YouTube report record count
+- Last completed delivery: TASK-059 - Empty artifact failure for YouTube reports
 
 ## Workflow
 

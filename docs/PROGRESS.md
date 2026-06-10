@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-058 - Print YouTube report JSON to stdout.
+Current task: TASK-060 - Require a minimum YouTube report record count.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports file-based and stdout-based JSON report consumption.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports stricter automation checks for minimum processed artifact size.
 
 ## Completed Milestones
 
@@ -63,6 +63,8 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--json-output-dir` to choose the JSON report directory while preserving artifact-based file names.
 - The report CLI now accepts `--json-indent` to choose pretty or compact JSON output.
 - The report CLI now accepts `--print-json` to print the JSON summary payload to stdout.
+- The report CLI now accepts `--fail-if-empty` to fail before report writing when the selected artifact has no records.
+- The report CLI now accepts `--min-records` to fail before report writing when the selected artifact is too small.
 
 ## Current Constraints
 
