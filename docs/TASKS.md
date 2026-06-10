@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-065 - YouTube report total engagements
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: expose a simple engagement aggregate in local YouTube report outputs.
+
+Acceptance criteria:
+
+- Report summaries include total engagements.
+- Total engagements are calculated as likes plus comments plus shares.
+- Markdown, JSON and terminal summary outputs include total engagements.
+- Tests cover the aggregate in summary, markdown and JSON outputs.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `total_engagements`.
+- Markdown output includes total engagements.
+- JSON totals include `engagements`.
+- Tests cover the aggregate without changing existing totals.
+
 ### TASK-064 - Explicit YouTube report top metric value
 
 Status: Done
@@ -818,6 +840,7 @@ Evidence:
 | TASK-062 | The local YouTube report command can print JSON without writing report files. | Done |
 | TASK-063 | The package exposes the local YouTube report command as `youtube-report`. | Done |
 | TASK-064 | YouTube reports expose the selected top-ranking metric value. | Done |
+| TASK-065 | YouTube reports expose total engagements. | Done |
 
 ## Deferred Until After v1 Closure
 

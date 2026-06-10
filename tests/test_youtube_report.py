@@ -126,6 +126,7 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.total_likes, 15)
         self.assertEqual(summary.total_comments, 5)
         self.assertEqual(summary.total_shares, 1)
+        self.assertEqual(summary.total_engagements, 21)
         self.assertEqual(summary.max_followers, 1200)
         self.assertEqual(summary.top_content_id, "video-2")
         self.assertEqual(summary.top_views, 250)
@@ -232,6 +233,7 @@ class YouTubeReportTest(unittest.TestCase):
 
             self.assertIn("# YouTube Report", markdown)
             self.assertIn("- Ranking metric: `views`", markdown)
+            self.assertIn("- Total engagements: `21`", markdown)
             self.assertIn("## Top Content by Views", markdown)
             self.assertIn("video-2", markdown)
             self.assertTrue(report_path.exists())
@@ -291,6 +293,7 @@ class YouTubeReportTest(unittest.TestCase):
 
         self.assertEqual(payload["sort_by"], "likes")
         self.assertEqual(saved["totals"]["views"], 100)
+        self.assertEqual(saved["totals"]["engagements"], 13)
         self.assertEqual(saved["top_content"]["metric"], "likes")
         self.assertEqual(saved["top_content"]["metric_value"], 10)
         self.assertEqual(saved["top_rows"][0]["content_id"], "video-1")

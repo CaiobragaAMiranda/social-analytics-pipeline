@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-064 - Explicit YouTube report top metric value
-- Last completed delivery: TASK-063 - YouTube report console script
+- Current task: TASK-065 - YouTube report total engagements
+- Last completed delivery: TASK-064 - Explicit YouTube report top metric value
 
 ## Workflow
 

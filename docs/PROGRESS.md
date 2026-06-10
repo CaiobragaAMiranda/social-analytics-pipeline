@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-064 - Explicit YouTube report top metric value.
+Current task: TASK-065 - YouTube report total engagements.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now makes the selected top-ranking metric explicit in report outputs.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes a simple total engagement aggregate.
 
 ## Completed Milestones
 
@@ -69,6 +69,7 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--no-markdown --print-json` to emit JSON without writing report files.
 - The package now exposes a `youtube-report` console script for the local report command.
 - YouTube reports now expose the selected top-ranking metric value alongside top views.
+- YouTube reports now expose total engagements as likes plus comments plus shares.
 
 ## Current Constraints
 
