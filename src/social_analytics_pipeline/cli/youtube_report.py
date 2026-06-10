@@ -24,6 +24,7 @@ class YouTubeReportSummary:
     max_followers: int
     top_content_id: str | None
     top_views: int
+    top_metric_value: int
     top_rows: list[dict[str, Any]]
 
 
@@ -107,6 +108,7 @@ def build_youtube_report_summary_with_options(
         max_followers=max((_metric_value(row, "followers") for row in rows), default=0),
         top_content_id=top_row.get("content_id") if top_row else None,
         top_views=_metric_value(top_row, "views") if top_row else 0,
+        top_metric_value=_metric_value(top_row, sort_by) if top_row else 0,
         top_rows=top_rows,
     )
 
@@ -126,6 +128,7 @@ def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: P
         f"- Top content: `{summary.top_content_id or '<none>'}`",
         f"- Top views: `{summary.top_views}`",
         f"- Ranking metric: `{summary.sort_by}`",
+        f"- Top {_metric_label(summary.sort_by).lower()}: `{summary.top_metric_value}`",
         "",
         f"## Top Content by {_metric_label(summary.sort_by)}",
         "",
@@ -223,6 +226,8 @@ def build_youtube_report_json_payload(
         "top_content": {
             "content_id": summary.top_content_id,
             "views": summary.top_views,
+            "metric": summary.sort_by,
+            "metric_value": summary.top_metric_value,
         },
         "top_rows": [_report_row(row) for row in summary.top_rows],
     }
@@ -378,6 +383,7 @@ def main(
         print(f"top_content_id={summary.top_content_id or '<none>'}")
         print(f"top_views={summary.top_views}")
         print(f"sort_by={summary.sort_by}")
+        print(f"top_metric_value={summary.top_metric_value}")
         if report_path:
             print(f"report_path={_display_path(report_path, root)}")
         if json_report_path:

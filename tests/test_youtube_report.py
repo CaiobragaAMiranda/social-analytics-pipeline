@@ -129,6 +129,7 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.max_followers, 1200)
         self.assertEqual(summary.top_content_id, "video-2")
         self.assertEqual(summary.top_views, 250)
+        self.assertEqual(summary.top_metric_value, 250)
         self.assertEqual(summary.sort_by, "views")
         self.assertEqual(len(summary.top_rows), 2)
         self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
@@ -177,6 +178,7 @@ class YouTubeReportTest(unittest.TestCase):
 
         self.assertEqual(summary.sort_by, "likes")
         self.assertEqual(summary.top_rows[0]["content_id"], "video-likes")
+        self.assertEqual(summary.top_metric_value, 50)
 
     def test_build_youtube_report_summary_with_options_rejects_unknown_metric(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -255,6 +257,7 @@ class YouTubeReportTest(unittest.TestCase):
             markdown = build_youtube_report_markdown(summary, project_root)
 
         self.assertIn("- Ranking metric: `likes`", markdown)
+        self.assertIn("- Top likes: `50`", markdown)
         self.assertIn("## Top Content by Likes", markdown)
         self.assertLess(markdown.index("video-likes"), markdown.index("video-views"))
 
@@ -288,6 +291,8 @@ class YouTubeReportTest(unittest.TestCase):
 
         self.assertEqual(payload["sort_by"], "likes")
         self.assertEqual(saved["totals"]["views"], 100)
+        self.assertEqual(saved["top_content"]["metric"], "likes")
+        self.assertEqual(saved["top_content"]["metric_value"], 10)
         self.assertEqual(saved["top_rows"][0]["content_id"], "video-1")
         self.assertNotIn("ignored_extra_field", saved["top_rows"][0])
 

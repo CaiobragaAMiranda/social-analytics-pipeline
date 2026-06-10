@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-064 - Explicit YouTube report top metric value
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make report summaries clear when top content is ranked by a metric other than views.
+
+Acceptance criteria:
+
+- Report summaries keep `top_views` for compatibility.
+- Report summaries expose the selected top-ranking metric value.
+- Markdown, JSON and terminal summary outputs include the selected metric value.
+- Tests cover ranking by a non-default metric.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `top_metric_value`.
+- Markdown output includes the selected top metric value.
+- JSON output includes `top_content.metric` and `top_content.metric_value`.
+- Tests cover `likes` ranking in summary, markdown and JSON outputs.
+
 ### TASK-063 - YouTube report console script
 
 Status: Done
@@ -795,6 +817,7 @@ Evidence:
 | TASK-061 | The local YouTube report command can dry-run planned report outputs without writing files. | Done |
 | TASK-062 | The local YouTube report command can print JSON without writing report files. | Done |
 | TASK-063 | The package exposes the local YouTube report command as `youtube-report`. | Done |
+| TASK-064 | YouTube reports expose the selected top-ranking metric value. | Done |
 
 ## Deferred Until After v1 Closure
 
