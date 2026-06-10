@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-08
+Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-044 - Add explicit input and output options to the YouTube report CLI.
+Current task: TASK-065 - YouTube report total engagements.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow can now generate markdown summaries from either the latest processed YouTube artifact or an explicitly selected artifact.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes a simple total engagement aggregate.
 
 ## Completed Milestones
 
@@ -49,6 +49,27 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The repository now includes a small local reporting step for processed YouTube artifacts.
 - The local YouTube reporting step now also writes a markdown report with ranked content.
 - The report CLI now accepts explicit processed artifact and markdown output paths.
+- The report CLI now accepts `--top` to control the top-content ranking size.
+- The report CLI now accepts `--sort-by` to choose the ranking metric.
+- The report CLI now accepts `--json-output` to save a compact structured summary.
+- The report CLI now accepts `--list-artifacts` to show available processed artifacts.
+- The report CLI now accepts `--latest-artifact` to print only the latest processed artifact.
+- The report CLI now accepts `--fail-if-missing` so list-only automation can fail when no processed artifact exists.
+- The report CLI now rejects using `--list-artifacts` and `--latest-artifact` together.
+- The report CLI now accepts `--count-artifacts` to print only the processed artifact count.
+- The report CLI now accepts `--no-markdown` with `--json-output` for JSON-only report generation.
+- The report CLI now accepts `--quiet` to suppress report-generation summary output.
+- The report CLI now accepts `--output-dir` to choose the markdown report directory while preserving artifact-based file names.
+- The report CLI now accepts `--json-output-dir` to choose the JSON report directory while preserving artifact-based file names.
+- The report CLI now accepts `--json-indent` to choose pretty or compact JSON output.
+- The report CLI now accepts `--print-json` to print the JSON summary payload to stdout.
+- The report CLI now accepts `--fail-if-empty` to fail before report writing when the selected artifact has no records.
+- The report CLI now accepts `--min-records` to fail before report writing when the selected artifact is too small.
+- The report CLI now accepts `--dry-run` to validate selected inputs and show planned report paths without writing files.
+- The report CLI now accepts `--no-markdown --print-json` to emit JSON without writing report files.
+- The package now exposes a `youtube-report` console script for the local report command.
+- YouTube reports now expose the selected top-ranking metric value alongside top views.
+- YouTube reports now expose total engagements as likes plus comments plus shares.
 
 ## Current Constraints
 

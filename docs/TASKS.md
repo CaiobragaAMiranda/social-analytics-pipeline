@@ -15,6 +15,480 @@
 
 ## Current Task
 
+### TASK-065 - YouTube report total engagements
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: expose a simple engagement aggregate in local YouTube report outputs.
+
+Acceptance criteria:
+
+- Report summaries include total engagements.
+- Total engagements are calculated as likes plus comments plus shares.
+- Markdown, JSON and terminal summary outputs include total engagements.
+- Tests cover the aggregate in summary, markdown and JSON outputs.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `total_engagements`.
+- Markdown output includes total engagements.
+- JSON totals include `engagements`.
+- Tests cover the aggregate without changing existing totals.
+
+### TASK-064 - Explicit YouTube report top metric value
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make report summaries clear when top content is ranked by a metric other than views.
+
+Acceptance criteria:
+
+- Report summaries keep `top_views` for compatibility.
+- Report summaries expose the selected top-ranking metric value.
+- Markdown, JSON and terminal summary outputs include the selected metric value.
+- Tests cover ranking by a non-default metric.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `top_metric_value`.
+- Markdown output includes the selected top metric value.
+- JSON output includes `top_content.metric` and `top_content.metric_value`.
+- Tests cover `likes` ranking in summary, markdown and JSON outputs.
+
+### TASK-063 - YouTube report console script
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the local YouTube report easier to run after package installation.
+
+Acceptance criteria:
+
+- The package exposes a `youtube-report` console script.
+- The console script uses the same parser and behavior as `python -m social_analytics_pipeline.cli.youtube_report`.
+- The module entrypoint and console script share one implementation.
+- Tests cover the entrypoint path.
+
+Evidence:
+
+- `pyproject.toml` now declares `youtube-report`.
+- `youtube_report.py` now has a shared `cli_entrypoint`.
+- Tests cover invoking the entrypoint with CLI-style arguments.
+- `docs/BOOTSTRAP.md` documents the shortcut.
+
+### TASK-062 - Stdout-only JSON YouTube reports
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation consume a JSON report from stdout without writing markdown or JSON files.
+
+Acceptance criteria:
+
+- The report CLI accepts `--no-markdown --print-json`.
+- The parser still rejects `--no-markdown` when no JSON destination exists.
+- Stdout-only JSON mode does not create report files.
+- Tests cover parser support and file-free JSON execution.
+
+Evidence:
+
+- `youtube_report.py` now treats `--print-json` as a valid JSON destination for `--no-markdown`.
+- Tests cover stdout-only JSON output without creating `data/reports`.
+- `docs/BOOTSTRAP.md` documents the new usage.
+
+### TASK-061 - Dry-run YouTube report generation
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let operators validate report inputs and planned outputs without writing markdown or JSON files.
+
+Acceptance criteria:
+
+- The report CLI supports `--dry-run`.
+- Dry runs load and validate the selected artifact.
+- Dry runs respect `--fail-if-empty` and `--min-records`.
+- Dry runs print planned markdown and JSON output paths when not quiet.
+- Dry runs do not create report output files.
+- Tests cover parser support, dry-run output and minimum-record failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--dry-run`.
+- Planned markdown and JSON output paths are resolved before writing.
+- Dry-run mode returns before report files are created.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-060 - Require a minimum YouTube report record count
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation require a minimum number of records before report output is written.
+
+Acceptance criteria:
+
+- The report CLI supports `--min-records`.
+- Negative values fail during argument parsing.
+- Report generation fails before writing outputs when the selected artifact has fewer records than required.
+- `--fail-if-empty` remains supported as a convenience for requiring at least one record.
+- Tests cover parser support, invalid values, failure behavior and successful minimum checks.
+
+Evidence:
+
+- `youtube_report.py` now supports `--min-records`.
+- Minimum-record checks happen after loading the selected artifact and before report writing.
+- Tests cover below-minimum failure and successful report output when the minimum is met.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-059 - Fail YouTube report generation for empty artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation fail clearly when the selected processed artifact has no records.
+
+Acceptance criteria:
+
+- The report CLI supports `--fail-if-empty`.
+- Empty selected artifacts return a failure code before writing markdown or JSON reports.
+- Non-empty report generation remains unchanged.
+- Quiet mode suppresses the empty-artifact message.
+- Tests cover parser support, empty-artifact failure and quiet failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--fail-if-empty`.
+- Empty-artifact failure happens after loading the selected artifact and before report writing.
+- Tests cover failing empty artifacts without creating report output.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-058 - Print YouTube report JSON to stdout
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation consume the compact JSON report directly from stdout without requiring a file.
+
+Acceptance criteria:
+
+- The report CLI supports `--print-json`.
+- Printed JSON uses the same payload as JSON file output.
+- `--print-json` respects `--json-indent`.
+- `--quiet --print-json` prints only the JSON payload.
+- Tests cover JSON rendering and quiet stdout JSON behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--print-json`.
+- JSON rendering is shared between file writing and stdout printing.
+- Tests cover compact JSON text rendering and quiet JSON stdout execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-057 - Configure YouTube report JSON indentation
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation choose between pretty and compact JSON report output.
+
+Acceptance criteria:
+
+- The report CLI supports `--json-indent`.
+- The default JSON indentation remains `2`.
+- `--json-indent 0` writes compact JSON output.
+- Negative indentation values fail during argument parsing.
+- Tests cover parser support, invalid values and compact JSON writing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-indent`.
+- JSON writing accepts an indentation setting while preserving the previous default.
+- Tests cover compact JSON output and invalid indentation values.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-056 - Allow YouTube report JSON output directory
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let operators choose a JSON report directory without manually composing the output file name.
+
+Acceptance criteria:
+
+- The report CLI supports `--json-output-dir`.
+- `--json-output-dir` writes JSON using the processed artifact stem as the file name.
+- `--json-output` and `--json-output-dir` cannot be used together.
+- `--no-markdown` accepts either `--json-output` or `--json-output-dir`.
+- Tests cover path construction, parser validation and JSON output-dir execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-output-dir`.
+- JSON output-dir mode keeps artifact-based JSON file names.
+- Parser and direct `main` calls reject conflicting JSON output arguments.
+- Tests cover JSON output-dir path generation and execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-055 - Allow YouTube report markdown output directory
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let operators choose a markdown report directory without manually composing the output file name.
+
+Acceptance criteria:
+
+- The report CLI supports `--output-dir`.
+- `--output-dir` writes markdown using the processed artifact stem as the file name.
+- `--output` and `--output-dir` cannot be used together.
+- Existing explicit `--output` behavior remains supported.
+- Tests cover path construction, parser validation and output-dir execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--output-dir`.
+- Output-dir mode keeps artifact-based markdown file names.
+- Parser and direct `main` calls reject conflicting output arguments.
+- Tests cover output-dir path generation and execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-054 - Suppress YouTube report summary output
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation generate report files without printing the human-readable summary.
+
+Acceptance criteria:
+
+- The report CLI supports `--quiet`.
+- Quiet mode still writes the requested report files.
+- Quiet mode suppresses report-generation summary output.
+- List-only modes keep their required output.
+- Tests cover parser support and quiet report execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--quiet`.
+- Quiet mode skips summary printing after report generation.
+- Tests cover quiet execution while still writing markdown output.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-053 - Allow JSON-only YouTube report output
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation generate a compact JSON report without also writing a markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports `--no-markdown`.
+- `--no-markdown` requires `--json-output`.
+- JSON-only mode writes the JSON summary and skips markdown output.
+- Default behavior still writes markdown.
+- Tests cover parser validation and JSON-only execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--no-markdown`.
+- Parser and direct `main` calls reject `--no-markdown` without JSON output.
+- Tests cover JSON-only execution and invalid no-output usage.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-052 - Count processed YouTube report artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: give local automation a small count-only artifact discovery mode before report generation.
+
+Acceptance criteria:
+
+- The report CLI supports `--count-artifacts`.
+- Count-only mode prints only the number of processed YouTube artifacts.
+- Count-only mode does not write markdown or JSON reports.
+- `--count-artifacts --fail-if-missing` returns a failure code when no processed artifacts exist.
+- Tests cover parser support, count output, failure behavior and conflicting list-only modes.
+
+Evidence:
+
+- `youtube_report.py` now supports `--count-artifacts`.
+- Count-only mode uses the existing processed artifact discovery path.
+- Tests cover successful count output, missing-artifact failure and parser exclusivity.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-051 - Prevent ambiguous YouTube report list-only modes
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: keep artifact discovery commands predictable by rejecting conflicting list-only modes.
+
+Acceptance criteria:
+
+- `--list-artifacts` and `--latest-artifact` cannot be used together.
+- Each list-only mode remains available on its own.
+- `--fail-if-missing` remains compatible with list-only automation.
+- Tests cover accepted and rejected parser combinations.
+
+Evidence:
+
+- `youtube_report.py` now uses an argparse mutually exclusive group for list-only modes.
+- Tests cover `--latest-artifact` alone and conflicting list-only arguments.
+- Existing list-only execution tests still pass.
+- `docs/BOOTSTRAP.md` documents that only one list-only mode should be used at a time.
+
+### TASK-050 - Fail list-only report automation when artifacts are missing
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let simple automation fail clearly when it expects processed YouTube artifacts but none are available.
+
+Acceptance criteria:
+
+- The report CLI supports `--fail-if-missing`.
+- `--list-artifacts --fail-if-missing` returns a failure code when no processed artifacts exist.
+- Existing list behavior remains successful when the flag is not used.
+- Tests cover parser support and missing-artifact failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--fail-if-missing`.
+- List-only mode can return exit code 1 when no processed artifacts exist.
+- Tests cover argument parsing and missing-artifact failure behavior.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-049 - Print the latest processed YouTube report artifact
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make automation and local operation simpler when only the latest processed artifact path is needed.
+
+Acceptance criteria:
+
+- The report CLI supports `--latest-artifact`.
+- The command prints only the latest processed artifact path and exits.
+- The command does not write markdown or JSON reports in this mode.
+- Tests cover latest-artifact behavior and argument parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--latest-artifact`.
+- Latest artifact output reuses the existing processed artifact discovery path.
+- Tests cover relative latest-artifact output and list-only execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-048 - List processed YouTube report artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make it easier to choose a processed YouTube artifact before generating a local report.
+
+Acceptance criteria:
+
+- The report CLI supports `--list-artifacts`.
+- Listing artifacts exits without writing markdown or JSON reports.
+- Listed paths are project-relative and safe for repository documentation.
+- Tests cover listing behavior and argument parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--list-artifacts`.
+- Artifact listing reuses the existing processed artifact discovery path.
+- Tests cover sorted relative artifact listing and list-only CLI execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-047 - Add optional JSON output to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the local YouTube report easier to reuse in automation by saving a compact structured summary when requested.
+
+Acceptance criteria:
+
+- The report CLI supports an optional `--json-output` path.
+- Markdown output remains the default behavior.
+- The JSON summary includes aggregate totals, ranking metadata and sanitized top rows.
+- Tests cover JSON payload generation, persistence and CLI parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-output`.
+- JSON output is written only when explicitly requested.
+- The JSON payload exports compact report fields instead of raw processed rows.
+- Tests cover JSON persistence, argument parsing and explicit CLI execution.
+
+### TASK-046 - Add configurable ranking metric to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let users choose which engagement metric drives the top-content ranking in the local YouTube markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports a `--sort-by` option.
+- The default ranking metric remains `views`.
+- Supported metrics are `views`, `likes`, `comments` and `shares`.
+- Tests cover custom ranking behavior and invalid metrics.
+
+Evidence:
+
+- `youtube_report.py` now supports `--sort-by`.
+- Ranking generation now uses the selected metric while preserving the previous default.
+- Tests cover `likes` ranking, invalid ranking metrics and CLI parsing.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-045 - Add configurable top-content size to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make local YouTube reports easier to tune by allowing users to choose how many ranked content rows appear in the markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports a `--top` option.
+- The default top-content ranking remains five rows.
+- Invalid `--top` values fail clearly before report generation.
+- Tests cover custom top limits and invalid values.
+
+Evidence:
+
+- `youtube_report.py` now supports `--top` with a positive integer validator.
+- `build_youtube_report_summary_with_limit` controls the ranking size while preserving the existing default behavior.
+- Tests cover explicit top limits, invalid top limits and CLI parsing.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-044 - Add explicit input and output options to the YouTube report CLI
 
 Status: Done
@@ -346,6 +820,27 @@ Evidence:
 | TASK-042 | A simple local YouTube report command now consumes processed artifacts. | Done |
 | TASK-043 | The local YouTube report command now generates a shareable markdown report. | Done |
 | TASK-044 | The local YouTube report command now accepts explicit input and output paths. | Done |
+| TASK-045 | The local YouTube report command now supports configurable top-content ranking size. | Done |
+| TASK-046 | The local YouTube report command now supports configurable ranking metrics. | Done |
+| TASK-047 | The local YouTube report command now supports optional compact JSON summaries. | Done |
+| TASK-048 | The local YouTube report command can list processed artifacts before reporting. | Done |
+| TASK-049 | The local YouTube report command can print only the latest processed artifact. | Done |
+| TASK-050 | The local YouTube report command can fail list-only automation when artifacts are missing. | Done |
+| TASK-051 | The local YouTube report command rejects ambiguous list-only mode combinations. | Done |
+| TASK-052 | The local YouTube report command can print only the processed artifact count. | Done |
+| TASK-053 | The local YouTube report command can write JSON output without markdown. | Done |
+| TASK-054 | The local YouTube report command can suppress report-generation summary output. | Done |
+| TASK-055 | The local YouTube report command can write markdown into a chosen output directory. | Done |
+| TASK-056 | The local YouTube report command can write JSON into a chosen output directory. | Done |
+| TASK-057 | The local YouTube report command can configure JSON indentation. | Done |
+| TASK-058 | The local YouTube report command can print the JSON summary payload to stdout. | Done |
+| TASK-059 | The local YouTube report command can fail before writing reports for empty artifacts. | Done |
+| TASK-060 | The local YouTube report command can require a minimum record count before writing reports. | Done |
+| TASK-061 | The local YouTube report command can dry-run planned report outputs without writing files. | Done |
+| TASK-062 | The local YouTube report command can print JSON without writing report files. | Done |
+| TASK-063 | The package exposes the local YouTube report command as `youtube-report`. | Done |
+| TASK-064 | YouTube reports expose the selected top-ranking metric value. | Done |
+| TASK-065 | YouTube reports expose total engagements. | Done |
 
 ## Deferred Until After v1 Closure
 

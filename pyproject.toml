@@ -16,6 +16,9 @@ dependencies = [
     "requests>=2.32,<3"
 ]
 
+[project.scripts]
+youtube-report = "social_analytics_pipeline.cli.youtube_report:cli_entrypoint"
+
 [project.optional-dependencies]
 dev = [
     "bandit[toml]==1.7.10",

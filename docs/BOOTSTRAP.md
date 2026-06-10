@@ -96,6 +96,8 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_report
 ```
 
+After installing the package locally, the same command is available as `youtube-report`.
+
 The report command prints aggregate metrics and writes a markdown file under
 `data/reports/youtube/`.
 
@@ -105,6 +107,25 @@ To report a specific processed artifact or choose a custom output path:
 $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_report --artifact data/processed/youtube/<artifact>.json --output data/reports/youtube/<report>.md
 ```
+
+Use `--top <n>` to control how many rows are included in the top-content ranking.
+Use `--sort-by views|likes|comments|shares` to choose the ranking metric.
+Use `--output-dir <path>` to choose the markdown report directory while keeping the artifact-based file name.
+Use `--json-output <path>` to also save a compact JSON summary for automation.
+Use `--json-output-dir <path>` to choose the JSON report directory while keeping the artifact-based file name.
+Use `--json-indent <n>` to control JSON indentation; use `0` for compact output.
+Use `--print-json` to print the JSON summary payload to stdout.
+Use `--no-markdown --json-output <path>` to write only the JSON summary.
+Use `--no-markdown --print-json --quiet` to print only the JSON summary without writing report files.
+Use `--quiet` to suppress report-generation summary output.
+Use `--fail-if-empty` when automation should fail if the selected artifact has no records.
+Use `--min-records <n>` when automation should require at least `n` records.
+Use `--dry-run` to validate inputs and show planned report outputs without writing files.
+Use `--list-artifacts` to list processed YouTube artifacts without writing reports.
+Use `--latest-artifact` to print only the latest processed YouTube artifact.
+Use `--count-artifacts` to print only the number of processed YouTube artifacts.
+Use `--fail-if-missing` with list-only modes when automation should fail if no artifact exists.
+Use only one list-only mode at a time: `--list-artifacts`, `--latest-artifact` or `--count-artifacts`.
 
 Controlled backfill example:
 

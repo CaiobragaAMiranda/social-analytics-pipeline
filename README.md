@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-044 - Add explicit input and output options to the YouTube report CLI
-- Last completed delivery: TASK-043 - Shareable local YouTube markdown report
+- Current task: TASK-065 - YouTube report total engagements
+- Last completed delivery: TASK-064 - Explicit YouTube report top metric value
 
 ## Workflow
 
