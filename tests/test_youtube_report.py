@@ -1,9 +1,11 @@
 import contextlib
 import io
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from social_analytics_pipeline.cli.youtube_report import (
     build_latest_youtube_artifact_listing,
@@ -16,6 +18,7 @@ from social_analytics_pipeline.cli.youtube_report import (
     build_youtube_report_summary,
     build_youtube_report_summary_with_limit,
     build_youtube_report_summary_with_options,
+    cli_entrypoint,
     count_youtube_processed_artifacts,
     find_latest_youtube_processed_artifact,
     load_youtube_report_rows,
@@ -960,6 +963,35 @@ class YouTubeReportTest(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
+
+    def test_cli_entrypoint_uses_parser_and_main(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_path = Path(tmpdir) / "youtube-sample.json"
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with (
+                mock.patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "youtube-report",
+                        "--artifact",
+                        str(artifact_path),
+                        "--no-markdown",
+                        "--print-json",
+                        "--quiet",
+                    ],
+                ),
+                contextlib.redirect_stdout(stdout),
+            ):
+                exit_code = cli_entrypoint()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(json.loads(stdout.getvalue())["records"], 1)
 
 
 if __name__ == "__main__":

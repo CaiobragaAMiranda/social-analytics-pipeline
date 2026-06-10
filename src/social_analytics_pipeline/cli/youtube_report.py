@@ -503,6 +503,34 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return args
 
 
+def cli_entrypoint() -> int:
+    try:
+        args = parse_args()
+        return main(
+            artifact_path=args.artifact,
+            output_path=args.output,
+            output_dir=args.output_dir,
+            json_output_path=args.json_output,
+            json_output_dir=args.json_output_dir,
+            no_markdown=args.no_markdown,
+            quiet=args.quiet,
+            top_limit=args.top,
+            json_indent=args.json_indent,
+            print_json=args.print_json,
+            dry_run=args.dry_run,
+            fail_if_empty=args.fail_if_empty,
+            min_records=args.min_records,
+            sort_by=args.sort_by,
+            list_artifacts=args.list_artifacts,
+            latest_artifact=args.latest_artifact,
+            count_artifacts=args.count_artifacts,
+            fail_if_missing=args.fail_if_missing,
+        )
+    except RuntimeError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+
 def _metric_value(row: dict[str, Any] | None, field: str) -> int:
     if not row:
         return 0
@@ -567,30 +595,4 @@ def _non_negative_int(option_name: str) -> Any:
 
 
 if __name__ == "__main__":
-    try:
-        args = parse_args()
-        raise SystemExit(
-            main(
-                artifact_path=args.artifact,
-                output_path=args.output,
-                output_dir=args.output_dir,
-                json_output_path=args.json_output,
-                json_output_dir=args.json_output_dir,
-                no_markdown=args.no_markdown,
-                quiet=args.quiet,
-                top_limit=args.top,
-                json_indent=args.json_indent,
-                print_json=args.print_json,
-                dry_run=args.dry_run,
-                fail_if_empty=args.fail_if_empty,
-                min_records=args.min_records,
-                sort_by=args.sort_by,
-                list_artifacts=args.list_artifacts,
-                latest_artifact=args.latest_artifact,
-                count_artifacts=args.count_artifacts,
-                fail_if_missing=args.fail_if_missing,
-            )
-        )
-    except RuntimeError as exc:
-        print(f"Error: {exc}", file=sys.stderr)
-        raise SystemExit(1) from None
+    raise SystemExit(cli_entrypoint())

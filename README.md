@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-062 - Stdout-only JSON YouTube reports
-- Last completed delivery: TASK-061 - Dry-run YouTube report generation
+- Current task: TASK-063 - YouTube report console script
+- Last completed delivery: TASK-062 - Stdout-only JSON YouTube reports
 
 ## Workflow
 

@@ -96,6 +96,8 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.youtube_report
 ```
 
+After installing the package locally, the same command is available as `youtube-report`.
+
 The report command prints aggregate metrics and writes a markdown file under
 `data/reports/youtube/`.
 

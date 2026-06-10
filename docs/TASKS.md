@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-063 - YouTube report console script
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the local YouTube report easier to run after package installation.
+
+Acceptance criteria:
+
+- The package exposes a `youtube-report` console script.
+- The console script uses the same parser and behavior as `python -m social_analytics_pipeline.cli.youtube_report`.
+- The module entrypoint and console script share one implementation.
+- Tests cover the entrypoint path.
+
+Evidence:
+
+- `pyproject.toml` now declares `youtube-report`.
+- `youtube_report.py` now has a shared `cli_entrypoint`.
+- Tests cover invoking the entrypoint with CLI-style arguments.
+- `docs/BOOTSTRAP.md` documents the shortcut.
+
 ### TASK-062 - Stdout-only JSON YouTube reports
 
 Status: Done
@@ -772,6 +794,7 @@ Evidence:
 | TASK-060 | The local YouTube report command can require a minimum record count before writing reports. | Done |
 | TASK-061 | The local YouTube report command can dry-run planned report outputs without writing files. | Done |
 | TASK-062 | The local YouTube report command can print JSON without writing report files. | Done |
+| TASK-063 | The package exposes the local YouTube report command as `youtube-report`. | Done |
 
 ## Deferred Until After v1 Closure
 

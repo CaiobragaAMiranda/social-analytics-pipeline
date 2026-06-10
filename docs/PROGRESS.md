@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-062 - Stdout-only JSON YouTube reports.
+Current task: TASK-063 - YouTube report console script.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports file-free JSON output for automation.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now has a package-level console command for easier operation.
 
 ## Completed Milestones
 
@@ -67,6 +67,7 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--min-records` to fail before report writing when the selected artifact is too small.
 - The report CLI now accepts `--dry-run` to validate selected inputs and show planned report paths without writing files.
 - The report CLI now accepts `--no-markdown --print-json` to emit JSON without writing report files.
+- The package now exposes a `youtube-report` console script for the local report command.
 
 ## Current Constraints
 
