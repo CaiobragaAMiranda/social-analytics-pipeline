@@ -1,464 +1,860 @@
 # Tasks
 
-## Legenda
+## Status Legend
 
-- Pending: ainda nao iniciada.
-- In Progress: em execucao.
-- Review: aguardando avaliacao do Gemini ou do usuario.
-- Done: concluida e documentada.
+- Pending: not started.
+- In Progress: currently being worked on.
+- Review: waiting for reviewer or user decision.
+- Done: completed and documented.
 
-## TASK-001 - Criar documentacao base e protocolo de automacao
+## Delivery Focus
 
-Status: Done
+- Keep the YouTube v1 cycle closed and continue with small functional slices.
+- Keep the governance pattern, but prefer larger functional tasks over tiny infrastructure refinements.
+- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the next delivery.
 
-Fase: Fase 0 - Governanca do projeto
+## Current Task
 
-Objetivo: criar a estrutura documental e scripts iniciais que permitam acompanhar progresso sem depender de memoria da conversa.
-
-Criterios de aceite:
-
-- `README.md` descreve o fluxo de trabalho.
-- `docs/PLAN.md` contem fases do projeto.
-- `docs/TASKS.md` registra backlog e task atual.
-- `docs/PROGRESS.md` registra progresso inicial.
-- `docs/BOOTSTRAP.md` explica como preparar o ambiente.
-- `docs/ARCHITECTURE.md` registra arquitetura pretendida.
-- `docs/GEMINI_CONTRACT.md` define rubrica de avaliacao.
-- Scripts iniciais existem em `scripts/`.
-- `scripts/verify_docs.ps1` executa com sucesso.
-
-Evidencias:
-
-- Comando de verificacao: `.\scripts\verify_docs.ps1`
-- Resultado: verificacao documental concluida com sucesso.
-- Comando de status: `.\scripts\project_status.ps1`
-- Arquivos alterados: `README.md`, `docs/`, `scripts/`.
-
-## TASK-002 - Criar esqueleto tecnico do projeto
+### TASK-065 - YouTube report total engagements
 
 Status: Done
 
-Fase: Fase 1 - Nucleo MVP e autenticacao
+Phase: Post-v1 direction
 
-Objetivo: criar a estrutura inicial de codigo Python para providers, raw storage, transformacoes e testes.
+Goal: expose a simple engagement aggregate in local YouTube report outputs.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Estrutura `src/` e `tests/` criada.
-- Configuracao de projeto Python definida.
-- Teste inicial executavel.
-- README e bootstrap atualizados.
+- Report summaries include total engagements.
+- Total engagements are calculated as likes plus comments plus shares.
+- Markdown, JSON and terminal summary outputs include total engagements.
+- Tests cover the aggregate in summary, markdown and JSON outputs.
 
-Evidencias:
+Evidence:
 
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 4 testes executados com sucesso.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Commit: `feat: add python project skeleton`
+- `YouTubeReportSummary` now includes `total_engagements`.
+- Markdown output includes total engagements.
+- JSON totals include `engagements`.
+- Tests cover the aggregate without changing existing totals.
 
-## TASK-001C - Criar primeiro commit da governanca
-
-Status: Done
-
-Fase: Fase 0 - Governanca do projeto
-
-Objetivo: consolidar a documentacao e scripts de governanca em um commit inicial rastreavel.
-
-Critérios de aceite:
-
-- `docs/TASKS.md` registra TASK-001C.
-- `docs/PROGRESS.md` registra a preparacao do primeiro commit.
-- `scripts/verify_docs.ps1` executa com sucesso.
-- Primeiro commit Git criado com a estrutura base.
-- `git status --short` nao mostra mudancas pendentes apos o commit.
-
-Evidencias:
-
-- Comando de verificacao: `.\scripts\verify_docs.ps1`
-- Resultado: verificacao documental concluida com sucesso.
-- Commit: `chore: add project governance foundation`
-
-## TASK-001B - Inicializar repositorio real em Programing
+### TASK-064 - Explicit YouTube report top metric value
 
 Status: Done
 
-Fase: Fase 0 - Governanca do projeto
+Phase: Post-v1 direction
 
-Objetivo: mover a estrutura base para o diretorio oficial do projeto e inicializar Git.
+Goal: make report summaries clear when top content is ranked by a metric other than views.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Pasta `C:\Users\gamer\Desktop\Programing\social-analytics-pipeline` criada.
-- `README.md`, `docs/` e `scripts/` copiados para a pasta oficial.
-- Git inicializado na pasta oficial.
-- `scripts/verify_docs.ps1` executa com sucesso na pasta oficial.
-- `scripts/project_status.ps1` executa com sucesso na pasta oficial.
+- Report summaries keep `top_views` for compatibility.
+- Report summaries expose the selected top-ranking metric value.
+- Markdown, JSON and terminal summary outputs include the selected metric value.
+- Tests cover ranking by a non-default metric.
 
-Evidencias:
+Evidence:
 
-- Comando de verificacao: `.\scripts\verify_docs.ps1`
-- Comando de status: `.\scripts\project_status.ps1`
-- Comando Git: `git status --short`
+- `YouTubeReportSummary` now includes `top_metric_value`.
+- Markdown output includes the selected top metric value.
+- JSON output includes `top_content.metric` and `top_content.metric_value`.
+- Tests cover `likes` ranking in summary, markdown and JSON outputs.
 
-## TASK-001D - Automatizar revisao contratual com Gemini
-
-Status: Done
-
-Fase: Fase 0 - Governanca do projeto
-
-Objetivo: configurar o Gemini CLI no terminal e criar um comando unico para revisar a task atual por contrato.
-
-Critérios de aceite:
-
-- Gemini CLI oficial instalado via `@google/gemini-cli`.
-- Login com Google concluido.
-- Wrapper local `scripts/gemini_cli.ps1` executa o CLI de forma reprodutivel.
-- `scripts/gemini_review.ps1` gera pacote, chama o Gemini e salva resposta em `docs/REVIEWS/`.
-- Gemini headless responde a uma chamada minima.
-
-Evidencias:
-
-- Versao validada: Gemini CLI `0.43.0`.
-- Teste headless: resposta `GEMINI_OK`.
-- Script criado: `scripts/gemini_review.ps1`.
-- Revisao corrigida: `docs/REVIEWS/review-20260527-104706.md`.
-- Resultado: aprovado / em conformidade.
-
-## TASK-003 - Criar providers mockados
+### TASK-063 - YouTube report console script
 
 Status: Done
 
-Fase: Fase 1 - Nucleo MVP e autenticacao
+Phase: Post-v1 direction
 
-Objetivo: permitir desenvolvimento demonstravel sem depender de aprovacoes ou limites de APIs reais.
+Goal: make the local YouTube report easier to run after package installation.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Provider base definido.
-- Providers mockados para Instagram, YouTube e TikTok.
-- Fixtures de resposta raw.
-- Testes de contrato dos providers.
+- The package exposes a `youtube-report` console script.
+- The console script uses the same parser and behavior as `python -m social_analytics_pipeline.cli.youtube_report`.
+- The module entrypoint and console script share one implementation.
+- Tests cover the entrypoint path.
 
-Evidencias:
+Evidence:
 
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 8 testes executados com sucesso.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Commit: `feat: add mock social providers`
+- `pyproject.toml` now declares `youtube-report`.
+- `youtube_report.py` now has a shared `cli_entrypoint`.
+- Tests cover invoking the entrypoint with CLI-style arguments.
+- `docs/BOOTSTRAP.md` documents the shortcut.
 
-## TASK-004 - Criar schema unico de metricas
-
-Status: Done
-
-Fase: Fase 1 - Nucleo MVP e autenticacao
-
-Objetivo: normalizar dados de redes sociais em formato tabular unico.
-
-Critérios de aceite:
-
-- Modelo de metricas documentado.
-- Transformacoes por provider.
-- Testes cobrindo campos obrigatorios e dados invalidos.
-
-Evidencias:
-
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 14 testes executados com sucesso.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260527-191357.md`
-- Resultado Gemini: aprovado.
-- Commit: `feat: add social metric normalizers`
-
-## TASK-005 - Criar carga local em PostgreSQL
+### TASK-062 - Stdout-only JSON YouTube reports
 
 Status: Done
 
-Fase: Fase 1 - Nucleo MVP e autenticacao
+Phase: Post-v1 direction
 
-Objetivo: persistir metricas normalizadas em banco relacional local.
+Goal: let automation consume a JSON report from stdout without writing markdown or JSON files.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Docker Compose com PostgreSQL.
-- Script de migracao ou inicializacao.
-- Upsert idempotente por chave natural.
-- Teste ou verificacao local documentada.
+- The report CLI accepts `--no-markdown --print-json`.
+- The parser still rejects `--no-markdown` when no JSON destination exists.
+- Stdout-only JSON mode does not create report files.
+- Tests cover parser support and file-free JSON execution.
 
-Evidencias:
+Evidence:
 
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 17 testes executados com sucesso.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260527-193156.md`
-- Resultado Gemini: aprovado.
-- Commit: `feat: add postgres metric loading`
+- `youtube_report.py` now treats `--print-json` as a valid JSON destination for `--no-markdown`.
+- Tests cover stdout-only JSON output without creating `data/reports`.
+- `docs/BOOTSTRAP.md` documents the new usage.
 
-## TASK-006 - Adicionar quality gates de seguranca e CI
+### TASK-061 - Dry-run YouTube report generation
 
 Status: Done
 
-Fase: Fase 1 - Nucleo MVP e autenticacao
+Phase: Post-v1 direction
 
-Objetivo: adicionar verificacoes automatizadas de qualidade, seguranca, dependencias e secrets para reduzir risco antes das proximas fases.
+Goal: let operators validate report inputs and planned outputs without writing markdown or JSON files.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Ruff configurado para lint local.
-- Bandit configurado para security lint.
-- pip-audit configurado para scan de dependencias.
-- Gitleaks configurado para secret scan.
-- GitHub Actions executa testes, lint, security lint, dependency audit e secret scan.
-- Bootstrap documenta comandos locais.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--dry-run`.
+- Dry runs load and validate the selected artifact.
+- Dry runs respect `--fail-if-empty` and `--min-records`.
+- Dry runs print planned markdown and JSON output paths when not quiet.
+- Dry runs do not create report output files.
+- Tests cover parser support, dry-run output and minimum-record failure behavior.
 
-Evidencias:
+Evidence:
 
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 17 testes executados com sucesso.
-- Comando de lint: `ruff check .`
-- Resultado de lint: aprovado.
-- Comando de security lint: `bandit -c pyproject.toml -r src`
-- Resultado de security lint: aprovado, sem issues.
-- Comando de dependency audit: `pip-audit .`
-- Resultado de dependency audit: sem vulnerabilidades conhecidas.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260527-194742.md`
-- Resultado Gemini: aprovado.
-- Commit: `ci: add security quality gates`
+- `youtube_report.py` now supports `--dry-run`.
+- Planned markdown and JSON output paths are resolved before writing.
+- Dry-run mode returns before report files are created.
+- `docs/BOOTSTRAP.md` documents the new option.
 
-## TASK-007 - Integrar fluxo local mock raw normalize load
+### TASK-060 - Require a minimum YouTube report record count
 
 Status: Done
 
-Fase: Fase 1 - Nucleo MVP e autenticacao
+Phase: Post-v1 direction
 
-Objetivo: conectar providers mockados, raw storage, normalizacao e loader em um fluxo local testavel.
+Goal: let automation require a minimum number of records before report output is written.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Orquestrador local executa provider -> raw storage -> normalizer -> loader.
-- Fluxo funciona com providers mockados.
-- Testes de integracao usam diretorio temporario e loader fake.
-- Testes confirmam arquivos raw persistidos e metricas carregadas.
-- Quality gates locais passam.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--min-records`.
+- Negative values fail during argument parsing.
+- Report generation fails before writing outputs when the selected artifact has fewer records than required.
+- `--fail-if-empty` remains supported as a convenience for requiring at least one record.
+- Tests cover parser support, invalid values, failure behavior and successful minimum checks.
 
-Evidencias:
+Evidence:
 
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 19 testes executados com sucesso.
-- Comando de lint: `ruff check .`
-- Resultado de lint: aprovado.
-- Comando de security lint: `bandit -c pyproject.toml -r src`
-- Resultado de security lint: aprovado, sem issues.
-- Comando de dependency audit: `pip-audit .`
-- Resultado de dependency audit: sem vulnerabilidades conhecidas.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-000223.md`
-- Resultado Gemini: aprovado.
-- Commit: `feat: integrate local mock pipeline`
+- `youtube_report.py` now supports `--min-records`.
+- Minimum-record checks happen after loading the selected artifact and before report writing.
+- Tests cover below-minimum failure and successful report output when the minimum is met.
+- `docs/BOOTSTRAP.md` documents the new option.
 
-## TASK-008 - Adicionar Airflow via Docker
+### TASK-059 - Fail YouTube report generation for empty artifacts
 
 Status: Done
 
-Fase: Fase 2 - Orquestracao e historico
+Phase: Post-v1 direction
 
-Objetivo: adicionar ambiente local de Airflow via Docker Compose e uma DAG minima de smoke para validar a infraestrutura de orquestracao.
+Goal: let automation fail clearly when the selected processed artifact has no records.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- Docker Compose contem servicos Airflow.
-- `dags/` existe e e montado no Airflow.
-- DAG minima de smoke criada.
-- Bootstrap documenta init, startup, acesso e cleanup do Airflow.
-- Quality gates locais passam.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--fail-if-empty`.
+- Empty selected artifacts return a failure code before writing markdown or JSON reports.
+- Non-empty report generation remains unchanged.
+- Quiet mode suppresses the empty-artifact message.
+- Tests cover parser support, empty-artifact failure and quiet failure behavior.
 
-Evidencias:
+Evidence:
 
-- Comando Docker Compose: `docker compose config`
-- Resultado Docker Compose: configuracao valida.
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 19 testes executados com sucesso.
-- Comando de lint: `ruff check .`
-- Resultado de lint: aprovado.
-- Comando de security lint: `bandit -c pyproject.toml -r src`
-- Resultado de security lint: aprovado, sem issues.
-- Comando de dependency audit: `pip-audit .`
-- Resultado de dependency audit: sem vulnerabilidades conhecidas.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-002654.md`
-- Resultado Gemini: aprovado.
-- Commit: `feat: add airflow docker environment`
+- `youtube_report.py` now supports `--fail-if-empty`.
+- Empty-artifact failure happens after loading the selected artifact and before report writing.
+- Tests cover failing empty artifacts without creating report output.
+- `docs/BOOTSTRAP.md` documents the new option.
 
-## TASK-009 - Migrar fluxo local para DAG Airflow
+### TASK-058 - Print YouTube report JSON to stdout
 
 Status: Done
 
-Fase: Fase 2 - Orquestracao e historico
+Phase: Post-v1 direction
 
-Objetivo: criar uma DAG Airflow que execute o fluxo local com providers mockados, raw storage, normalizacao e load em artefato JSON.
+Goal: let automation consume the compact JSON report directly from stdout without requiring a file.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- DAG Airflow do pipeline mockado criada.
-- DAG usa intervalo de dados do Airflow quando disponivel.
-- Fluxo executa provider -> raw storage -> normalizer -> loader.
-- Loader de artefato JSON e testavel sem Airflow.
-- Bootstrap documenta a DAG e como aciona-la.
-- Quality gates locais passam.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--print-json`.
+- Printed JSON uses the same payload as JSON file output.
+- `--print-json` respects `--json-indent`.
+- `--quiet --print-json` prints only the JSON payload.
+- Tests cover JSON rendering and quiet stdout JSON behavior.
 
-Evidencias:
+Evidence:
 
-- Comando Docker Compose: `docker compose config`
-- Resultado Docker Compose: configuracao valida.
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 22 testes executados com sucesso.
-- Comando de lint: `ruff check .`
-- Resultado de lint: aprovado.
-- Comando de security lint: `bandit -c pyproject.toml -r src`
-- Resultado de security lint: aprovado, sem issues.
-- Comando de dependency audit: `pip-audit .`
-- Resultado de dependency audit: sem vulnerabilidades conhecidas.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-085716.md`
-- Resultado Gemini: aprovado.
-- Commit: `feat: add airflow mock pipeline dag`
+- `youtube_report.py` now supports `--print-json`.
+- JSON rendering is shared between file writing and stdout printing.
+- Tests cover compact JSON text rendering and quiet JSON stdout execution.
+- `docs/BOOTSTRAP.md` documents the new option.
 
-## TASK-010 - Configurar agendamento quinzenal e catchup historico
+### TASK-057 - Configure YouTube report JSON indentation
 
 Status: Done
 
-Fase: Fase 2 - Orquestracao e historico
+Phase: Post-v1 direction
 
-Objetivo: configurar a DAG mockada para execucao quinzenal com catchup historico e artefatos identificaveis por intervalo de dados.
+Goal: let automation choose between pretty and compact JSON report output.
 
-Critérios de aceite:
+Acceptance criteria:
 
-- DAG `social_analytics_mock_pipeline` usa agendamento quinzenal.
-- DAG habilita catchup historico controlado.
-- Configuracao de DAG e testavel sem importar Airflow.
-- Artefatos processados incluem provider e intervalo de dados no nome.
-- Bootstrap e arquitetura documentam schedule, catchup e backfill manual.
-- Quality gates locais passam.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--json-indent`.
+- The default JSON indentation remains `2`.
+- `--json-indent 0` writes compact JSON output.
+- Negative indentation values fail during argument parsing.
+- Tests cover parser support, invalid values and compact JSON writing.
 
-Evidencias:
+Evidence:
 
-- Comando Docker Compose: `docker compose config`
-- Resultado Docker Compose: configuracao valida.
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 24 testes executados com sucesso.
-- Comando de lint: `ruff check .`
-- Resultado de lint: aprovado.
-- Comando de security lint: `bandit -c pyproject.toml -r src`
-- Resultado de security lint: aprovado, sem issues.
-- Comando de dependency audit: `pip-audit .`
-- Resultado de dependency audit: sem vulnerabilidades conhecidas.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-091824.md`
-- Resultado Gemini: aprovado.
-- Commit: `feat: schedule airflow mock pipeline catchup`
+- `youtube_report.py` now supports `--json-indent`.
+- JSON writing accepts an indentation setting while preserving the previous default.
+- Tests cover compact JSON output and invalid indentation values.
+- `docs/BOOTSTRAP.md` documents the new option.
 
-## TASK-011 - Registrar propostas de mudanca antes da execucao
+### TASK-056 - Allow YouTube report JSON output directory
 
 Status: Done
 
-Fase: Fase 0 - Governanca do projeto
+Phase: Post-v1 direction
 
-Objetivo: formalizar que o Codex deve sempre indicar mudancas propostas antes de codar e registrar propostas relevantes para decisao ou auditoria.
+Goal: let operators choose a JSON report directory without manually composing the output file name.
 
-Criterios de aceite:
+Acceptance criteria:
 
-- Existe documento dedicado para propostas de tasks.
-- README descreve que mudancas propostas devem ser explicadas diretamente ao usuario antes da implementacao.
-- Contrato Gemini avalia se a proposta foi comunicada diretamente e se a task executada corresponde ao pedido do usuario.
-- Progresso registra a mudanca de governanca.
-- Verificacao documental passa.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--json-output-dir`.
+- `--json-output-dir` writes JSON using the processed artifact stem as the file name.
+- `--json-output` and `--json-output-dir` cannot be used together.
+- `--no-markdown` accepts either `--json-output` or `--json-output-dir`.
+- Tests cover path construction, parser validation and JSON output-dir execution.
 
-Evidencias:
+Evidence:
 
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-092656.md`
-- Resultado Gemini: aprovado.
-- Commit: `docs: add change proposal governance`
+- `youtube_report.py` now supports `--json-output-dir`.
+- JSON output-dir mode keeps artifact-based JSON file names.
+- Parser and direct `main` calls reject conflicting JSON output arguments.
+- Tests cover JSON output-dir path generation and execution.
+- `docs/BOOTSTRAP.md` documents the new option.
 
-## TASK-012 - Preparar secret scan para Node 24 no GitHub Actions
-
-Status: Done
-
-Fase: Fase 1 - Nucleo MVP e autenticacao
-
-Objetivo: remover o risco futuro do secret scan associado a deprecacao do Node 20 nos runners do GitHub Actions.
-
-Criterios de aceite:
-
-- Proposta `PROP-001` marcada como aceita.
-- Workflow `quality-gates.yml` configura secret scan para usar Node 24 antecipadamente.
-- Documentacao registra a decisao e a fonte oficial consultada.
-- Quality gates locais relevantes passam.
-- Gemini revisa e aprova antes do commit.
-
-Evidencias:
-
-- Fonte oficial consultada: GitHub Changelog de deprecacao do Node 20 em GitHub Actions.
-- Comando de teste: `python -m unittest discover -s tests`
-- Resultado de teste: 24 testes executados com sucesso.
-- Comando de lint: `ruff check .`
-- Resultado de lint: aprovado.
-- Comando de security lint: `bandit -c pyproject.toml -r src`
-- Resultado de security lint: aprovado, sem issues.
-- Comando de dependency audit: `pip-audit .`
-- Resultado de dependency audit: sem vulnerabilidades conhecidas.
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-093357.md`
-- Resultado Gemini: aprovado.
-- Commit: `ci: force node24 for secret scan action`
-
-## TASK-013 - Configurar CodeRabbit sob demanda em PRs
+### TASK-055 - Allow YouTube report markdown output directory
 
 Status: Done
 
-Fase: Fase 0 - Governanca do projeto
+Phase: Post-v1 direction
 
-Objetivo: preparar o repositorio para usar CodeRabbit em pull requests somente quando necessario, com estrategia de branches por tipo de mudanca.
+Goal: let operators choose a markdown report directory without manually composing the output file name.
 
-Criterios de aceite:
+Acceptance criteria:
 
-- Proposta `PROP-002` marcada como aceita.
-- `.coderabbit.yaml` existe com auto review desabilitado.
-- Template de PR orienta quando e como solicitar CodeRabbit manualmente.
-- Bootstrap documenta instalacao/autorizacao do GitHub App e uso manual.
-- README documenta fluxo com branches `feature/...`, `bugfix/...` e `hotfix/...`.
-- Workflow permite que Gitleaks leia commits de pull requests.
-- Verificacao documental passa.
-- Gemini revisa e aprova antes do commit.
+- The report CLI supports `--output-dir`.
+- `--output-dir` writes markdown using the processed artifact stem as the file name.
+- `--output` and `--output-dir` cannot be used together.
+- Existing explicit `--output` behavior remains supported.
+- Tests cover path construction, parser validation and output-dir execution.
 
-Evidencias:
+Evidence:
 
-- Fonte oficial consultada: documentacao CodeRabbit sobre `.coderabbit.yaml` e comandos manuais de review.
-- Branch de trabalho: `feature/coderabbit-on-demand-review`
-- Comando de verificacao documental: `.\scripts\verify_docs.ps1`
-- Resultado documental: verificacao concluida com sucesso.
-- Revisao Gemini: `docs/REVIEWS/review-20260528-094851.md`
-- Revisao Gemini complementar: `docs/REVIEWS/review-20260528-095307.md`
-- Revisao Gemini final após CodeRabbit: `docs/REVIEWS/review-20260528-100314.md`
-- Resultado Gemini: aprovado.
-- PR: `#1`
-- Resultado CodeRabbit: revisao manual executada, comentarios aplicados.
-- Resultado GitHub Actions no PR: aprovado.
-- Commit: `docs: configure coderabbit on demand reviews`
+- `youtube_report.py` now supports `--output-dir`.
+- Output-dir mode keeps artifact-based markdown file names.
+- Parser and direct `main` calls reject conflicting output arguments.
+- Tests cover output-dir path generation and execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-054 - Suppress YouTube report summary output
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation generate report files without printing the human-readable summary.
+
+Acceptance criteria:
+
+- The report CLI supports `--quiet`.
+- Quiet mode still writes the requested report files.
+- Quiet mode suppresses report-generation summary output.
+- List-only modes keep their required output.
+- Tests cover parser support and quiet report execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--quiet`.
+- Quiet mode skips summary printing after report generation.
+- Tests cover quiet execution while still writing markdown output.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-053 - Allow JSON-only YouTube report output
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let automation generate a compact JSON report without also writing a markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports `--no-markdown`.
+- `--no-markdown` requires `--json-output`.
+- JSON-only mode writes the JSON summary and skips markdown output.
+- Default behavior still writes markdown.
+- Tests cover parser validation and JSON-only execution.
+
+Evidence:
+
+- `youtube_report.py` now supports `--no-markdown`.
+- Parser and direct `main` calls reject `--no-markdown` without JSON output.
+- Tests cover JSON-only execution and invalid no-output usage.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-052 - Count processed YouTube report artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: give local automation a small count-only artifact discovery mode before report generation.
+
+Acceptance criteria:
+
+- The report CLI supports `--count-artifacts`.
+- Count-only mode prints only the number of processed YouTube artifacts.
+- Count-only mode does not write markdown or JSON reports.
+- `--count-artifacts --fail-if-missing` returns a failure code when no processed artifacts exist.
+- Tests cover parser support, count output, failure behavior and conflicting list-only modes.
+
+Evidence:
+
+- `youtube_report.py` now supports `--count-artifacts`.
+- Count-only mode uses the existing processed artifact discovery path.
+- Tests cover successful count output, missing-artifact failure and parser exclusivity.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-051 - Prevent ambiguous YouTube report list-only modes
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: keep artifact discovery commands predictable by rejecting conflicting list-only modes.
+
+Acceptance criteria:
+
+- `--list-artifacts` and `--latest-artifact` cannot be used together.
+- Each list-only mode remains available on its own.
+- `--fail-if-missing` remains compatible with list-only automation.
+- Tests cover accepted and rejected parser combinations.
+
+Evidence:
+
+- `youtube_report.py` now uses an argparse mutually exclusive group for list-only modes.
+- Tests cover `--latest-artifact` alone and conflicting list-only arguments.
+- Existing list-only execution tests still pass.
+- `docs/BOOTSTRAP.md` documents that only one list-only mode should be used at a time.
+
+### TASK-050 - Fail list-only report automation when artifacts are missing
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let simple automation fail clearly when it expects processed YouTube artifacts but none are available.
+
+Acceptance criteria:
+
+- The report CLI supports `--fail-if-missing`.
+- `--list-artifacts --fail-if-missing` returns a failure code when no processed artifacts exist.
+- Existing list behavior remains successful when the flag is not used.
+- Tests cover parser support and missing-artifact failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--fail-if-missing`.
+- List-only mode can return exit code 1 when no processed artifacts exist.
+- Tests cover argument parsing and missing-artifact failure behavior.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-049 - Print the latest processed YouTube report artifact
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make automation and local operation simpler when only the latest processed artifact path is needed.
+
+Acceptance criteria:
+
+- The report CLI supports `--latest-artifact`.
+- The command prints only the latest processed artifact path and exits.
+- The command does not write markdown or JSON reports in this mode.
+- Tests cover latest-artifact behavior and argument parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--latest-artifact`.
+- Latest artifact output reuses the existing processed artifact discovery path.
+- Tests cover relative latest-artifact output and list-only execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-048 - List processed YouTube report artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make it easier to choose a processed YouTube artifact before generating a local report.
+
+Acceptance criteria:
+
+- The report CLI supports `--list-artifacts`.
+- Listing artifacts exits without writing markdown or JSON reports.
+- Listed paths are project-relative and safe for repository documentation.
+- Tests cover listing behavior and argument parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--list-artifacts`.
+- Artifact listing reuses the existing processed artifact discovery path.
+- Tests cover sorted relative artifact listing and list-only CLI execution.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-047 - Add optional JSON output to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the local YouTube report easier to reuse in automation by saving a compact structured summary when requested.
+
+Acceptance criteria:
+
+- The report CLI supports an optional `--json-output` path.
+- Markdown output remains the default behavior.
+- The JSON summary includes aggregate totals, ranking metadata and sanitized top rows.
+- Tests cover JSON payload generation, persistence and CLI parsing.
+
+Evidence:
+
+- `youtube_report.py` now supports `--json-output`.
+- JSON output is written only when explicitly requested.
+- The JSON payload exports compact report fields instead of raw processed rows.
+- Tests cover JSON persistence, argument parsing and explicit CLI execution.
+
+### TASK-046 - Add configurable ranking metric to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let users choose which engagement metric drives the top-content ranking in the local YouTube markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports a `--sort-by` option.
+- The default ranking metric remains `views`.
+- Supported metrics are `views`, `likes`, `comments` and `shares`.
+- Tests cover custom ranking behavior and invalid metrics.
+
+Evidence:
+
+- `youtube_report.py` now supports `--sort-by`.
+- Ranking generation now uses the selected metric while preserving the previous default.
+- Tests cover `likes` ranking, invalid ranking metrics and CLI parsing.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-045 - Add configurable top-content size to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make local YouTube reports easier to tune by allowing users to choose how many ranked content rows appear in the markdown report.
+
+Acceptance criteria:
+
+- The report CLI supports a `--top` option.
+- The default top-content ranking remains five rows.
+- Invalid `--top` values fail clearly before report generation.
+- Tests cover custom top limits and invalid values.
+
+Evidence:
+
+- `youtube_report.py` now supports `--top` with a positive integer validator.
+- `build_youtube_report_summary_with_limit` controls the ranking size while preserving the existing default behavior.
+- Tests cover explicit top limits, invalid top limits and CLI parsing.
+- `docs/BOOTSTRAP.md` documents the new option.
+
+### TASK-044 - Add explicit input and output options to the YouTube report CLI
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make local YouTube reporting easier to operate by allowing users to choose the processed artifact and markdown output path.
+
+Acceptance criteria:
+
+- The report CLI supports an explicit processed artifact path.
+- The report CLI supports an explicit markdown output path.
+- Default behavior still uses the latest processed artifact and default report location.
+- Tests cover argument parsing and explicit path behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--artifact` and `--output`.
+- `write_youtube_report_markdown` accepts a custom output path while preserving the default path behavior.
+- Tests cover argument parsing, custom output persistence, explicit-path CLI execution and output paths outside the project root.
+- `docs/BOOTSTRAP.md` documents the optional arguments.
+
+### TASK-043 - Add a shareable local YouTube markdown report
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the existing YouTube data easier to consume by generating a small shareable markdown report instead of adding a dashboard or new infrastructure.
+
+Acceptance criteria:
+
+- The local report command generates a markdown file from the latest processed YouTube artifact.
+- The markdown report includes compact aggregate metrics and a top-content ranking.
+- The command still fails clearly when no processed artifact exists or the artifact is invalid.
+- Tests cover summary aggregation and markdown persistence.
+
+Evidence:
+
+- `youtube_report.py` now writes a markdown report under `data/reports/youtube/`.
+- The report includes totals plus a top-content table ranked by views.
+- The command still reads the latest file from `data/processed/youtube/` by default.
+- Tests cover latest-file selection, summary aggregation, markdown generation and invalid artifact handling.
+
+### TASK-042 - Add a simple local YouTube report command for processed artifacts
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the existing YouTube data immediately useful by adding a small local consumption command instead of more infrastructure.
+
+Acceptance criteria:
+
+- A local command can read the latest processed YouTube artifact.
+- The command prints compact aggregated metrics from processed data.
+- The command fails clearly when no processed artifact exists or the artifact is invalid.
+- Tests cover artifact selection and summary aggregation.
+
+Evidence:
+
+- Added `src/social_analytics_pipeline/cli/youtube_report.py`.
+- The command reads the latest file from `data/processed/youtube/` by default.
+- The command prints totals for views, likes, comments, shares, followers and top content.
+- Tests cover latest-file selection, summary aggregation and invalid artifact handling.
+
+### TASK-041 - Record YouTube v1 closure and define the next delivery decision
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: formally close the current YouTube v1 slice in repository context and make the next step explicit before new implementation work starts.
+
+Acceptance criteria:
+
+- The repository states that the YouTube v1 closure checkpoint has been met.
+- The repository no longer presents the current cycle as still "closing".
+- The next delivery decision is explicit and compact.
+- The next options stay focused on product value instead of additional engineering polish.
+
+Evidence:
+
+- `README.md` now reflects the post-v1 decision phase.
+- `docs/PLAN.md` now records the next delivery options after YouTube v1 closure.
+- `docs/PROGRESS.md` now states that the YouTube v1 cycle is closed in repository context.
+- The backlog now points to a deliberate next decision instead of more implicit closure work.
+
+### TASK-040 - Create a concise YouTube v1 operator runbook and closure checkpoint
+
+Status: Done
+
+Phase: Phase 1 - MVP Core
+
+Goal: make the existing real YouTube path easy to run, verify and hand off without adding new technical layers first.
+
+Acceptance criteria:
+
+- The repository documents the minimum steps to run the real YouTube path locally.
+- The repository documents the minimum steps to run the YouTube Airflow DAG deliberately.
+- The repository states what counts as "YouTube v1 closed" for the current cycle.
+- The guidance stays compact and does not expose secrets, local paths or raw payloads.
+
+Notes:
+
+- This task is intentionally operational, not architectural.
+- Its purpose is to close the current delivery cycle before expanding scope again.
+
+Evidence:
+
+- `README.md` now states the YouTube v1 closure target in compact form.
+- `docs/BOOTSTRAP.md` now includes a minimal local and Airflow operator runbook.
+- The repository now records a concrete closure checkpoint for the current YouTube cycle.
+- The guidance stays compact and avoids secrets, local paths and raw payload details.
+
+### TASK-039 - Persist a structured run summary for the real YouTube pipeline
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: keep a compact execution summary artifact for each real YouTube run so troubleshooting does not depend on terminal output or Airflow task logs alone.
+
+Acceptance criteria:
+
+- Each local YouTube run writes a structured JSON run summary artifact.
+- The summary captures interval, status, execution counts and artifact locations.
+- The local CLI output shows the run summary path.
+- The YouTube Airflow DAG result includes the run summary path.
+- Tests prove the summary file is created for both healthy and warning runs.
+
+Evidence:
+
+- Added run summary artifact helpers in `pipeline/artifacts.py`.
+- `run_youtube_local_pipeline` now writes a run summary under `data/runs/youtube/`.
+- The local CLI output now prints `run_summary_path`.
+- The YouTube Airflow DAG return payload now includes `run_summary_path`.
+- Tests confirm summary creation and warning status behavior when invalid records are diverted to the DLQ.
+
+### TASK-037 - Add a local DLQ for invalid records without breaking the main load
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: isolate invalid normalized records into a local dead letter queue so valid metrics can still load.
+
+Acceptance criteria:
+
+- Invalid records do not stop valid records from loading.
+- Invalid records are persisted in a local DLQ area with a reason and raw file reference.
+- The pipeline result reports invalid record counts.
+- Tests prove that invalid records are diverted while valid load behavior remains intact.
+
+Evidence:
+
+- Added `storage/dlq.py` with local dead letter storage for invalid records.
+- `run_provider_pipeline` now diverts invalid records to `data/dlq/` and continues loading valid metrics.
+- `LocalPipelineResult` now reports `invalid_records`.
+- YouTube local and Airflow summaries now include invalid record counts.
+- Tests confirm invalid records are persisted to the DLQ while the main load path remains usable.
+
+### TASK-038 - Add runtime metrics and simple invalid-record alerting
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: expose execution counts more clearly and allow deliberate failure when invalid records are detected.
+
+Acceptance criteria:
+
+- Pipeline results expose valid record counts.
+- YouTube local and Airflow summaries include a simple execution status.
+- A local environment flag can fail the run when invalid records were sent to the DLQ.
+- Tests cover the invalid-record alert policy.
+
+Evidence:
+
+- `LocalPipelineResult` now exposes `valid_records`.
+- YouTube local output now reports `valid_records` and can fail when `YOUTUBE_FAIL_ON_INVALID_RECORDS=true`.
+- The YouTube Airflow DAG now reports `status`, `valid_records`, `invalid_records`, and `loaded_records`.
+- Tests cover warning-only behavior and fail-on-invalid behavior.
+
+### TASK-036 - Add controlled YouTube backfill support without re-enabling automatic DAG catchup
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: support deliberate historical YouTube intervals without restoring automatic catchup behavior in Airflow.
+
+Acceptance criteria:
+
+- Explicit backfill start and end settings are supported for local YouTube runs.
+- The real YouTube DAG can use explicit backfill settings only when Airflow interval context is absent.
+- Invalid or partial backfill configuration fails early with clear errors.
+- Automatic DAG catchup remains disabled.
+- Tests cover explicit backfill interval parsing and validation.
+
+Evidence:
+
+- Added `YOUTUBE_BACKFILL_START_AT` and `YOUTUBE_BACKFILL_END_AT` parsing in `youtube_smoke.py`.
+- Local YouTube commands now reuse the explicit backfill interval when both values are present.
+- The real YouTube DAG uses the explicit backfill interval only as a controlled fallback when no Airflow data interval is provided.
+- Tests cover missing pair behavior, timezone validation, reversed ranges, and explicit UTC parsing.
+- `.env.example` and `docs/BOOTSTRAP.md` document the new backfill variables.
+
+### TASK-035 - Decide whether to expand to another provider or harden YouTube first
+
+Status: Done
+
+Phase: Phase 4 - Quality and scale
+
+Goal: choose the next implementation direction based on the real maturity of the repository, not on mock coverage alone.
+
+Acceptance criteria:
+
+- The decision is documented in repository context.
+- The decision explains why the chosen path is lower risk and higher value.
+- A concrete follow-up task is created for the chosen direction.
+
+Evidence:
+
+- The repository currently has one real provider path end to end: YouTube.
+- Instagram and TikTok are still represented by mock providers only.
+- The real YouTube path already includes local CLI execution, raw storage, normalization, validation, PostgreSQL loading, Airflow orchestration, resilience, and tests.
+- The next implementation direction is to harden YouTube further with controlled backfill before expanding to another real provider.
+
+Decision:
+
+- Choose depth before breadth.
+- Continue with YouTube first.
+- Defer new real provider expansion until the YouTube path supports deliberate historical recovery behavior.
+
+### TASK-034 - Add data validation before loading metrics
+
+Status: Done
+
+Phase: Phase 4 - Quality and scale
+
+Goal: block impossible normalized metrics before they reach JSON artifacts or PostgreSQL loads.
+
+Acceptance criteria:
+
+- Normalized metrics are validated before the load step.
+- Empty required identifiers are rejected.
+- Negative metric counters are rejected.
+- `published_at` after `collected_at` is rejected.
+- Tests prove invalid metrics stop the load path.
+
+Evidence:
+
+- Added `transform/validation.py` with targeted metric validation.
+- `run_provider_pipeline` now validates metrics before calling the loader.
+- Tests cover invalid counters, invalid timestamps, empty identifiers, and pipeline load blocking.
+
+### TASK-033 - Add retry/backoff and clearer failure alerts for API/configuration errors
+
+Status: Done
+
+Phase: Phase 3 - Resilience
+
+Goal: make the real YouTube provider fail more safely by retrying transient API/network errors, stopping early on invalid credentials/configuration, and preserving sanitized error messages.
+
+Acceptance criteria:
+
+- Retryable YouTube API failures use bounded retry/backoff behavior.
+- Invalid credentials or configuration errors fail without useless retries.
+- Error messages remain sanitized and do not expose API keys, local paths, or raw request URLs.
+- Automated tests cover retry success, retry exhaustion, and credential/configuration failures.
+
+Evidence:
+
+- `HttpJsonClient` now retries transient request failures and stops early on `401` and `403`.
+- `YouTubeApiConfig.from_env` validates retry/backoff environment settings.
+- `tests/test_youtube_provider.py` covers retryable status handling, retry exhaustion, and credential failure behavior.
+
+### TASK-032 - Validate `social_analytics_youtube_pipeline` inside local Airflow
+
+Status: Done
+
+Phase: Phase 2 - Orchestration and history
+
+Goal: prove the real YouTube DAG can be parsed, triggered and completed in the local Airflow Docker environment without exposing secrets, channel IDs or payloads.
+
+Acceptance criteria:
+
+- Airflow metadata initialization succeeds.
+- Airflow API server, scheduler, DAG processor, worker, triggerer, Redis and PostgreSQL containers are healthy.
+- `social_analytics_youtube_pipeline` is listed by Airflow.
+- A manual DAG run finishes successfully.
+- Logs mask the configured channel and do not print API keys or payloads.
+- The real YouTube DAG does not automatically backfill historical intervals.
+
+Evidence:
+
+- `docker compose --env-file .env config --quiet` passed.
+- `docker compose --env-file .env up airflow-init` completed successfully.
+- Airflow services started and reported healthy where applicable.
+- `airflow dags list` showed `social_analytics_youtube_pipeline`.
+- Manual run `manual__2026-06-03T14:58:41.282474+00:00` completed with `success`.
+- Successful task log returned `raw_records=50` and `loaded_records=50` with `channel_id=<configured>`.
+- Local DAG was paused after validation to avoid accidental YouTube API quota usage.
+
+## Completed Task Summary
+
+| Task range | Summary | Status |
+| --- | --- | --- |
+| TASK-001 to TASK-007 | Governance foundation, Python skeleton, mock providers, shared schema, PostgreSQL loader and local mock pipeline. | Done |
+| TASK-008 to TASK-010 | Airflow Docker environment, mock pipeline DAG, 15-day schedule and catchup. | Done |
+| TASK-011 to TASK-017 | Change proposal governance, security gates, sensitive-data checks, Airflow/Postgres readiness and loader configuration. | Done |
+| TASK-018 to TASK-021 | Initial real YouTube provider and safe smoke command with `.env` support. | Done |
+| TASK-022 to TASK-023 | Multi-agent governance and review packet improvements. | Done |
+| TASK-024 to TASK-026 | Safer YouTube configuration validation, sanitized HTTP errors and handle resolution. | Done |
+| TASK-027 to TASK-029 | Real YouTube local raw/processed pipeline and PostgreSQL load validation. | Done |
+| TASK-030 | Real YouTube Airflow DAG, environment wiring and CI/CodeRabbit validation in PR #19. | Done |
+| TASK-031 | Main documentation condensed into compact English project context. | Done |
+| TASK-032 | Real YouTube Airflow DAG validated locally with a successful manual run. | Done |
+| TASK-033 | Retry/backoff and clearer YouTube failure handling with targeted tests. | Done |
+| TASK-034 | Metric validation now blocks impossible data before JSON/PostgreSQL load. | Done |
+| TASK-035 | Decision recorded: harden the real YouTube path before expanding to another real provider. | Done |
+| TASK-036 | Controlled YouTube backfill now supports explicit intervals without re-enabling DAG catchup. | Done |
+| TASK-037 | Invalid records now go to a local DLQ without blocking valid loads. | Done |
+| TASK-038 | Runtime metrics and simple invalid-record alerting were added to the YouTube path. | Done |
+| TASK-039 | Real YouTube runs now persist a compact structured run summary artifact. | Done |
+| TASK-040 | The repository now includes a concise YouTube v1 runbook and closure checkpoint. | Done |
+| TASK-041 | The repository now treats the YouTube v1 slice as closed and sets up the next decision. | Done |
+| TASK-042 | A simple local YouTube report command now consumes processed artifacts. | Done |
+| TASK-043 | The local YouTube report command now generates a shareable markdown report. | Done |
+| TASK-044 | The local YouTube report command now accepts explicit input and output paths. | Done |
+| TASK-045 | The local YouTube report command now supports configurable top-content ranking size. | Done |
+| TASK-046 | The local YouTube report command now supports configurable ranking metrics. | Done |
+| TASK-047 | The local YouTube report command now supports optional compact JSON summaries. | Done |
+| TASK-048 | The local YouTube report command can list processed artifacts before reporting. | Done |
+| TASK-049 | The local YouTube report command can print only the latest processed artifact. | Done |
+| TASK-050 | The local YouTube report command can fail list-only automation when artifacts are missing. | Done |
+| TASK-051 | The local YouTube report command rejects ambiguous list-only mode combinations. | Done |
+| TASK-052 | The local YouTube report command can print only the processed artifact count. | Done |
+| TASK-053 | The local YouTube report command can write JSON output without markdown. | Done |
+| TASK-054 | The local YouTube report command can suppress report-generation summary output. | Done |
+| TASK-055 | The local YouTube report command can write markdown into a chosen output directory. | Done |
+| TASK-056 | The local YouTube report command can write JSON into a chosen output directory. | Done |
+| TASK-057 | The local YouTube report command can configure JSON indentation. | Done |
+| TASK-058 | The local YouTube report command can print the JSON summary payload to stdout. | Done |
+| TASK-059 | The local YouTube report command can fail before writing reports for empty artifacts. | Done |
+| TASK-060 | The local YouTube report command can require a minimum record count before writing reports. | Done |
+| TASK-061 | The local YouTube report command can dry-run planned report outputs without writing files. | Done |
+| TASK-062 | The local YouTube report command can print JSON without writing report files. | Done |
+| TASK-063 | The package exposes the local YouTube report command as `youtube-report`. | Done |
+| TASK-064 | YouTube reports expose the selected top-ranking metric value. | Done |
+| TASK-065 | YouTube reports expose total engagements. | Done |
+
+## Deferred Until After v1 Closure
+
+- Broaden run summaries beyond the real YouTube path.
+- Add stronger alert delivery beyond the current local fail-on-invalid mode.
+- Revisit broader Airflow/observability refinements.
+- Expand to additional real providers only after the current YouTube cycle is clearly closed.
+
+## Next Candidate Deliveries
+
+- Add a second real provider path only if a public and stable source is practical.
+- Add a simple consumption layer for the existing YouTube metrics before deepening infrastructure again.
+- Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
+
+## Review Rule
+
+Every implementation PR should pass local validation where practical, GitHub Actions, secret scan and CodeRabbit. Gemini or ChatGPT review packets are used when available.

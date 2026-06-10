@@ -7,10 +7,10 @@ $files = @(
     "docs/PROGRESS.md",
     "docs/BOOTSTRAP.md",
     "docs/ARCHITECTURE.md",
-    "docs/GEMINI_CONTRACT.md"
+    "docs/AGENT_CONTRACTS.md"
 )
 
-Write-Output "# Pacote de Revisao para Gemini"
+Write-Output "# Pacote de Revisao Contratual"
 Write-Output ""
 Write-Output "Gerado em: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Output ""
@@ -35,12 +35,27 @@ Write-Output ""
 if (Get-Command git -ErrorAction SilentlyContinue) {
     Push-Location $root
     try {
-        git diff -- .
+        $workingDiff = git diff -- .
+        $workingDiff
 
         Write-Output ""
         Write-Output "## Git Staged Diff"
         Write-Output ""
-        git diff --cached -- .
+        $stagedDiff = git diff --cached -- .
+        $stagedDiff
+
+        if ([string]::IsNullOrWhiteSpace(($workingDiff | Out-String)) -and [string]::IsNullOrWhiteSpace(($stagedDiff | Out-String))) {
+            Write-Output ""
+            Write-Output "## Git Last Commit Diff"
+            Write-Output ""
+
+            git rev-parse --verify HEAD *> $null
+            if ($LASTEXITCODE -eq 0) {
+                git show --format=medium --stat --patch --find-renames --no-ext-diff HEAD -- .
+            } else {
+                Write-Output "No commits found."
+            }
+        }
 
         Write-Output ""
         Write-Output "## Git Untracked Files"
@@ -50,9 +65,16 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
             Write-Output "No untracked files."
         } else {
             foreach ($file in $untracked) {
+                $normalizedPath = $file -replace "\\", "/"
                 Write-Output ""
                 Write-Output "### $file"
                 Write-Output ""
+
+                if ($normalizedPath -like "docs/REVIEWS/*.md") {
+                    Write-Output "Arquivo de review nao incluido automaticamente no pacote para evitar repetir logs extensos ou informacoes sensiveis. Revise manualmente antes de commitar."
+                    continue
+                }
+
                 if (Test-Path $file) {
                     Get-Content $file
                 } else {

@@ -1,4 +1,5 @@
 import json
+from collections.abc import Mapping
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,17 @@ def build_interval_artifact_path(
     start_slug = _datetime_slug(start_at)
     end_slug = _datetime_slug(end_at)
     return base_dir / f"{provider_name}-{start_slug}-{end_slug}.json"
+
+
+def build_run_summary_artifact_path(
+    base_dir: Path,
+    provider_name: str,
+    start_at: datetime,
+    end_at: datetime,
+) -> Path:
+    start_slug = _datetime_slug(start_at)
+    end_slug = _datetime_slug(end_at)
+    return base_dir / f"{provider_name}-run-{start_slug}-{end_slug}.json"
 
 
 def metric_to_artifact_row(metric: SocialMetric) -> dict[str, Any]:
@@ -48,6 +60,15 @@ class JsonMetricArtifactLoader:
             encoding="utf-8",
         )
         return len(rows)
+
+
+def write_json_artifact(output_path: Path, payload: Mapping[str, Any]) -> Path:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(dict(payload), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return output_path
 
 
 def _serialize_datetime(value: datetime | None) -> str | None:

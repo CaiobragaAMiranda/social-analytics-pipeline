@@ -12,3 +12,7 @@ build/
 data/raw/
 data/processed/
 data/temp/
+logs/
+docs/REVIEWS/*.md
+!docs/REVIEWS/README.md
+!docs/REVIEWS/REVIEW_SUMMARY.md

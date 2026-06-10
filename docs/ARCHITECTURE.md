@@ -1,212 +1,88 @@
-# Arquitetura
+# Architecture
 
-## Visao geral
-
-O projeto sera um pipeline de analytics social com quatro camadas principais:
+## Pipeline Shape
 
 ```text
-Providers -> Raw Storage -> Transformacao -> Load/Validation -> Orquestracao
+Provider -> Raw Storage -> Normalization -> Load/Validation -> Orchestration
 ```
 
-Na TASK-007 foi criado o primeiro orquestrador local:
+## Main Components
+
+- Providers collect raw payloads. Current providers include mock sources and a real YouTube Data API provider.
+- Raw storage writes original payloads under `data/raw/` for audit and reprocessing.
+- Normalizers convert provider-specific payloads into `SocialMetric`.
+- Loaders write normalized metrics to JSON artifacts or PostgreSQL.
+- Run summaries write compact execution snapshots under `data/runs/`.
+- Airflow DAGs orchestrate scheduled runs with 15-day intervals and catchup.
+
+## Normalized Metric
+
+Core fields:
 
 ```text
-FixtureProvider
-  -> RawStorage.save(...)
-  -> normalize_payload(...)
-  -> MetricLoader.load(...)
+provider
+account_id
+content_id
+content_type
+collected_at
+published_at
+likes
+comments
+shares
+views
+followers
+raw_path
 ```
 
-Esse fluxo e propositalmente independente de Postgres real durante os testes. O loader e um protocolo; em producao local, pode ser `PostgresMetricLoader`, e em teste pode ser um fake.
-
-## Providers
-
-Responsaveis por coletar dados de cada fonte social.
-
-Fontes planejadas:
-
-- Instagram.
-- YouTube.
-- TikTok.
-- Mock providers para desenvolvimento e demonstracao.
-
-Contrato inicial:
-
-```text
-SocialProvider.collect_metrics(account_id, start_at, end_at) -> list[dict]
-```
-
-Esse contrato ainda retorna payloads brutos. A normalizacao fica em `transform/`.
-
-Na TASK-003 foram criados providers mockados baseados em fixtures:
-
-```text
-data/fixtures/instagram_metrics.json
-data/fixtures/youtube_metrics.json
-data/fixtures/tiktok_metrics.json
-```
-
-Os mocks preservam formatos diferentes por plataforma. Isso e intencional: a proxima etapa de transformacao deve provar que consegue mapear essas formas distintas para `SocialMetric`.
-
-## Raw Storage
-
-Toda resposta bruta sera preservada antes de qualquer transformacao.
-
-Formato inicial previsto:
-
-```text
-data/raw/{provider}/{yyyy-mm-dd}/{entity_id}.json
-```
-
-Na TASK-002 foi criada a classe `RawStorage`, responsavel por persistir payloads JSON em disco.
-
-Motivos:
-
-- Auditoria.
-- Reprocessamento.
-- Debugging.
-- Comparacao entre resposta bruta e dado normalizado.
-
-## Schema Unico
-
-As respostas diferentes das APIs serao normalizadas para uma estrutura comum de metricas.
-
-Campos candidatos:
-
-- provider.
-- account_id.
-- content_id.
-- content_type.
-- collected_at.
-- published_at.
-- likes.
-- comments.
-- shares.
-- views.
-- followers.
-- raw_path.
-
-Na TASK-002 foi criado o dataclass `SocialMetric` com esses campos candidatos iniciais.
-
-Na TASK-004 foi criado `normalize_payload`, que converte payloads raw enriquecidos pelos providers mockados para `SocialMetric`.
-
-Mapeamento inicial:
-
-```text
-Instagram:
-  id -> content_id
-  media_type -> content_type
-  like_count -> likes
-  comments_count -> comments
-  plays ou impressions -> views
-  account.followers_count -> followers
-
-YouTube:
-  videoId -> content_id
-  statistics.likeCount -> likes
-  statistics.commentCount -> comments
-  statistics.viewCount -> views
-  channel.subscriberCount -> followers
-
-TikTok:
-  item_id -> content_id
-  metrics.digg_count -> likes
-  metrics.comment_count -> comments
-  metrics.share_count -> shares
-  metrics.play_count -> views
-  author.follower_count -> followers
-```
-
-Provider desconhecido ou payload sem `_collection` deve falhar explicitamente com `ValueError`.
-
-## Persistencia
-
-O alvo inicial sera PostgreSQL via Docker Compose.
-
-SQLite fica fora do caminho principal porque o projeto pretende demonstrar praticas mais proximas de ambiente produtivo.
-
-Na TASK-005 foi criada a tabela `social_metrics` em `db/init/001_create_social_metrics.sql`.
-
-Chave natural idempotente:
+PostgreSQL uses an idempotent natural key:
 
 ```text
 provider + account_id + content_id + collected_at
 ```
 
-O loader `PostgresMetricLoader` usa `INSERT ... ON CONFLICT ... DO UPDATE`, evitando duplicidade quando a mesma janela de coleta for reprocessada.
+## Current DAGs
 
-## Orquestracao
+- `social_analytics_mock_pipeline`: runs mock providers through raw storage, normalization and configurable JSON/PostgreSQL loading.
+- `social_analytics_youtube_pipeline`: runs the real YouTube provider with settings from environment variables only.
 
-Airflow sera introduzido depois que extracao, transformacao e carga estiverem testadas localmente.
-
-Antes do Airflow, `run_provider_pipeline` prova a integracao local das camadas. Isso reduz risco antes de migrar o fluxo para DAGs.
-
-Na TASK-008 foi adicionado um ambiente Airflow local via Docker Compose.
-
-Servicos principais:
+Current scheduling behavior:
 
 ```text
-airflow-api-server
-airflow-scheduler
-airflow-dag-processor
-airflow-worker
-airflow-triggerer
-airflow-init
-airflow-postgres
-airflow-redis
+social_analytics_mock_pipeline:
+  schedule = 15 days
+  catchup = True
+  start_date = 2026-01-01 UTC
+
+social_analytics_youtube_pipeline:
+  schedule = 15 days
+  catchup = False
+  start_date = 2026-01-01 UTC
 ```
 
-A primeira DAG e `social_analytics_smoke`, criada apenas para validar parse/executabilidade do ambiente. A migracao do fluxo `mock -> raw -> normalize -> load` para uma DAG real fica para a proxima task.
+## Configuration Safety
 
-Na TASK-009 foi criada a DAG `social_analytics_mock_pipeline`.
-
-Fluxo da DAG:
-
-```text
-build_mock_providers(...)
-  -> run_provider_pipeline(...)
-  -> RawStorage(data/raw)
-  -> normalize_payload(...)
-  -> JsonMetricArtifactLoader(data/processed/airflow)
-```
-
-A DAG usa `data_interval_start` e `data_interval_end` do Airflow quando disponiveis. A carga final ainda e um artefato JSON local; a troca para `PostgresMetricLoader` dentro do Airflow fica para uma task seguinte.
-
-Na TASK-010, a DAG mockada passou a usar agendamento quinzenal e catchup historico:
-
-```text
-schedule = 15 dias
-catchup = True
-start_date = 2026-01-01
-```
-
-Os metadados de orquestracao ficam em `src/social_analytics_pipeline/orchestration/airflow_settings.py`, para que a politica de schedule/catchup seja testada sem importar Airflow. Os artefatos processados incluem provider, inicio e fim do intervalo no nome:
-
-```text
-data/processed/airflow/{provider}-{interval_start}-{interval_end}.json
-```
-
-Isso deixa execucoes historicas mais rastreaveis e evita sobrescrever resultados de janelas diferentes durante catchup.
-
-## Qualidade
-
-Validacoes planejadas:
-
-- Testes unitarios para transformacoes.
-- Validacao de schema.
-- Rejeicao ou DLQ para registros invalidos.
-- Idempotencia no load.
+- API keys, channel IDs, DSNs and passwords come from local environment variables or `.env`.
+- `.env`, `data/raw/`, `data/processed/` and review logs are ignored by Git.
+- `data/runs/` stays local and should not contain secrets, raw payloads or absolute machine paths.
+- Terminal output should show counts and placeholders, not raw payloads or sensitive values.
 
 ## Quality Gates
 
-Na TASK-006 foram adicionados quality gates de seguranca e dependencias:
+- Unit tests with fake clients for API behavior.
+- Ruff for lint.
+- Bandit for Python security lint.
+- pip-audit for dependency audit.
+- Gitleaks and GitHub Actions for secret scanning.
+- CodeRabbit for PR review.
 
-```text
-Ruff       -> lint Python
-Bandit     -> security lint Python
-pip-audit  -> scan de vulnerabilidades em dependencias
-Gitleaks   -> secret scan
-GitHub Actions -> execucao automatizada em push, pull request e workflow_dispatch
-```
+## Current Delivery Mode
 
-Detectores de N+1, race condition e memory leak ficam registrados como futuras evolucoes. Eles passam a fazer sentido quando houver ORM/leitura relacional, execucao concorrente com Airflow/Celery ou cargas grandes o bastante para profiling de memoria.
+- The current priority is to close a usable YouTube v1 slice, not to maximize architectural sophistication.
+- Governance remains in place through tasks, progress tracking and review checkpoints.
+- New technical layers should only be added when they clearly help finish or safely operate the current delivery slice.
+
+## Later Architecture Work
+
+- Extend persisted run summaries beyond the real YouTube path.
+- Decide whether warning states should trigger stronger alert delivery than local failures alone.
+- Async or Celery scaling only when real volume justifies it.

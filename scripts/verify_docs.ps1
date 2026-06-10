@@ -3,19 +3,21 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $requiredFiles = @(
     "README.md",
+    "SKILLS.md",
     "docs/PLAN.md",
     "docs/TASKS.md",
     "docs/PROGRESS.md",
     "docs/BOOTSTRAP.md",
     "docs/ARCHITECTURE.md",
-    "docs/GEMINI_CONTRACT.md",
+    "docs/AGENT_CONTRACTS.md",
     "docs/DECISIONS/ADR-0001-repository-as-source-of-truth.md",
     "docs/REVIEWS/.gitkeep",
     "scripts/gemini_cli.ps1",
     "scripts/project_status.ps1",
     "scripts/verify_docs.ps1",
     "scripts/gemini_packet.ps1",
-    "scripts/gemini_review.ps1"
+    "scripts/gemini_review.ps1",
+    "scripts/chatgpt_review.ps1"
 )
 
 $missing = @()
@@ -28,25 +30,25 @@ foreach ($file in $requiredFiles) {
 }
 
 if ($missing.Count -gt 0) {
-    Write-Host "Falha: arquivos obrigatorios ausentes."
+    Write-Host "Failure: required files are missing."
     $missing | ForEach-Object { Write-Host "- $_" }
     exit 1
 }
 
 $tasks = Get-Content (Join-Path $root "docs/TASKS.md") -Raw
 $progress = Get-Content (Join-Path $root "docs/PROGRESS.md") -Raw
-$contract = Get-Content (Join-Path $root "docs/GEMINI_CONTRACT.md") -Raw
+$contract = Get-Content (Join-Path $root "docs/AGENT_CONTRACTS.md") -Raw
 
-if ($tasks -notmatch "TASK-001") {
-    throw "TASK-001 nao encontrada em docs/TASKS.md"
+if ($tasks -notmatch "TASK-\d{3}") {
+    throw "No task marker like TASK-000 found in docs/TASKS.md"
 }
 
-if ($progress -notmatch "Fase atual:") {
-    throw "Fase atual nao encontrada em docs/PROGRESS.md"
+if ($progress -notmatch "Current phase:") {
+    throw "Current phase not found in docs/PROGRESS.md"
 }
 
 if ($contract -notmatch "Approved \| Approved with notes \| Changes requested") {
-    throw "Rubrica do Gemini nao encontrada ou incompleta."
+    throw "Agent rubric not found or incomplete."
 }
 
-Write-Host "Verificacao documental concluida com sucesso."
+Write-Host "Documentation verification completed successfully."

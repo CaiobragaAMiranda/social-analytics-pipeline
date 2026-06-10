@@ -1,241 +1,85 @@
-# Progresso
+# Progress
 
-## Snapshot atual
+## Current Snapshot
 
-Data: 2026-05-27
+Date: 2026-06-09
 
-Fase atual: Fase 2 - Orquestracao e historico
+Current phase: Post-v1 direction
 
-Task atual: TASK-013 - Configurar CodeRabbit sob demanda em PRs
+Current task: TASK-065 - YouTube report total engagements.
 
-Status geral: TASK-013 concluida; PR com CodeRabbit sob demanda pronto para merge.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes a simple total engagement aggregate.
 
-## Registro
+## Completed Milestones
 
-### 2026-05-27
+- Governance docs and review scripts were created.
+- Python package skeleton, tests and quality gates were added.
+- Mock providers for Instagram, YouTube and TikTok were created.
+- A shared social metric schema and normalizers were implemented.
+- PostgreSQL local loading was added with idempotent upsert behavior.
+- Docker Compose now supports PostgreSQL and Airflow.
+- Airflow has a mock pipeline DAG with 15-day schedule and catchup.
+- YouTube Data API support was added behind local environment variables.
+- Safe YouTube smoke and local pipeline commands were added.
+- Real YouTube local JSON and PostgreSQL loads were validated without printing secrets or payloads.
+- A real YouTube Airflow DAG was added and merged in PR #19.
+- Local Airflow validation completed for the real YouTube DAG.
+- YouTube provider resilience now includes retry/backoff and clearer credential failure handling.
+- Invalid normalized metrics are now blocked before artifact or PostgreSQL loading.
+- The next delivery direction is now explicit: controlled YouTube backfill before any new real provider expansion.
+- Controlled YouTube backfill now supports explicit start/end timestamps for local and fallback DAG runs.
+- Invalid normalized records now go to a local DLQ with a reason and raw file reference instead of stopping the full pipeline.
 
-- Definido que o projeto sera construido por tasks pequenas e auditaveis.
-- Definido que Codex deve apresentar estado, conclusoes, criterios de aceite e plano de teste antes de codar.
-- Definido que Gemini atuara como avaliador contratual, usando documentos do repositorio, diff e logs.
-- Iniciada TASK-001 para criar documentacao base e scripts de automacao.
-- Criados `README.md`, `docs/PLAN.md`, `docs/TASKS.md`, `docs/PROGRESS.md`, `docs/BOOTSTRAP.md`, `docs/ARCHITECTURE.md`, `docs/GEMINI_CONTRACT.md` e `docs/DECISIONS/ADR-0001-repository-as-source-of-truth.md`.
-- Criados scripts `scripts/project_status.ps1`, `scripts/verify_docs.ps1` e `scripts/gemini_packet.ps1`.
-- Executada verificacao documental com sucesso.
-- TASK-001 marcada como Done.
-- Criada pasta oficial `C:\Users\gamer\Desktop\Programing\social-analytics-pipeline`.
-- Copiados `README.md`, `docs/` e `scripts/` para a pasta oficial.
-- Inicializado Git na pasta oficial.
-- TASK-001B marcada como Done.
-- Iniciada TASK-001C para criar o primeiro commit rastreavel da governanca.
-- Executada verificacao documental com sucesso para TASK-001C.
-- TASK-001C marcada como Done.
-- Publicado repositorio privado no GitHub: `https://github.com/CaiobragaAMiranda/social-analytics-pipeline`.
-- Iniciada TASK-002 para criar o esqueleto tecnico Python.
-- Criado `pyproject.toml` com metadados do projeto Python.
-- Criada estrutura `src/social_analytics_pipeline/` com config, providers, storage e transform.
-- Criado teste inicial em `tests/test_project_skeleton.py`.
-- Atualizados `README.md`, `docs/BOOTSTRAP.md` e `docs/ARCHITECTURE.md`.
-- Executados 4 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- TASK-002 marcada como Done.
-- Commit da TASK-002 publicado no GitHub: `bd29c8c feat: add python project skeleton`.
-- Iniciada TASK-003 para criar providers mockados.
-- Criadas fixtures raw para Instagram, YouTube e TikTok em `data/fixtures/`.
-- Criado `FixtureProvider` e factory `build_mock_providers`.
-- Criados testes de contrato em `tests/test_mock_providers.py`.
-- Executados 8 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- TASK-003 marcada como Done.
-- Configurado Gemini CLI oficial `@google/gemini-cli`.
-- Login com Google concluido no Gemini CLI.
-- Criados `scripts/gemini_cli.ps1` e `scripts/gemini_review.ps1`.
-- Gemini headless validado com resposta `GEMINI_OK`.
-- TASK-001D marcada como Done.
-- Primeira tentativa de revisao Gemini falhou porque o agente tentou chamar `run_shell_command`, ferramenta indisponivel no ambiente.
-- Corrigido `scripts/gemini_review.ps1` para modo avaliador textual com `--approval-mode plan` e instrucao explicita para nao usar ferramentas.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260527-104706.md`.
-- Resultado Gemini: aprovado / em conformidade.
-- Commit da TASK-003 e automacao Gemini publicado no GitHub: `08bfeb4 feat: add mock providers and gemini review automation`.
-- Iniciada TASK-004 para criar normalizacao dos payloads mockados em `SocialMetric`.
-- Criado `src/social_analytics_pipeline/transform/normalizer.py`.
-- Criados normalizadores para Instagram, YouTube e TikTok.
-- Criados testes de transformacao em `tests/test_normalizer.py`.
-- Executados 14 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- Primeira revisao Gemini da TASK-004 falhou porque o wrapper local nao encaminhou o pacote para `stdin`.
-- Corrigido `scripts/gemini_cli.ps1` para repassar entrada padrao ao CLI.
-- Revisao Gemini formal salva em `docs/REVIEWS/review-20260527-191357.md`.
-- Resultado Gemini: aprovado.
-- TASK-004 marcada como Done.
-- Commit da TASK-004 publicado no GitHub: `2b716f7 feat: add social metric normalizers`.
-- Iniciada TASK-005 para criar carga local em PostgreSQL.
-- Criado `docker-compose.yml` com servico PostgreSQL 16.
-- Criado schema inicial em `db/init/001_create_social_metrics.sql`.
-- Criado `PostgresMetricLoader` com upsert idempotente.
-- Criados testes unitarios em `tests/test_postgres_loader.py`.
-- Adicionada dependencia `psycopg[binary]` ao `pyproject.toml`.
-- Corrigido `raw_path` do loader para persistir paths em formato POSIX estavel.
-- Executados 17 testes unitarios com sucesso.
-- Executada verificacao documental com sucesso.
-- Revisao Gemini `docs/REVIEWS/review-20260527-192800.md` falhou porque `gemini_packet.ps1` imprimia cabecalhos com `Write-Host`, deixando o pacote vazio para o pipeline.
-- Corrigido `scripts/gemini_packet.ps1` para emitir conteudo com `Write-Output` e incluir diff completo do repositorio.
-- Revisao Gemini `docs/REVIEWS/review-20260527-192923.md` falhou porque `scripts/gemini_cli.ps1` nao recebia pipeline via `[Console]::In`.
-- Mantido `scripts/gemini_cli.ps1` como wrapper simples para chamadas diretas.
-- Corrigido `scripts/gemini_review.ps1` para enviar o pacote ao Gemini por arquivo temporario e `cmd /c type`, evitando perda de `stdin` em wrappers PowerShell.
-- Revisao Gemini `docs/REVIEWS/review-20260527-193101.md` aprovou a TASK-005, mas recomendou incluir arquivos novos ainda nao rastreados no pacote.
-- Corrigido `scripts/gemini_packet.ps1` para incluir diff staged e conteudo de arquivos untracked.
-- Revisao Gemini final salva em `docs/REVIEWS/review-20260527-193156.md`.
-- Resultado Gemini: aprovado.
-- TASK-005 marcada como Done.
-- Commit da TASK-005 publicado no GitHub: `59f9aa5 feat: add postgres metric loading`.
-- Iniciada TASK-006 para adicionar quality gates de seguranca e CI.
-- Versoes de GitHub Actions verificadas em fontes oficiais em 2026-05-27:
-  - `actions/checkout@v6`.
-  - `actions/setup-python@v6`.
-  - `gitleaks/gitleaks-action@v2`.
-  - `pypa/gh-action-pip-audit@v1.1.0`.
-- Adicionadas dependencias dev para `ruff`, `bandit` e `pip-audit`.
-- Adicionada configuracao `.gitleaks.toml`.
-- Criado workflow `.github/workflows/quality-gates.yml`.
-- Documentados comandos locais de quality gates no bootstrap.
-- Instaladas dependencias dev via `python -m pip install -r requirements-dev.txt`.
-- Primeira execucao do Ruff encontrou divida de formatacao/imports em codigo existente.
-- Aplicado `ruff check . --fix` e ajustes manuais de linhas longas.
-- Executados 17 testes unitarios com sucesso.
-- Ruff aprovado com `All checks passed!`.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-093357.md`.
-- Resultado Gemini: aprovado.
-- TASK-012 marcada como Done.
-- Commit da TASK-012 publicado no GitHub: `2fa79db ci: force node24 for secret scan action`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Usuario pediu uso do CodeRabbit no GitHub para verificar codigo.
-- Ajustada proposta para CodeRabbit sob demanda, nao automatico em todo PR.
-- Criada branch `feature/coderabbit-on-demand-review`.
-- Iniciada TASK-013 para configurar CodeRabbit sob demanda em PRs.
-- Criado `.coderabbit.yaml` com `reviews.auto_review.enabled: false`.
-- Criado template de PR com campo de decisao para CodeRabbit.
-- Documentado uso de branches `feature/...`, `bugfix/...` e `hotfix/...`.
-- Documentados comandos manuais `@coderabbitai review` e `@coderabbitai full review`.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-094851.md`.
-- Resultado Gemini: aprovado.
-- PR `#1` aberto para validar o fluxo com branch `feature/coderabbit-on-demand-review`.
-- CodeRabbit apareceu no PR com status `Review skipped`, confirmando que auto review ficou desabilitado.
-- Primeiro run do PR falhou no job `Secret scan` por `403 Resource not accessible by integration` ao listar commits do PR.
-- Confirmado no log que o Gitleaks estava rodando em Node 24 (`Node.js v24.15.0`).
-- Ajustado workflow para conceder `pull-requests: read` ao `GITHUB_TOKEN`.
-- Executados 24 testes unitarios com sucesso apos o ajuste.
-- Verificacao documental concluida com sucesso apos o ajuste.
-- Revisao Gemini complementar salva em `docs/REVIEWS/review-20260528-095307.md`.
-- Resultado Gemini: aprovado.
-- CodeRabbit acionado manualmente no PR `#1` com `@coderabbitai review`.
-- CodeRabbit confirmou o fluxo sob demanda e gerou walkthrough, pre-merge checks e 2 comentarios acionaveis.
-- Aplicadas correcoes solicitadas pelo CodeRabbit em `docs/BOOTSTRAP.md` e `docs/PROGRESS.md`.
-- Verificacao documental concluida com sucesso após ajustes do CodeRabbit.
-- Revisao Gemini final salva em `docs/REVIEWS/review-20260528-100314.md`.
-- Resultado Gemini: aprovado.
-- Ajustes ortograficos finais sugeridos pelo CodeRabbit aplicados.
-- GitHub Actions do PR `#1` concluiu com sucesso apos o ultimo push.
-- TASK-013 marcada como Done.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-091824.md`.
-- Resultado Gemini: aprovado.
-- TASK-010 marcada como Done.
-- Commit da TASK-010 publicado no GitHub: `e650a4a feat: schedule airflow mock pipeline catchup`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-011 para registrar propostas de mudanca antes da execucao.
-- Criado `docs/TASK_PROPOSALS.md`.
-- Definido que o Codex deve sempre indicar mudancas propostas antes de codar.
-- Atualizado `README.md` para incluir propostas, escopo, exclusoes e plano de validacao no checkpoint pre-codigo.
-- Atualizado `docs/GEMINI_CONTRACT.md` para avaliar proposta explicitada e alinhamento com pedido do usuario.
-- Ajustado protocolo para deixar claro que propostas devem ser comunicadas diretamente ao usuario, e nao apenas registradas em Markdown.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-092656.md`.
-- Resultado Gemini: aprovado.
-- TASK-011 marcada como Done.
-- Commit da TASK-011 publicado no GitHub: `30be366 docs: add change proposal governance`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Usuario aprovou seguir com a proposta de manutencao do secret scan.
-- Iniciada TASK-012 para preparar o job `secret-scan` para Node 24.
-- Consultada fonte oficial do GitHub sobre deprecacao do Node 20 em GitHub Actions.
-- Atualizado `.github/workflows/quality-gates.yml` com `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` no job `secret-scan`.
-- `PROP-001` marcada como Accepted em `docs/TASK_PROPOSALS.md`.
-- Executados 24 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-085716.md`.
-- Resultado Gemini: aprovado.
-- TASK-009 marcada como Done.
-- Commit da TASK-009 publicado no GitHub: `b41dde3 feat: add airflow mock pipeline dag`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-010 para configurar agendamento quinzenal e catchup historico da DAG mockada.
-- Criada configuracao testavel de DAG em `src/social_analytics_pipeline/orchestration/airflow_settings.py`.
-- DAG `social_analytics_mock_pipeline` ajustada para `timedelta(days=15)` e `catchup=True`.
-- Artefatos processados passam a incluir provider, inicio e fim do intervalo no nome.
-- Criados testes para configuracao Airflow e path de artefato por intervalo.
-- `docker compose config` validado com sucesso.
-- Executados 24 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-002654.md`.
-- Resultado Gemini: aprovado.
-- TASK-008 marcada como Done.
-- Commit da TASK-008 publicado no GitHub: `83f0abe feat: add airflow docker environment`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-009 para migrar o fluxo local mockado para DAG Airflow.
-- Criado `JsonMetricArtifactLoader` em `src/social_analytics_pipeline/pipeline/artifacts.py`.
-- Criados testes em `tests/test_artifact_loader.py`.
-- Criada DAG `dags/social_analytics_mock_pipeline_dag.py`.
-- Atualizado `dags/README.md`.
-- Atualizados `docs/ARCHITECTURE.md` e `docs/BOOTSTRAP.md` com a DAG `social_analytics_mock_pipeline`.
-- Executado `ruff check . --fix` para organizar imports.
-- `docker compose config` validado com sucesso.
-- Executados 22 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260528-000223.md`.
-- Resultado Gemini: aprovado.
-- TASK-007 marcada como Done.
-- Commit da TASK-007 publicado no GitHub: `31b0795 feat: integrate local mock pipeline`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Consultada documentacao oficial do Apache Airflow 3.2.1 para Docker Compose.
-- Iniciada TASK-008 para adicionar Airflow via Docker.
-- Criados servicos Airflow em `docker-compose.yml`.
-- Criada DAG smoke em `dags/social_analytics_smoke_dag.py`.
-- Criado `.env.example` com `AIRFLOW_UID=50000`.
-- Primeira validacao `docker compose config` falhou porque o anchor comum estava como `airflow-common`; corrigido para `x-airflow-common`.
-- Atualizada allowlist do Gitleaks para credenciais locais documentadas do Airflow (`airflow/airflow`).
-- `docker compose config` validado com sucesso.
-- Executados 19 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
-- Revisao Gemini salva em `docs/REVIEWS/review-20260527-194742.md`.
-- Resultado Gemini: aprovado.
-- TASK-006 marcada como Done.
-- Commit da TASK-006 publicado no GitHub: `bd85b3d ci: add security quality gates`.
-- GitHub Actions `Quality Gates` concluiu com sucesso.
-- Iniciada TASK-007 para integrar provider mockado, raw storage, normalizacao e loader.
-- Criado `src/social_analytics_pipeline/pipeline/local.py`.
-- Criado protocolo `MetricLoader` para desacoplar orquestracao do destino real.
-- Criado teste de integracao em `tests/test_local_pipeline.py`.
-- Teste de integracao encontrou colisao no nome de arquivos raw quando varios payloads eram salvos no mesmo segundo.
-- Corrigido `RawStorage` para incluir hash curto do payload no nome do arquivo.
-- Executados 19 testes unitarios com sucesso.
-- Ruff aprovado.
-- Bandit aprovado sem issues.
-- pip-audit aprovado sem vulnerabilidades conhecidas.
-- Verificacao documental concluida com sucesso.
+## Latest Notes
 
-## Proximas acoes
+- Windows reserved the previous local metrics PostgreSQL port; the local `.env` now uses a non-reserved port.
+- Airflow 3.2.1 initialization now runs metadata migration without the incompatible user creation command.
+- Celery workers now use the Airflow execution API URL and a shared JWT secret from local environment configuration.
+- Automatic catchup is disabled for the real YouTube DAG to avoid unexpected YouTube API quota usage. Mock DAG catchup remains available for historical orchestration testing.
+- The successful YouTube Airflow run loaded 50 records and masked the configured channel in logs.
+- The YouTube HTTP client now retries transient statuses like `429` and `503`, but stops immediately on invalid credentials like `401` and `403`.
+- Validation now rejects empty identifiers, negative counters, and `published_at` values later than `collected_at`.
+- New provider breadth was intentionally deferred because only YouTube currently has a real end-to-end path.
+- Automatic YouTube DAG catchup is still disabled; historical recovery now happens only through explicit backfill settings.
+- Pipeline summaries now expose invalid record counts for local and Airflow-backed YouTube runs.
+- Real YouTube executions now persist a structured run summary with interval, status, counts and artifact locations.
+- The delivery strategy was simplified: keep governance, but prioritize cycle closure over new engineering layers.
+- The repository now documents what must be true to consider the current YouTube v1 delivery closed.
+- The repository now treats the YouTube v1 cycle as closed and shifts attention to the next functional slice.
+- The repository now includes a small local reporting step for processed YouTube artifacts.
+- The local YouTube reporting step now also writes a markdown report with ranked content.
+- The report CLI now accepts explicit processed artifact and markdown output paths.
+- The report CLI now accepts `--top` to control the top-content ranking size.
+- The report CLI now accepts `--sort-by` to choose the ranking metric.
+- The report CLI now accepts `--json-output` to save a compact structured summary.
+- The report CLI now accepts `--list-artifacts` to show available processed artifacts.
+- The report CLI now accepts `--latest-artifact` to print only the latest processed artifact.
+- The report CLI now accepts `--fail-if-missing` so list-only automation can fail when no processed artifact exists.
+- The report CLI now rejects using `--list-artifacts` and `--latest-artifact` together.
+- The report CLI now accepts `--count-artifacts` to print only the processed artifact count.
+- The report CLI now accepts `--no-markdown` with `--json-output` for JSON-only report generation.
+- The report CLI now accepts `--quiet` to suppress report-generation summary output.
+- The report CLI now accepts `--output-dir` to choose the markdown report directory while preserving artifact-based file names.
+- The report CLI now accepts `--json-output-dir` to choose the JSON report directory while preserving artifact-based file names.
+- The report CLI now accepts `--json-indent` to choose pretty or compact JSON output.
+- The report CLI now accepts `--print-json` to print the JSON summary payload to stdout.
+- The report CLI now accepts `--fail-if-empty` to fail before report writing when the selected artifact has no records.
+- The report CLI now accepts `--min-records` to fail before report writing when the selected artifact is too small.
+- The report CLI now accepts `--dry-run` to validate selected inputs and show planned report paths without writing files.
+- The report CLI now accepts `--no-markdown --print-json` to emit JSON without writing report files.
+- The package now exposes a `youtube-report` console script for the local report command.
+- YouTube reports now expose the selected top-ranking metric value alongside top views.
+- YouTube reports now expose total engagements as likes plus comments plus shares.
 
-- Revisar e mesclar o PR `#1`.
+## Current Constraints
+
+- `.env`, raw data and processed data must remain local and ignored by Git.
+- Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
+- Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
+- New work should prefer functional closure tasks over further sophistication unless the user explicitly asks for it.
+
+## Next Actions
+
+- Decide whether the next slice should be another real provider or a simple consumption/reporting layer.
+- Keep additional infrastructure polish deferred unless it clearly unlocks the next slice.
+- Decide whether to deepen the simple consumption layer or open a second real provider.

@@ -56,7 +56,7 @@ def _normalize_youtube(payload: dict[str, Any], raw_path: Path) -> SocialMetric:
     return SocialMetric(
         provider="youtube",
         account_id=_collection_value(payload, "account_id"),
-        content_id=str(payload["videoId"]),
+        content_id=_youtube_content_id(payload),
         content_type="video",
         collected_at=_parse_datetime(_collection_value(payload, "end_at")),
         published_at=_parse_datetime(snippet["publishedAt"]),
@@ -104,6 +104,12 @@ def _to_int(value: Any) -> int | None:
     if value is None:
         return None
     return int(value)
+
+
+def _youtube_content_id(payload: dict[str, Any]) -> str:
+    if "videoId" in payload:
+        return str(payload["videoId"])
+    return str(payload["id"])
 
 
 def _instagram_content_type(media_type: str) -> str:

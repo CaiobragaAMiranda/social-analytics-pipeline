@@ -1,27 +1,26 @@
-# ADR-0001 - Repositorio como fonte da verdade
+# ADR-0001 - Repository as Source of Truth
 
 Status: Accepted
 
-Data: 2026-05-27
+Date: 2026-05-27
 
-## Contexto
+## Context
 
-O projeto sera construido em colaboracao entre usuario, Codex e Gemini. Conversas longas podem perder contexto ou ficar caras de manter.
+The project is developed through collaboration between the user and AI agents. Long conversations can lose context, so project state must be recoverable from files.
 
-## Decisao
+## Decision
 
-Usaremos o repositorio como fonte da verdade. Plano, tasks, progresso, bootstrap, arquitetura e revisoes devem viver em arquivos versionaveis.
+The repository is the source of truth for plan, tasks, progress, bootstrap, architecture and review rules.
 
-## Consequencias
+## Consequences
 
-Beneficios:
+Benefits:
 
-- Contexto retomavel.
-- Revisao objetiva pelo Gemini.
-- Menos dependencia de memoria de conversa.
-- Melhor rastreabilidade de progresso.
+- Work can resume from repository context.
+- Reviewers can evaluate concrete diffs and documented intent.
+- Less dependence on conversation memory.
 
-Custos:
+Costs:
 
-- Toda task precisa atualizar documentacao.
-- Pequenas mudancas exigem disciplina de registro.
+- Meaningful changes must update compact documentation.
+- Sensitive local information must be actively kept out of public files.

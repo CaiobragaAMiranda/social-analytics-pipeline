@@ -1,74 +1,62 @@
 # Social Analytics Pipeline
 
-Pipeline de engenharia de dados para coletar, normalizar, validar e orquestrar metricas de redes sociais.
+Data engineering pipeline for collecting, storing, normalizing, validating and orchestrating social media metrics.
 
-Este repositorio sera construido por tasks pequenas, documentadas e auditaveis. O objetivo e evitar dependencia de memoria da conversa: o estado do projeto deve estar nos arquivos em `docs/` e nos logs gerados pelos scripts em `scripts/`.
+The repository is the source of truth. Work is split into small, reviewable tasks so the project can continue without relying on long chat history.
 
-## Fluxo de trabalho
+## Current Status
 
-Antes de codar uma task:
+- Phase: Post-v1 direction
+- Current task: TASK-065 - YouTube report total engagements
+- Last completed delivery: TASK-064 - Explicit YouTube report top metric value
 
-1. Revisar `docs/PLAN.md`, `docs/TASKS.md` e `docs/PROGRESS.md`.
-2. Mostrar fase atual, task atual, riscos e conclusoes.
-3. Explicar diretamente ao usuario as mudancas propostas, escopo, exclusoes e plano de validacao.
-4. Registrar propostas relevantes em `docs/TASK_PROPOSALS.md`.
-5. Declarar criterios de aceite e plano de teste.
-6. Implementar somente depois desse checkpoint.
-7. Atualizar documentacao e progresso.
-8. Gerar pacote de revisao para o Gemini.
+## Workflow
 
-## Branches e Pull Requests
+Before coding a task:
 
-Mudancas novas devem usar branches curtas por tipo:
+1. Review `docs/PLAN.md`, `docs/TASKS.md` and `docs/PROGRESS.md`.
+2. Tell the user the proposed changes, scope, exclusions and validation plan.
+3. Implement only after the user confirms or asks to continue.
+4. Update documentation and progress.
+5. Run local validation.
+6. Open a PR so GitHub Actions and CodeRabbit can review it.
 
-- `feature/nome-curto` para funcionalidades e evolucoes.
-- `bugfix/nome-curto` para correcoes comuns.
-- `hotfix/nome-curto` para correcoes urgentes.
+## YouTube v1 Closure
 
-CodeRabbit deve ser usado sob demanda em pull requests. Quando a revisao for necessaria, comentar no PR:
+The current delivery goal is to close one usable real-provider slice before adding more engineering depth.
 
-```text
-@coderabbitai review
-```
+YouTube v1 is considered closed when all of the following are true:
 
-Para uma revisao completa do PR:
+1. The local YouTube command runs with local `.env` settings only.
+2. The pipeline preserves raw payloads, normalizes metrics and loads them to JSON or PostgreSQL.
+3. The local run exposes a compact execution summary without leaking secrets.
+4. The Airflow YouTube DAG can be triggered deliberately and complete successfully.
+5. The repository documents the minimum safe operator steps to run and verify the flow.
 
-```text
-@coderabbitai full review
-```
+The repository now treats this YouTube v1 slice as closed. The next decision should favor product value, such as another real provider or a simple layer to consume the metrics already being collected.
 
-## Comandos uteis
+The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact, prints compact aggregate metrics and writes a markdown report.
+
+## Useful Commands
 
 ```powershell
 .\scripts\project_status.ps1
 .\scripts\verify_docs.ps1
-.\scripts\gemini_packet.ps1
-python -m unittest discover -s tests
+$env:PYTHONPATH = "src"; python -m unittest discover -s tests
+ruff check .
+bandit -c pyproject.toml -r src
+docker compose --env-file .env.example config --quiet
 ```
 
-## Status
-
-Fase atual: Fase 0 - Governanca do projeto
-
-Task atual: TASK-013 - Configurar CodeRabbit sob demanda em PRs
-
-## Caminho oficial
+## Project Layout
 
 ```text
-C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
-```
-
-## Estrutura inicial
-
-```text
-src/social_analytics_pipeline/
-  providers/   contratos de coleta por fonte social
-  load/        carga idempotente em PostgreSQL
-  pipeline/    orquestracao local do fluxo
-  storage/     persistencia de payloads brutos
-  transform/   schema normalizado e normalizadores por provider
-data/fixtures/ fixtures raw dos providers mockados
-db/init/       schema inicial do PostgreSQL local
-tests/         testes automatizados
-.github/       quality gates de CI
+src/social_analytics_pipeline/  Python package
+dags/                           Airflow DAGs
+db/init/                        PostgreSQL schema
+data/fixtures/                  safe mock payloads
+tests/                          automated tests
+docs/                           compact project context
+SKILLS.md                       engineering standards and daily checklist
+scripts/                        status, docs and review helpers
 ```

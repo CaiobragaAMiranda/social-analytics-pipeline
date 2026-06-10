@@ -1,271 +1,209 @@
 # Bootstrap
 
-Este documento explica como preparar e verificar o projeto do zero.
+## Requirements
 
-## Caminho oficial do projeto
-
-```powershell
-cd C:\Users\gamer\Desktop\Programing\social-analytics-pipeline
-```
-
-## Pre-requisitos atuais
-
-- Windows com PowerShell.
+- Windows PowerShell.
 - Git.
-- Python 3.12 ou superior.
-- Docker Desktop, quando chegarmos ao PostgreSQL e Airflow.
-- Node.js nao e requisito para este projeto no momento.
+- Python 3.12+.
+- Docker Desktop for PostgreSQL and Airflow.
+- Node.js only when using Gemini CLI through npm.
 
-## Verificar ambiente
+## Setup
 
 ```powershell
-git --version
-python --version
-docker --version
+cd <project-root>
+Copy-Item .env.example .env
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
 ```
 
-## Verificar status do projeto
+Fill local `.env` values only on your machine. Never commit `.env`, raw API payloads, generated data, real channel IDs, expanded DSNs or local paths.
+
+For Airflow with CeleryExecutor, set `AIRFLOW_API_AUTH_JWT_SECRET` locally to the same non-empty random value for all containers. The Compose file passes it to `AIRFLOW__API_AUTH__JWT_SECRET` so workers can authenticate with the Airflow execution API.
+
+## Local Checks
 
 ```powershell
 .\scripts\project_status.ps1
-```
-
-## Fluxo com branches e PRs
-
-Criar branch por tipo de mudanca:
-
-```powershell
-git switch -c feature/nome-curto
-git switch -c bugfix/nome-curto
-git switch -c hotfix/nome-curto
-```
-
-Depois do commit, publicar a branch e abrir PR:
-
-```powershell
-git push -u origin <branch-name>
-gh pr create --fill
-```
-
-## CodeRabbit sob demanda
-
-Instale ou autorize o CodeRabbit no repositorio pelo GitHub App:
-
-```text
-https://github.com/apps/coderabbitai
-```
-
-O repositorio usa `.coderabbit.yaml` com revisao automatica desabilitada. Para pedir revisao manual em um PR, comente:
-
-```text
-@coderabbitai review
-```
-
-Para pedir revisao completa:
-
-```text
-@coderabbitai full review
-```
-
-## Verificar documentacao minima
-
-```powershell
 .\scripts\verify_docs.ps1
+$env:PYTHONPATH = "src"; python -m unittest discover -s tests
+ruff check .
+bandit -c pyproject.toml -r src
+docker compose --env-file .env.example config --quiet
 ```
 
-## Rodar testes
+Optional dependency/security checks:
 
 ```powershell
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests
+pip-audit .
+gitleaks detect --source . --config .gitleaks.toml
 ```
 
-O projeto ainda nao depende de pacotes externos na TASK-002. Isso mantem o bootstrap inicial simples e offline.
+## PostgreSQL
 
-## Subir PostgreSQL local
+Start the metrics database:
 
 ```powershell
 docker compose up -d postgres
 docker compose ps
 ```
 
-DSN local padrao:
+The schema is initialized from `db/init/001_create_social_metrics.sql`.
 
-```text
-postgresql://social_analytics:social_analytics@localhost:5432/social_analytics
-```
-
-O schema inicial fica em `db/init/001_create_social_metrics.sql` e e aplicado automaticamente quando o volume do Postgres e criado pela primeira vez.
-
-Para reiniciar o banco do zero durante desenvolvimento:
+Reset local volumes only when you intentionally want a clean database:
 
 ```powershell
 docker compose down -v
 docker compose up -d postgres
 ```
 
-## Subir Airflow local
+## YouTube Local Commands
 
-Prepare o arquivo `.env` a partir do exemplo:
+Required local settings:
 
-```powershell
-Copy-Item .env.example .env
+```text
+YOUTUBE_API_KEY=<local-api-key>
+YOUTUBE_CHANNEL_ID=<public-channel-id>
+YOUTUBE_CHANNEL_HANDLE=<optional-public-handle>
+YOUTUBE_MAX_PAGES=1
+YOUTUBE_SMOKE_LOOKBACK_DAYS=30
+YOUTUBE_BACKFILL_START_AT=<optional-iso-8601-start>
+YOUTUBE_BACKFILL_END_AT=<optional-iso-8601-end>
+YOUTUBE_LOCAL_LOAD_TARGET=json
 ```
 
-Inicialize o banco/metadados do Airflow:
+Use `YOUTUBE_CHANNEL_ID` when available. Otherwise use `YOUTUBE_CHANNEL_HANDLE`; the code resolves it without printing the resolved channel ID.
+Use `YOUTUBE_BACKFILL_START_AT` and `YOUTUBE_BACKFILL_END_AT` together only when you want a deliberate historical interval. Keep them empty for normal lookback-based runs.
+
+Safe smoke run:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_smoke
+```
+
+Safe local load:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_local_pipeline
+```
+
+Simple local report from the latest processed artifact:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_report
+```
+
+After installing the package locally, the same command is available as `youtube-report`.
+
+The report command prints aggregate metrics and writes a markdown file under
+`data/reports/youtube/`.
+
+To report a specific processed artifact or choose a custom output path:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.youtube_report --artifact data/processed/youtube/<artifact>.json --output data/reports/youtube/<report>.md
+```
+
+Use `--top <n>` to control how many rows are included in the top-content ranking.
+Use `--sort-by views|likes|comments|shares` to choose the ranking metric.
+Use `--output-dir <path>` to choose the markdown report directory while keeping the artifact-based file name.
+Use `--json-output <path>` to also save a compact JSON summary for automation.
+Use `--json-output-dir <path>` to choose the JSON report directory while keeping the artifact-based file name.
+Use `--json-indent <n>` to control JSON indentation; use `0` for compact output.
+Use `--print-json` to print the JSON summary payload to stdout.
+Use `--no-markdown --json-output <path>` to write only the JSON summary.
+Use `--no-markdown --print-json --quiet` to print only the JSON summary without writing report files.
+Use `--quiet` to suppress report-generation summary output.
+Use `--fail-if-empty` when automation should fail if the selected artifact has no records.
+Use `--min-records <n>` when automation should require at least `n` records.
+Use `--dry-run` to validate inputs and show planned report outputs without writing files.
+Use `--list-artifacts` to list processed YouTube artifacts without writing reports.
+Use `--latest-artifact` to print only the latest processed YouTube artifact.
+Use `--count-artifacts` to print only the number of processed YouTube artifacts.
+Use `--fail-if-missing` with list-only modes when automation should fail if no artifact exists.
+Use only one list-only mode at a time: `--list-artifacts`, `--latest-artifact` or `--count-artifacts`.
+
+Controlled backfill example:
+
+```powershell
+$env:PYTHONPATH = "src"
+$env:YOUTUBE_BACKFILL_START_AT = "2026-05-01T00:00:00Z"
+$env:YOUTUBE_BACKFILL_END_AT = "2026-05-15T00:00:00Z"
+python -m social_analytics_pipeline.cli.youtube_local_pipeline
+```
+
+Clear the backfill variables after the run if you want to return to normal lookback behavior.
+
+For PostgreSQL loading, set these locally:
+
+```text
+YOUTUBE_LOCAL_LOAD_TARGET=postgres
+SOCIAL_ANALYTICS_POSTGRES_DSN=<local-dsn>
+```
+
+The command may write to `data/raw/` and `data/processed/`; both are ignored by Git.
+
+## YouTube v1 Runbook
+
+Minimum local operator flow:
+
+1. Copy `.env.example` to `.env` and fill only local values.
+2. Set `YOUTUBE_API_KEY` and either `YOUTUBE_CHANNEL_ID` or `YOUTUBE_CHANNEL_HANDLE`.
+3. Run `python -m social_analytics_pipeline.cli.youtube_local_pipeline`.
+4. Confirm the terminal reports counts and `run_summary_path` without exposing secrets.
+5. If `YOUTUBE_LOCAL_LOAD_TARGET=postgres`, confirm records were loaded into PostgreSQL.
+
+Minimum Airflow operator flow:
+
+1. Start `postgres` plus the required Airflow services.
+2. Trigger `social_analytics_youtube_pipeline` deliberately.
+3. Confirm the run finishes successfully.
+4. Confirm logs and task results show counts and placeholders instead of secrets.
+
+Current closure checkpoint for YouTube v1:
+
+- Local YouTube execution works from `.env` only.
+- Raw payload persistence, normalization and load all complete in one run.
+- Invalid records are handled safely without exposing payloads.
+- The run generates a compact summary artifact.
+- The Airflow DAG remains manually triggerable without automatic catchup.
+
+## Airflow
+
+Initialize Airflow metadata:
 
 ```powershell
 docker compose up airflow-init
 ```
 
-Suba os servicos principais:
+Start Airflow:
 
 ```powershell
 docker compose up -d airflow-api-server airflow-scheduler airflow-dag-processor airflow-worker airflow-triggerer
 ```
 
-A interface fica em:
-
-```text
-http://localhost:8080
-```
-
-Credenciais locais:
-
-```text
-usuario: airflow
-senha: airflow
-```
-
-Validar containers:
-
-```powershell
-docker compose ps
-```
-
-Listar DAGs:
+Useful Airflow commands:
 
 ```powershell
 docker compose exec airflow-api-server airflow dags list
-```
-
-Executar a DAG mockada manualmente:
-
-```powershell
 docker compose exec airflow-api-server airflow dags trigger social_analytics_mock_pipeline
-```
-
-Agendamento da DAG mockada:
-
-```text
-intervalo: 15 dias
-catchup: habilitado
-start_date: 2026-01-01
-```
-
-Por padrao, as DAGs nascem pausadas no ambiente local. Para permitir que o scheduler crie execucoes quinzenais e catchup historico a partir do `start_date`:
-
-```powershell
+docker compose exec airflow-api-server airflow dags trigger social_analytics_youtube_pipeline
 docker compose exec airflow-api-server airflow dags unpause social_analytics_mock_pipeline
+docker compose exec airflow-api-server airflow dags unpause social_analytics_youtube_pipeline
 ```
 
-Saidas esperadas:
+The Airflow UI runs at `http://localhost:<AIRFLOW_API_PORT>`.
 
-```text
-data/raw/
-data/processed/airflow/
-```
-
-Os artefatos processados da DAG usam o formato:
-
-```text
-data/processed/airflow/{provider}-{interval_start}-{interval_end}.json
-```
-
-Limpar ambiente Airflow local:
-
-```powershell
-docker compose down --volumes --remove-orphans
-```
-
-## Validar providers mockados
-
-Os providers mockados usam fixtures locais e nao precisam de tokens:
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_mock_providers
-```
-
-## Validar normalizacao para schema unico
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_normalizer
-```
-
-## Validar carga PostgreSQL sem banco real
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_postgres_loader
-```
-
-## Validar fluxo local integrado
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_local_pipeline
-```
-
-## Validar loader de artefato JSON
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest tests.test_artifact_loader
-```
-
-## Instalar ferramentas de desenvolvimento
-
-```powershell
-python -m pip install --upgrade pip
-python -m pip install -r requirements-dev.txt
-```
-
-## Rodar quality gates locais
-
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests
-ruff check .
-bandit -c pyproject.toml -r src
-pip-audit .
-```
-
-Secret scan local com Gitleaks depende do binario instalado na maquina:
-
-```powershell
-gitleaks detect --source . --config .gitleaks.toml
-```
-
-No GitHub, o workflow `.github/workflows/quality-gates.yml` executa testes, Ruff, Bandit, pip-audit e Gitleaks.
-
-O job `secret-scan` define `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` para antecipar o runtime Node 24 em actions JavaScript, conforme recomendacao do GitHub durante a deprecacao do Node 20 nos runners.
-
-O workflow concede `pull-requests: read` ao `GITHUB_TOKEN` para que o Gitleaks consiga ler commits de pull requests durante o secret scan.
-
-## Gerar pacote para Gemini
+## Review Helpers
 
 ```powershell
 .\scripts\gemini_packet.ps1
-```
-
-O pacote sera impresso no terminal para ser enviado ao Gemini. Em uma fase posterior, poderemos salvar esse pacote em `docs/REVIEWS/`.
-
-## Rodar revisao contratual com Gemini
-
-```powershell
 .\scripts\gemini_review.ps1
+.\scripts\chatgpt_review.ps1
 ```
 
-Esse comando gera o pacote de revisao, chama o Gemini CLI em modo headless e salva a resposta em `docs/REVIEWS/`.
+Review packets must not repeat secrets or local-only values. Files under `docs/REVIEWS/*.md` are ignored by default; commit them only after manual sensitivity review.

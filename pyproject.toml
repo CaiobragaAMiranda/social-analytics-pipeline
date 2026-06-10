@@ -12,8 +12,12 @@ authors = [
     { name = "Caio Braga" }
 ]
 dependencies = [
-    "psycopg[binary]>=3.2,<4"
+    "psycopg[binary]>=3.2,<4",
+    "requests>=2.32,<3"
 ]
+
+[project.scripts]
+youtube-report = "social_analytics_pipeline.cli.youtube_report:cli_entrypoint"
 
 [project.optional-dependencies]
 dev = [
