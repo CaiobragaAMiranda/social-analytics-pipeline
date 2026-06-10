@@ -6,9 +6,9 @@ Date: 2026-06-09
 
 Current phase: Post-v1 direction
 
-Current task: TASK-060 - Require a minimum YouTube report record count.
+Current task: TASK-061 - Dry-run YouTube report generation.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports stricter automation checks for minimum processed artifact size.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now supports safe preflight checks before writing report outputs.
 
 ## Completed Milestones
 
@@ -65,6 +65,7 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The report CLI now accepts `--print-json` to print the JSON summary payload to stdout.
 - The report CLI now accepts `--fail-if-empty` to fail before report writing when the selected artifact has no records.
 - The report CLI now accepts `--min-records` to fail before report writing when the selected artifact is too small.
+- The report CLI now accepts `--dry-run` to validate selected inputs and show planned report paths without writing files.
 
 ## Current Constraints
 

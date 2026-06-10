@@ -366,6 +366,7 @@ class YouTubeReportTest(unittest.TestCase):
                 "--no-markdown",
                 "--quiet",
                 "--print-json",
+                "--dry-run",
                 "--list-artifacts",
                 "--fail-if-missing",
                 "--fail-if-empty",
@@ -387,6 +388,7 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertTrue(args.no_markdown)
         self.assertTrue(args.quiet)
         self.assertTrue(args.print_json)
+        self.assertTrue(args.dry_run)
         self.assertTrue(args.list_artifacts)
         self.assertFalse(args.latest_artifact)
         self.assertTrue(args.fail_if_missing)
@@ -751,6 +753,64 @@ class YouTubeReportTest(unittest.TestCase):
             report_path = project_root / "data" / "reports" / "youtube" / "youtube-sample.md"
             self.assertEqual(exit_code, 0)
             self.assertTrue(report_path.exists())
+
+    def test_main_dry_run_reports_planned_outputs_without_writing_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            output_dir = project_root / "custom-reports"
+            json_output_dir = project_root / "custom-json"
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    output_dir=output_dir,
+                    json_output_dir=json_output_dir,
+                    dry_run=True,
+                )
+
+            markdown_path = output_dir / "youtube-sample.md"
+            json_path = json_output_dir / "youtube-sample.json"
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("YouTube report dry run", stdout.getvalue())
+        self.assertIn("markdown_output_path=custom-reports/youtube-sample.md", stdout.getvalue())
+        self.assertIn("json_output_path=custom-json/youtube-sample.json", stdout.getvalue())
+        self.assertFalse(markdown_path.exists())
+        self.assertFalse(json_path.exists())
+
+    def test_main_dry_run_respects_min_records_before_planned_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-sample.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root,
+                    artifact_path=artifact_path,
+                    dry_run=True,
+                    min_records=2,
+                )
+
+            report_dir = project_root / "data" / "reports"
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("required at least 2", stdout.getvalue())
+        self.assertNotIn("YouTube report dry run", stdout.getvalue())
+        self.assertFalse(report_dir.exists())
 
     def test_main_lists_artifacts_without_writing_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

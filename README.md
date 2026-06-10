@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-060 - Require a minimum YouTube report record count
-- Last completed delivery: TASK-059 - Empty artifact failure for YouTube reports
+- Current task: TASK-061 - Dry-run YouTube report generation
+- Last completed delivery: TASK-060 - Minimum record count for YouTube reports
 
 ## Workflow
 

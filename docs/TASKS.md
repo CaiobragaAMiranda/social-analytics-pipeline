@@ -15,6 +15,30 @@
 
 ## Current Task
 
+### TASK-061 - Dry-run YouTube report generation
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let operators validate report inputs and planned outputs without writing markdown or JSON files.
+
+Acceptance criteria:
+
+- The report CLI supports `--dry-run`.
+- Dry runs load and validate the selected artifact.
+- Dry runs respect `--fail-if-empty` and `--min-records`.
+- Dry runs print planned markdown and JSON output paths when not quiet.
+- Dry runs do not create report output files.
+- Tests cover parser support, dry-run output and minimum-record failure behavior.
+
+Evidence:
+
+- `youtube_report.py` now supports `--dry-run`.
+- Planned markdown and JSON output paths are resolved before writing.
+- Dry-run mode returns before report files are created.
+- `docs/BOOTSTRAP.md` documents the new option.
+
 ### TASK-060 - Require a minimum YouTube report record count
 
 Status: Done
@@ -725,6 +749,7 @@ Evidence:
 | TASK-058 | The local YouTube report command can print the JSON summary payload to stdout. | Done |
 | TASK-059 | The local YouTube report command can fail before writing reports for empty artifacts. | Done |
 | TASK-060 | The local YouTube report command can require a minimum record count before writing reports. | Done |
+| TASK-061 | The local YouTube report command can dry-run planned report outputs without writing files. | Done |
 
 ## Deferred Until After v1 Closure
 

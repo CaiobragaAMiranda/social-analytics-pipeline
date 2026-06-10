@@ -159,6 +159,17 @@ def build_youtube_report_output_path_in_dir(output_dir: Path, artifact_path: Pat
     return output_dir / f"{artifact_path.stem}.md"
 
 
+def resolve_youtube_report_markdown_output_path(
+    project_root: Path,
+    artifact_path: Path,
+    output_path: Path | None = None,
+    output_dir: Path | None = None,
+) -> Path:
+    if output_dir:
+        return build_youtube_report_output_path_in_dir(output_dir, artifact_path)
+    return output_path or build_youtube_report_output_path(project_root, artifact_path)
+
+
 def build_youtube_report_json_output_path_in_dir(
     output_dir: Path,
     artifact_path: Path,
@@ -166,12 +177,26 @@ def build_youtube_report_json_output_path_in_dir(
     return output_dir / f"{artifact_path.stem}.json"
 
 
+def resolve_youtube_report_json_output_path(
+    artifact_path: Path,
+    json_output_path: Path | None = None,
+    json_output_dir: Path | None = None,
+) -> Path | None:
+    if json_output_dir:
+        return build_youtube_report_json_output_path_in_dir(json_output_dir, artifact_path)
+    return json_output_path
+
+
 def write_youtube_report_markdown(
     summary: YouTubeReportSummary,
     project_root: Path,
     output_path: Path | None = None,
 ) -> Path:
-    target = output_path or build_youtube_report_output_path(project_root, summary.artifact_path)
+    target = resolve_youtube_report_markdown_output_path(
+        project_root,
+        summary.artifact_path,
+        output_path,
+    )
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
         build_youtube_report_markdown(summary, project_root),
@@ -244,6 +269,7 @@ def main(
     output_dir: Path | None = None,
     json_indent: int = DEFAULT_JSON_INDENT,
     print_json: bool = False,
+    dry_run: bool = False,
     fail_if_empty: bool = False,
     min_records: int = 0,
     top_limit: int = DEFAULT_TOP_LIMIT,
@@ -292,18 +318,40 @@ def main(
     if json_output_path and json_output_dir:
         raise RuntimeError("--json-output and --json-output-dir cannot be used together.")
 
-    markdown_output_path = (
-        build_youtube_report_output_path_in_dir(output_dir, target) if output_dir else output_path
+    markdown_output_path = resolve_youtube_report_markdown_output_path(
+        root,
+        target,
+        output_path,
+        output_dir,
     )
+    json_report_output_path = resolve_youtube_report_json_output_path(
+        target,
+        json_output_path,
+        json_output_dir,
+    )
+
+    if dry_run:
+        if not quiet:
+            json_output_display = (
+                "<none>"
+                if not json_report_output_path
+                else _display_path(json_report_output_path, root)
+            )
+            print("YouTube report dry run")
+            print(f"artifact_path={_display_path(summary.artifact_path, root)}")
+            print(f"records={summary.records}")
+            print(f"sort_by={summary.sort_by}")
+            print(
+                "markdown_output_path="
+                f"{'<none>' if no_markdown else _display_path(markdown_output_path, root)}"
+            )
+            print(f"json_output_path={json_output_display}")
+        return 0
+
     report_path = (
         None
         if no_markdown
         else write_youtube_report_markdown(summary, root, markdown_output_path)
-    )
-    json_report_output_path = (
-        build_youtube_report_json_output_path_in_dir(json_output_dir, target)
-        if json_output_dir
-        else json_output_path
     )
     json_report_path = (
         write_youtube_report_json(
@@ -389,6 +437,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--print-json",
         action="store_true",
         help="Print the JSON summary payload to stdout.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate inputs and print planned report outputs without writing files.",
     )
     list_mode = parser.add_mutually_exclusive_group()
     list_mode.add_argument(
@@ -522,6 +575,7 @@ if __name__ == "__main__":
                 top_limit=args.top,
                 json_indent=args.json_indent,
                 print_json=args.print_json,
+                dry_run=args.dry_run,
                 fail_if_empty=args.fail_if_empty,
                 min_records=args.min_records,
                 sort_by=args.sort_by,
