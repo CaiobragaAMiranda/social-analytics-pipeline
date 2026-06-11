@@ -18,10 +18,12 @@ class YouTubeReportSummary:
     records: int
     sort_by: str
     total_views: int
+    average_views_per_record: float
     total_likes: int
     total_comments: int
     total_shares: int
     total_engagements: int
+    average_engagements_per_record: float
     engagement_rate: float
     max_followers: int
     top_content_id: str | None
@@ -109,10 +111,12 @@ def build_youtube_report_summary_with_options(
         records=len(rows),
         sort_by=sort_by,
         total_views=total_views,
+        average_views_per_record=_rate(total_views, len(rows)),
         total_likes=total_likes,
         total_comments=total_comments,
         total_shares=total_shares,
         total_engagements=total_engagements,
+        average_engagements_per_record=_rate(total_engagements, len(rows)),
         engagement_rate=_rate(total_engagements, total_views),
         max_followers=max((_metric_value(row, "followers") for row in rows), default=0),
         top_content_id=top_row.get("content_id") if top_row else None,
@@ -130,10 +134,12 @@ def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: P
         f"- Artifact: `{artifact_path}`",
         f"- Records: `{summary.records}`",
         f"- Total views: `{summary.total_views}`",
+        f"- Average views per record: `{summary.average_views_per_record:.2f}`",
         f"- Total likes: `{summary.total_likes}`",
         f"- Total comments: `{summary.total_comments}`",
         f"- Total shares: `{summary.total_shares}`",
         f"- Total engagements: `{summary.total_engagements}`",
+        f"- Average engagements per record: `{summary.average_engagements_per_record:.2f}`",
         f"- Engagement rate: `{_format_percentage(summary.engagement_rate)}`",
         f"- Max followers: `{summary.max_followers}`",
         f"- Top content: `{summary.top_content_id or '<none>'}`",
@@ -229,11 +235,14 @@ def build_youtube_report_json_payload(
         "sort_by": summary.sort_by,
         "totals": {
             "views": summary.total_views,
+            "average_views_per_record": summary.average_views_per_record,
             "likes": summary.total_likes,
             "comments": summary.total_comments,
             "shares": summary.total_shares,
             "engagements": summary.total_engagements,
+            "average_engagements_per_record": summary.average_engagements_per_record,
             "engagement_rate": summary.engagement_rate,
+            "engagement_rate_percent": _percent(summary.engagement_rate),
             "max_followers": summary.max_followers,
         },
         "top_content": {
@@ -389,10 +398,12 @@ def main(
         print(f"artifact_path={_display_path(summary.artifact_path, root)}")
         print(f"records={summary.records}")
         print(f"total_views={summary.total_views}")
+        print(f"average_views_per_record={summary.average_views_per_record}")
         print(f"total_likes={summary.total_likes}")
         print(f"total_comments={summary.total_comments}")
         print(f"total_shares={summary.total_shares}")
         print(f"total_engagements={summary.total_engagements}")
+        print(f"average_engagements_per_record={summary.average_engagements_per_record}")
         print(f"engagement_rate={summary.engagement_rate}")
         print(f"max_followers={summary.max_followers}")
         print(f"top_content_id={summary.top_content_id or '<none>'}")
@@ -584,6 +595,10 @@ def _rate(numerator: int, denominator: int) -> float:
 
 def _format_percentage(value: float) -> str:
     return f"{value:.2%}"
+
+
+def _percent(value: float) -> float:
+    return value * 100
 
 
 def _display_path(path: Path, project_root: Path) -> str:
