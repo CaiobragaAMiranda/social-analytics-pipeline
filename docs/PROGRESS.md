@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-09
+Date: 2026-06-11
 
 Current phase: Post-v1 direction
 
-Current task: TASK-065 - YouTube report total engagements.
+Current task: TASK-066 - YouTube report engagement rate.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes a simple total engagement aggregate.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes a simple engagement-rate aggregate.
 
 ## Completed Milestones
 
@@ -70,6 +70,7 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - The package now exposes a `youtube-report` console script for the local report command.
 - YouTube reports now expose the selected top-ranking metric value alongside top views.
 - YouTube reports now expose total engagements as likes plus comments plus shares.
+- YouTube reports now expose engagement rate as total engagements divided by total views.
 
 ## Current Constraints
 

@@ -22,6 +22,7 @@ class YouTubeReportSummary:
     total_comments: int
     total_shares: int
     total_engagements: int
+    engagement_rate: float
     max_followers: int
     top_content_id: str | None
     top_views: int
@@ -100,16 +101,19 @@ def build_youtube_report_summary_with_options(
     total_likes = sum(_metric_value(row, "likes") for row in rows)
     total_comments = sum(_metric_value(row, "comments") for row in rows)
     total_shares = sum(_metric_value(row, "shares") for row in rows)
+    total_views = sum(_metric_value(row, "views") for row in rows)
+    total_engagements = total_likes + total_comments + total_shares
 
     return YouTubeReportSummary(
         artifact_path=artifact_path,
         records=len(rows),
         sort_by=sort_by,
-        total_views=sum(_metric_value(row, "views") for row in rows),
+        total_views=total_views,
         total_likes=total_likes,
         total_comments=total_comments,
         total_shares=total_shares,
-        total_engagements=total_likes + total_comments + total_shares,
+        total_engagements=total_engagements,
+        engagement_rate=_rate(total_engagements, total_views),
         max_followers=max((_metric_value(row, "followers") for row in rows), default=0),
         top_content_id=top_row.get("content_id") if top_row else None,
         top_views=_metric_value(top_row, "views") if top_row else 0,
@@ -130,6 +134,7 @@ def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: P
         f"- Total comments: `{summary.total_comments}`",
         f"- Total shares: `{summary.total_shares}`",
         f"- Total engagements: `{summary.total_engagements}`",
+        f"- Engagement rate: `{_format_percentage(summary.engagement_rate)}`",
         f"- Max followers: `{summary.max_followers}`",
         f"- Top content: `{summary.top_content_id or '<none>'}`",
         f"- Top views: `{summary.top_views}`",
@@ -228,6 +233,7 @@ def build_youtube_report_json_payload(
             "comments": summary.total_comments,
             "shares": summary.total_shares,
             "engagements": summary.total_engagements,
+            "engagement_rate": summary.engagement_rate,
             "max_followers": summary.max_followers,
         },
         "top_content": {
@@ -387,6 +393,7 @@ def main(
         print(f"total_comments={summary.total_comments}")
         print(f"total_shares={summary.total_shares}")
         print(f"total_engagements={summary.total_engagements}")
+        print(f"engagement_rate={summary.engagement_rate}")
         print(f"max_followers={summary.max_followers}")
         print(f"top_content_id={summary.top_content_id or '<none>'}")
         print(f"top_views={summary.top_views}")
@@ -567,6 +574,16 @@ def _report_row(row: dict[str, Any]) -> dict[str, Any]:
 
 def _metric_label(metric: str) -> str:
     return metric.replace("_", " ").title()
+
+
+def _rate(numerator: int, denominator: int) -> float:
+    if denominator == 0:
+        return 0.0
+    return numerator / denominator
+
+
+def _format_percentage(value: float) -> str:
+    return f"{value:.2%}"
 
 
 def _display_path(path: Path, project_root: Path) -> str:
