@@ -123,10 +123,12 @@ class YouTubeReportTest(unittest.TestCase):
 
         self.assertEqual(summary.records, 2)
         self.assertEqual(summary.total_views, 350)
+        self.assertEqual(summary.average_views_per_record, 175.0)
         self.assertEqual(summary.total_likes, 15)
         self.assertEqual(summary.total_comments, 5)
         self.assertEqual(summary.total_shares, 1)
         self.assertEqual(summary.total_engagements, 21)
+        self.assertEqual(summary.average_engagements_per_record, 10.5)
         self.assertAlmostEqual(summary.engagement_rate, 0.06)
         self.assertEqual(summary.max_followers, 1200)
         self.assertEqual(summary.top_content_id, "video-2")
@@ -195,6 +197,17 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.total_engagements, 10)
         self.assertEqual(summary.engagement_rate, 0.0)
 
+    def test_build_youtube_report_summary_uses_zero_average_when_artifact_is_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_path = Path(tmpdir) / "youtube-empty.json"
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            summary = build_youtube_report_summary(artifact_path)
+
+        self.assertEqual(summary.records, 0)
+        self.assertEqual(summary.average_views_per_record, 0.0)
+        self.assertEqual(summary.average_engagements_per_record, 0.0)
+
     def test_build_youtube_report_summary_with_options_rejects_unknown_metric(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             artifact_path = Path(tmpdir) / "youtube-empty.json"
@@ -247,7 +260,9 @@ class YouTubeReportTest(unittest.TestCase):
 
             self.assertIn("# YouTube Report", markdown)
             self.assertIn("- Ranking metric: `views`", markdown)
+            self.assertIn("- Average views per record: `175.00`", markdown)
             self.assertIn("- Total engagements: `21`", markdown)
+            self.assertIn("- Average engagements per record: `10.50`", markdown)
             self.assertIn("- Engagement rate: `6.00%`", markdown)
             self.assertIn("## Top Content by Views", markdown)
             self.assertIn("video-2", markdown)
@@ -308,8 +323,11 @@ class YouTubeReportTest(unittest.TestCase):
 
         self.assertEqual(payload["sort_by"], "likes")
         self.assertEqual(saved["totals"]["views"], 100)
+        self.assertEqual(saved["totals"]["average_views_per_record"], 100.0)
         self.assertEqual(saved["totals"]["engagements"], 13)
+        self.assertEqual(saved["totals"]["average_engagements_per_record"], 13.0)
         self.assertAlmostEqual(saved["totals"]["engagement_rate"], 0.13)
+        self.assertAlmostEqual(saved["totals"]["engagement_rate_percent"], 13.0)
         self.assertEqual(saved["top_content"]["metric"], "likes")
         self.assertEqual(saved["top_content"]["metric_value"], 10)
         self.assertEqual(saved["top_rows"][0]["content_id"], "video-1")

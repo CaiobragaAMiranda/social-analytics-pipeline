@@ -15,6 +15,73 @@
 
 ## Current Task
 
+### TASK-069 - YouTube report average engagements
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: expose average engagement volume per processed YouTube record.
+
+Acceptance criteria:
+
+- Report summaries include average engagements per record.
+- Average engagements are calculated as total engagements divided by record count.
+- Empty artifacts use `0.0` instead of failing.
+- Markdown, JSON and terminal summary outputs include the aggregate.
+- Tests cover normal and empty-artifact cases.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `average_engagements_per_record`.
+- Markdown output includes average engagements per record.
+- JSON totals include `average_engagements_per_record`.
+- Tests cover regular and empty-artifact average behavior.
+
+### TASK-068 - YouTube report average views
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: expose a simple average views aggregate in local YouTube report outputs.
+
+Acceptance criteria:
+
+- Report summaries include average views per record.
+- Average views are calculated as total views divided by record count.
+- Empty artifacts use `0.0` instead of failing.
+- Markdown, JSON and terminal summary outputs include the aggregate.
+- Tests cover normal and empty-artifact cases.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `average_views_per_record`.
+- Markdown output includes average views per record.
+- JSON totals include `average_views_per_record`.
+- Tests cover regular and empty-artifact average behavior.
+
+### TASK-067 - YouTube report engagement rate percent
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make JSON report consumption easier for spreadsheets and simple automations.
+
+Acceptance criteria:
+
+- JSON totals keep the decimal `engagement_rate` field.
+- JSON totals also include numeric `engagement_rate_percent`.
+- Markdown and terminal output remain unchanged.
+- Tests cover the new JSON field.
+
+Evidence:
+
+- JSON totals now include `engagement_rate_percent`.
+- The value is numeric and derived from `engagement_rate * 100`.
+- Tests cover the field in the compact JSON report payload.
+
 ### TASK-066 - YouTube report engagement rate
 
 Status: Done
@@ -865,6 +932,9 @@ Evidence:
 | TASK-064 | YouTube reports expose the selected top-ranking metric value. | Done |
 | TASK-065 | YouTube reports expose total engagements. | Done |
 | TASK-066 | YouTube reports expose engagement rate. | Done |
+| TASK-067 | YouTube report JSON exposes engagement rate as a numeric percentage. | Done |
+| TASK-068 | YouTube reports expose average views per record. | Done |
+| TASK-069 | YouTube reports expose average engagements per record. | Done |
 
 ## Deferred Until After v1 Closure
 

@@ -6,9 +6,9 @@ Date: 2026-06-11
 
 Current phase: Post-v1 direction
 
-Current task: TASK-066 - YouTube report engagement rate.
+Current task: TASK-069 - YouTube report average engagements.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes a simple engagement-rate aggregate.
+Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes average engagement volume per processed record.
 
 ## Completed Milestones
 
@@ -71,6 +71,9 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - YouTube reports now expose the selected top-ranking metric value alongside top views.
 - YouTube reports now expose total engagements as likes plus comments plus shares.
 - YouTube reports now expose engagement rate as total engagements divided by total views.
+- YouTube report JSON now exposes engagement rate as a numeric percentage.
+- YouTube reports now expose average views per processed record.
+- YouTube reports now expose average engagements per processed record.
 
 ## Current Constraints
 
