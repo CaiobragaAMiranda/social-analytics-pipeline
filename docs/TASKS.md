@@ -15,6 +15,29 @@
 
 ## Current Task
 
+### TASK-066 - YouTube report engagement rate
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: expose a simple engagement-rate aggregate in local YouTube report outputs.
+
+Acceptance criteria:
+
+- Report summaries include engagement rate.
+- Engagement rate is calculated as total engagements divided by total views.
+- Zero-view artifacts use `0.0` instead of failing.
+- Markdown, JSON and terminal summary outputs include engagement rate.
+- Tests cover normal and zero-view cases.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes `engagement_rate`.
+- Markdown output includes a formatted engagement-rate percentage.
+- JSON totals include `engagement_rate`.
+- Tests cover regular engagement rate and zero-view handling.
+
 ### TASK-065 - YouTube report total engagements
 
 Status: Done
@@ -841,6 +864,7 @@ Evidence:
 | TASK-063 | The package exposes the local YouTube report command as `youtube-report`. | Done |
 | TASK-064 | YouTube reports expose the selected top-ranking metric value. | Done |
 | TASK-065 | YouTube reports expose total engagements. | Done |
+| TASK-066 | YouTube reports expose engagement rate. | Done |
 
 ## Deferred Until After v1 Closure
 
