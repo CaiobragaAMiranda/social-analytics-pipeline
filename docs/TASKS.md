@@ -15,6 +15,28 @@
 
 ## Current Task
 
+### TASK-070 - YouTube report engagement averages
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: expose per-record averages for individual engagement types in local YouTube report outputs.
+
+Acceptance criteria:
+
+- Report summaries include average likes, comments and shares per record.
+- Empty artifacts use `0.0` instead of failing.
+- Markdown, JSON and terminal summary outputs include the averages.
+- Tests cover normal and empty-artifact cases.
+
+Evidence:
+
+- `YouTubeReportSummary` now includes average likes, comments and shares per record.
+- Markdown output includes the three new averages.
+- JSON totals include the three new averages.
+- Tests cover regular and empty-artifact behavior.
+
 ### TASK-069 - YouTube report average engagements
 
 Status: Done
@@ -935,6 +957,7 @@ Evidence:
 | TASK-067 | YouTube report JSON exposes engagement rate as a numeric percentage. | Done |
 | TASK-068 | YouTube reports expose average views per record. | Done |
 | TASK-069 | YouTube reports expose average engagements per record. | Done |
+| TASK-070 | YouTube reports expose average likes, comments and shares per record. | Done |
 
 ## Deferred Until After v1 Closure
 

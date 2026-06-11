@@ -20,8 +20,11 @@ class YouTubeReportSummary:
     total_views: int
     average_views_per_record: float
     total_likes: int
+    average_likes_per_record: float
     total_comments: int
+    average_comments_per_record: float
     total_shares: int
+    average_shares_per_record: float
     total_engagements: int
     average_engagements_per_record: float
     engagement_rate: float
@@ -113,8 +116,11 @@ def build_youtube_report_summary_with_options(
         total_views=total_views,
         average_views_per_record=_rate(total_views, len(rows)),
         total_likes=total_likes,
+        average_likes_per_record=_rate(total_likes, len(rows)),
         total_comments=total_comments,
+        average_comments_per_record=_rate(total_comments, len(rows)),
         total_shares=total_shares,
+        average_shares_per_record=_rate(total_shares, len(rows)),
         total_engagements=total_engagements,
         average_engagements_per_record=_rate(total_engagements, len(rows)),
         engagement_rate=_rate(total_engagements, total_views),
@@ -136,8 +142,11 @@ def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: P
         f"- Total views: `{summary.total_views}`",
         f"- Average views per record: `{summary.average_views_per_record:.2f}`",
         f"- Total likes: `{summary.total_likes}`",
+        f"- Average likes per record: `{summary.average_likes_per_record:.2f}`",
         f"- Total comments: `{summary.total_comments}`",
+        f"- Average comments per record: `{summary.average_comments_per_record:.2f}`",
         f"- Total shares: `{summary.total_shares}`",
+        f"- Average shares per record: `{summary.average_shares_per_record:.2f}`",
         f"- Total engagements: `{summary.total_engagements}`",
         f"- Average engagements per record: `{summary.average_engagements_per_record:.2f}`",
         f"- Engagement rate: `{_format_percentage(summary.engagement_rate)}`",
@@ -237,8 +246,11 @@ def build_youtube_report_json_payload(
             "views": summary.total_views,
             "average_views_per_record": summary.average_views_per_record,
             "likes": summary.total_likes,
+            "average_likes_per_record": summary.average_likes_per_record,
             "comments": summary.total_comments,
+            "average_comments_per_record": summary.average_comments_per_record,
             "shares": summary.total_shares,
+            "average_shares_per_record": summary.average_shares_per_record,
             "engagements": summary.total_engagements,
             "average_engagements_per_record": summary.average_engagements_per_record,
             "engagement_rate": summary.engagement_rate,
@@ -400,8 +412,11 @@ def main(
         print(f"total_views={summary.total_views}")
         print(f"average_views_per_record={summary.average_views_per_record}")
         print(f"total_likes={summary.total_likes}")
+        print(f"average_likes_per_record={summary.average_likes_per_record}")
         print(f"total_comments={summary.total_comments}")
+        print(f"average_comments_per_record={summary.average_comments_per_record}")
         print(f"total_shares={summary.total_shares}")
+        print(f"average_shares_per_record={summary.average_shares_per_record}")
         print(f"total_engagements={summary.total_engagements}")
         print(f"average_engagements_per_record={summary.average_engagements_per_record}")
         print(f"engagement_rate={summary.engagement_rate}")
