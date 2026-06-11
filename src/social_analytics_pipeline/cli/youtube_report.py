@@ -3,12 +3,14 @@ import json
 import os
 import sys
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 DEFAULT_TOP_LIMIT = 5
 DEFAULT_SORT_BY = "views"
 DEFAULT_JSON_INDENT = 2
+YOUTUBE_REPORT_SCHEMA_VERSION = 1
 SORTABLE_METRICS = ("views", "likes", "comments", "shares")
 
 
@@ -17,6 +19,7 @@ class YouTubeReportSummary:
     artifact_path: Path
     records: int
     sort_by: str
+    top_limit: int
     total_views: int
     average_views_per_record: float
     total_likes: int
@@ -113,6 +116,7 @@ def build_youtube_report_summary_with_options(
         artifact_path=artifact_path,
         records=len(rows),
         sort_by=sort_by,
+        top_limit=top_limit,
         total_views=total_views,
         average_views_per_record=_rate(total_views, len(rows)),
         total_likes=total_likes,
@@ -237,11 +241,23 @@ def write_youtube_report_markdown(
 def build_youtube_report_json_payload(
     summary: YouTubeReportSummary,
     project_root: Path,
+    generated_at: str | None = None,
 ) -> dict[str, Any]:
+    artifact = _display_path(summary.artifact_path, project_root)
     return {
-        "artifact": _display_path(summary.artifact_path, project_root),
+        "report_schema_version": YOUTUBE_REPORT_SCHEMA_VERSION,
+        "generated_at": generated_at or _utc_now_iso(),
+        "artifact": artifact,
+        "source": {
+            "provider": "youtube",
+            "artifact": artifact,
+        },
         "records": summary.records,
         "sort_by": summary.sort_by,
+        "ranking": {
+            "metric": summary.sort_by,
+            "limit": summary.top_limit,
+        },
         "totals": {
             "views": summary.total_views,
             "average_views_per_record": summary.average_views_per_record,
@@ -257,6 +273,13 @@ def build_youtube_report_json_payload(
             "engagement_rate_percent": _percent(summary.engagement_rate),
             "max_followers": summary.max_followers,
         },
+        "engagement_breakdown": {
+            "likes_percent": _percent(_rate(summary.total_likes, summary.total_engagements)),
+            "comments_percent": _percent(
+                _rate(summary.total_comments, summary.total_engagements)
+            ),
+            "shares_percent": _percent(_rate(summary.total_shares, summary.total_engagements)),
+        },
         "top_content": {
             "content_id": summary.top_content_id,
             "views": summary.top_views,
@@ -271,11 +294,12 @@ def build_youtube_report_json_text(
     summary: YouTubeReportSummary,
     project_root: Path,
     indent: int = DEFAULT_JSON_INDENT,
+    generated_at: str | None = None,
 ) -> str:
     json_indent = None if indent == 0 else indent
     return (
         json.dumps(
-            build_youtube_report_json_payload(summary, project_root),
+            build_youtube_report_json_payload(summary, project_root, generated_at),
             indent=json_indent,
             sort_keys=True,
         )
@@ -288,10 +312,11 @@ def write_youtube_report_json(
     project_root: Path,
     output_path: Path,
     indent: int = DEFAULT_JSON_INDENT,
+    generated_at: str | None = None,
 ) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        build_youtube_report_json_text(summary, project_root, indent),
+        build_youtube_report_json_text(summary, project_root, indent, generated_at),
         encoding="utf-8",
     )
     return output_path
@@ -614,6 +639,10 @@ def _format_percentage(value: float) -> str:
 
 def _percent(value: float) -> float:
     return value * 100
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def _display_path(path: Path, project_root: Path) -> str:

@@ -15,6 +15,113 @@
 
 ## Current Task
 
+### TASK-075 - YouTube report JSON ranking metadata
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make report JSON explicit about how `top_rows` was ranked.
+
+Acceptance criteria:
+
+- JSON output includes `ranking`.
+- Ranking metadata includes the selected metric.
+- Ranking metadata includes the requested top limit.
+- Existing `sort_by` and `top_rows` fields remain unchanged.
+- Tests cover the ranking metadata.
+
+Evidence:
+
+- `YouTubeReportSummary` now stores the requested top limit.
+- JSON payloads now include `ranking.metric` and `ranking.limit`.
+- Tests cover the summary top limit and JSON ranking metadata.
+
+### TASK-074 - YouTube report JSON source metadata
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make report JSON self-describing about the provider and source artifact.
+
+Acceptance criteria:
+
+- JSON output includes `source`.
+- Source metadata includes provider `youtube`.
+- Source metadata includes the normalized artifact path.
+- Existing top-level `artifact` remains unchanged.
+- Tests cover the source metadata.
+
+Evidence:
+
+- JSON payloads now include `source.provider` and `source.artifact`.
+- The existing `artifact` field remains present.
+- Tests cover source metadata in the compact JSON payload.
+
+### TASK-073 - YouTube report JSON generation timestamp
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let external consumers know when a report JSON summary was generated.
+
+Acceptance criteria:
+
+- JSON output includes `generated_at`.
+- The timestamp uses UTC.
+- Tests can inject a deterministic timestamp.
+- Existing JSON fields remain unchanged.
+
+Evidence:
+
+- JSON payloads now include `generated_at`.
+- JSON rendering and writing accept an optional generated timestamp for tests.
+- Tests cover deterministic timestamp output.
+
+### TASK-072 - YouTube report JSON schema version
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make report JSON safer for external consumers as the payload evolves.
+
+Acceptance criteria:
+
+- JSON output includes `report_schema_version`.
+- The schema version is controlled by a named constant.
+- Existing JSON fields remain unchanged.
+- Tests cover the schema version field.
+
+Evidence:
+
+- `youtube_report.py` now defines `YOUTUBE_REPORT_SCHEMA_VERSION`.
+- JSON payloads now include `report_schema_version`.
+- Tests cover the schema version in the compact JSON payload.
+
+### TASK-071 - YouTube report engagement breakdown
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make JSON report consumption easier by exposing engagement composition percentages.
+
+Acceptance criteria:
+
+- JSON output includes engagement breakdown percentages for likes, comments and shares.
+- The existing totals remain unchanged.
+- Zero-engagement artifacts use `0.0` percentages instead of failing.
+- Tests cover normal and zero-engagement cases.
+
+Evidence:
+
+- JSON payloads now include `engagement_breakdown`.
+- The breakdown exposes numeric percentages for likes, comments and shares.
+- Tests cover regular and zero-engagement breakdown behavior.
+
 ### TASK-070 - YouTube report engagement averages
 
 Status: Done
@@ -958,6 +1065,11 @@ Evidence:
 | TASK-068 | YouTube reports expose average views per record. | Done |
 | TASK-069 | YouTube reports expose average engagements per record. | Done |
 | TASK-070 | YouTube reports expose average likes, comments and shares per record. | Done |
+| TASK-071 | YouTube report JSON exposes engagement breakdown percentages. | Done |
+| TASK-072 | YouTube report JSON exposes an explicit schema version. | Done |
+| TASK-073 | YouTube report JSON exposes a UTC generation timestamp. | Done |
+| TASK-074 | YouTube report JSON exposes provider and source artifact metadata. | Done |
+| TASK-075 | YouTube report JSON exposes ranking metric and limit metadata. | Done |
 
 ## Deferred Until After v1 Closure
 
