@@ -16,6 +16,74 @@
 
 ## Current Task
 
+### TASK-096 - Dashboard generated date formatting
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard generation timestamp easier to read while preserving safe fallback behavior.
+
+Acceptance criteria:
+
+- ISO `generated_at` values render in a compact date/time format.
+- UTC timestamps render with a clear `UTC` suffix.
+- Non-ISO values remain visible as escaped text.
+- Existing dashboard sections remain unchanged.
+- Tests cover formatted and fallback timestamp behavior.
+
+Evidence:
+
+- Dashboard rendering now formats valid ISO `generated_at` values.
+- Non-ISO timestamps still render safely through HTML escaping.
+- Tests cover UTC formatting and escaped fallback values.
+
+### TASK-095 - Dashboard source artifact metadata
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard show which local report artifact produced the view.
+
+Acceptance criteria:
+
+- Dashboard shows `source.artifact` when present.
+- Dashboard falls back to top-level `artifact` when source metadata is missing.
+- Missing artifact metadata renders as `unknown`.
+- Artifact values are HTML-escaped.
+- Existing dashboard sections remain unchanged.
+- Tests cover source artifact, fallback artifact and escaping.
+
+Evidence:
+
+- Dashboard rendering now includes `Source artifact` in the report metadata section.
+- The value prefers `source.artifact` and falls back to top-level `artifact`.
+- Tests cover the preferred value, fallback value and escaped artifact text.
+
+### TASK-094 - Dashboard averages panel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard show per-record averages already present in report JSON.
+
+Acceptance criteria:
+
+- Dashboard shows average views per record.
+- Dashboard shows average engagements per record.
+- Dashboard shows average likes, comments and shares per record.
+- Missing averages render as `0.00`.
+- Existing dashboard sections remain unchanged.
+- Tests cover populated and missing average metadata.
+
+Evidence:
+
+- Dashboard rendering now includes a `Per-Record Averages` section.
+- The section reads average fields from the existing `totals` report JSON object.
+- Tests cover populated averages and backward-compatible missing averages.
+
 ### TASK-093 - Dashboard engagement breakdown
 
 Status: Done
@@ -1482,6 +1550,9 @@ Evidence:
 | TASK-091 | Dashboard renders explicit empty states for missing top content. | Done |
 | TASK-092 | Dashboard shows report schema and ranking metadata. | Done |
 | TASK-093 | Dashboard shows engagement composition percentages. | Done |
+| TASK-094 | Dashboard shows per-record average metrics. | Done |
+| TASK-095 | Dashboard shows the source artifact used for the report. | Done |
+| TASK-096 | Dashboard formats generated timestamps for readability. | Done |
 
 ## Deferred Until After v1 Closure
 

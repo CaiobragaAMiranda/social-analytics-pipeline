@@ -17,13 +17,21 @@ class DashboardTest(unittest.TestCase):
     def test_build_dashboard_html_renders_summary_cards_and_top_rows(self) -> None:
         payload = {
             "generated_at": "2026-06-12T12:00:00Z",
-            "source": {"provider": "youtube"},
+            "source": {
+                "provider": "youtube",
+                "artifact": "data/processed/youtube/sample.json",
+            },
             "report_schema_version": 1,
             "records": 1,
             "totals": {
                 "views": 100,
                 "engagements": 13,
                 "engagement_rate_percent": 13.0,
+                "average_views_per_record": 100.0,
+                "average_engagements_per_record": 13.0,
+                "average_likes_per_record": 10.0,
+                "average_comments_per_record": 2.0,
+                "average_shares_per_record": 1.0,
             },
             "ranking": {"metric": "views", "limit": 5},
             "engagement_breakdown": {
@@ -50,17 +58,22 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('class="dashboard-shell"', html)
         self.assertIn('class="provider-pill">youtube', html)
         self.assertIn("channel-fallback", html)
-        self.assertIn("2026-06-12T12:00:00Z", html)
+        self.assertIn("2026-06-12 12:00 UTC", html)
         self.assertIn("Engagement Rate", html)
         self.assertIn("13.00%", html)
         self.assertIn("Engagement Breakdown", html)
         self.assertIn("76.92%", html)
         self.assertIn("15.38%", html)
         self.assertIn("7.69%", html)
+        self.assertIn("Per-Record Averages", html)
+        self.assertIn("100.00", html)
+        self.assertIn("10.00", html)
         self.assertIn("Report Metadata", html)
         self.assertIn("Schema version", html)
         self.assertIn("Ranking metric", html)
         self.assertIn("views", html)
+        self.assertIn("Source artifact", html)
+        self.assertIn("data/processed/youtube/sample.json", html)
         self.assertIn("Data Quality", html)
         self.assertIn("video-1", html)
 
@@ -68,6 +81,8 @@ class DashboardTest(unittest.TestCase):
         html = build_dashboard_html(
             {
                 "source": {"provider": "<script>"},
+                "generated_at": "<date>",
+                "artifact": "<artifact>",
                 "ranking": {"metric": "<metric>"},
                 "top_content": {"content_id": "<bad>"},
                 "top_rows": [{"content_id": "<row>"}],
@@ -75,6 +90,8 @@ class DashboardTest(unittest.TestCase):
         )
 
         self.assertIn("&lt;script&gt;", html)
+        self.assertIn("&lt;date&gt;", html)
+        self.assertIn("&lt;artifact&gt;", html)
         self.assertIn("&lt;metric&gt;", html)
         self.assertIn("&lt;bad&gt;", html)
         self.assertIn("&lt;row&gt;", html)
@@ -87,6 +104,19 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("unknown", html)
         self.assertIn("Engagement Breakdown", html)
         self.assertIn("0.00%", html)
+        self.assertIn("Per-Record Averages", html)
+        self.assertIn("0.00", html)
+
+    def test_build_dashboard_html_uses_top_level_artifact_fallback(self) -> None:
+        html = build_dashboard_html(
+            {
+                "artifact": "data/processed/youtube/fallback.json",
+                "source": {"provider": "youtube"},
+            }
+        )
+
+        self.assertIn("Source artifact", html)
+        self.assertIn("data/processed/youtube/fallback.json", html)
 
     def test_build_dashboard_html_renders_source_image_url(self) -> None:
         html = build_dashboard_html(

@@ -1,4 +1,5 @@
 import argparse
+import datetime as dt
 import html
 import json
 from pathlib import Path
@@ -35,9 +36,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         rows = []
 
     provider = _text(source.get("provider", "unknown"))
-    generated_at = _text(payload.get("generated_at", "unknown"))
+    generated_at = _format_generated_at(payload.get("generated_at", "unknown"))
     source_image = _source_image(source)
     top_item = _top_content_label(top_content)
+    source_artifact = _source_artifact(payload, source)
     body_rows = "\n".join(_table_row(row) for row in rows) or _empty_table_row()
 
     return f"""<!doctype html>
@@ -202,6 +204,33 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     </section>
     <section class="section">
       <div class="section-header">
+        <h2>Per-Record Averages</h2>
+      </div>
+      <div class="quality-grid">
+        <div class="quality-item">
+          <span class="label">Views</span>
+          <strong>{_average_value(totals, "average_views_per_record")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Engagements</span>
+          <strong>{_average_value(totals, "average_engagements_per_record")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Likes</span>
+          <strong>{_average_value(totals, "average_likes_per_record")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Comments</span>
+          <strong>{_average_value(totals, "average_comments_per_record")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Shares</span>
+          <strong>{_average_value(totals, "average_shares_per_record")}</strong>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
         <h2>Report Metadata</h2>
       </div>
       <div class="quality-grid">
@@ -216,6 +245,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         <div class="quality-item">
           <span class="label">Ranking limit</span>
           <strong>{_ranking_value(ranking, "limit")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Source artifact</span>
+          <strong>{source_artifact}</strong>
         </div>
       </div>
     </section>
@@ -352,6 +385,17 @@ def _source_image(source: object) -> str:
     return f'<div class="channel-image channel-fallback" aria-label="Channel image">{initial}</div>'
 
 
+def _source_artifact(payload: dict[str, Any], source: object) -> str:
+    if isinstance(source, dict):
+        artifact = source.get("artifact")
+        if artifact not in (None, ""):
+            return _text(artifact)
+    artifact = payload.get("artifact")
+    if artifact in (None, ""):
+        return "unknown"
+    return _text(artifact)
+
+
 def _top_content_label(top_content: object) -> str:
     if not isinstance(top_content, dict):
         return "No top content available"
@@ -374,6 +418,24 @@ def _breakdown_percent(engagement_breakdown: object, key: str) -> str:
     if not isinstance(engagement_breakdown, dict):
         return "0.00%"
     return f"{_number(engagement_breakdown.get(key, 0.0)):.2f}%"
+
+
+def _average_value(totals: object, key: str) -> str:
+    if not isinstance(totals, dict):
+        return "0.00"
+    return f"{_number(totals.get(key, 0.0)):.2f}"
+
+
+def _format_generated_at(value: object) -> str:
+    raw_value = str(value)
+    if raw_value.endswith("Z"):
+        raw_value = f"{raw_value[:-1]}+00:00"
+    try:
+        generated_at = dt.datetime.fromisoformat(raw_value)
+    except ValueError:
+        return _text(value)
+    suffix = " UTC" if generated_at.tzinfo is dt.UTC else ""
+    return _text(f"{generated_at:%Y-%m-%d %H:%M}{suffix}")
 
 
 def _text(value: object) -> str:
