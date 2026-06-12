@@ -6,9 +6,9 @@ Date: 2026-06-12
 
 Current phase: Consumption layer
 
-Current task: TASK-090 - Dashboard visual polish.
+Current task: TASK-091 - Dashboard empty state.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts with channel imagery support and a cleaner static layout.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts with channel imagery support, a cleaner static layout and explicit empty states.
 
 ## Completed Milestones
 
@@ -95,6 +95,7 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard CLI now accepts a project root for latest-report discovery.
 - The dashboard now renders channel images when report source metadata provides an image URL.
 - The dashboard now uses a cleaner responsive layout for metrics, data quality and top content.
+- The dashboard now renders clear empty states when top content rows are missing.
 
 ## Current Constraints
 

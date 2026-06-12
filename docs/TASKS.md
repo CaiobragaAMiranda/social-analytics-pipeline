@@ -16,6 +16,28 @@
 
 ## Current Task
 
+### TASK-091 - Dashboard empty state
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make empty report output clear in the static dashboard.
+
+Acceptance criteria:
+
+- Empty top-content reports do not render fake zero rows.
+- The quality area shows a clear top-content empty label.
+- The top-content table shows a clear empty-state row.
+- Existing populated report rendering remains unchanged.
+- Tests cover the empty-state rendering.
+
+Evidence:
+
+- Dashboard rendering now uses an explicit empty row when `top_rows` is empty.
+- Missing or empty top content now renders as `No top content available`.
+- Tests cover the empty table state and ensure fake placeholder rows are not emitted.
+
 ### TASK-090 - Dashboard visual polish
 
 Status: Done
@@ -1412,6 +1434,7 @@ Evidence:
 | TASK-088 | Dashboard CLI accepts an explicit project root for report discovery. | Done |
 | TASK-089 | Dashboard renders channel imagery from report source metadata. | Done |
 | TASK-090 | Dashboard static HTML received responsive visual polish. | Done |
+| TASK-091 | Dashboard renders explicit empty states for missing top content. | Done |
 
 ## Deferred Until After v1 Closure
 

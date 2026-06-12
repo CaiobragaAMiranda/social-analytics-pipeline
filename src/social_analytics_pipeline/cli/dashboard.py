@@ -35,9 +35,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     provider = _text(source.get("provider", "unknown"))
     generated_at = _text(payload.get("generated_at", "unknown"))
     source_image = _source_image(source)
-    body_rows = "\n".join(_table_row(row) for row in rows) or (
-        "<tr><td>&lt;none&gt;</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>"
-    )
+    top_item = _top_content_label(top_content)
+    body_rows = "\n".join(_table_row(row) for row in rows) or _empty_table_row()
 
     return f"""<!doctype html>
 <html lang="en">
@@ -151,6 +150,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     th, td {{ border-bottom: 1px solid #d9dee7; padding: 0.72rem; text-align: left; }}
     th {{ background: #f0f3f7; color: #344256; font-size: 0.78rem; text-transform: uppercase; }}
     tr:last-child td {{ border-bottom: 0; }}
+    .empty-row td {{ color: #5f6f82; padding: 1.25rem 0.72rem; text-align: center; }}
     @media (max-width: 820px) {{
       main {{ padding: 1rem; }}
       .cards {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
@@ -191,7 +191,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         </div>
         <div class="quality-item">
           <span class="label">Top item</span>
-          <strong>{_text(top_content.get("content_id", "<none>"))}</strong>
+          <strong>{top_item}</strong>
         </div>
       </div>
     </section>
@@ -290,6 +290,14 @@ def _table_row(row: object) -> str:
     )
 
 
+def _empty_table_row() -> str:
+    return (
+        '<tr class="empty-row">'
+        '<td colspan="5">No top content rows available for this report.</td>'
+        "</tr>"
+    )
+
+
 def _source_image(source: object) -> str:
     if not isinstance(source, dict):
         source = {}
@@ -302,6 +310,15 @@ def _source_image(source: object) -> str:
         )
     initial = _text(provider[:1].upper() if provider else "?")
     return f'<div class="channel-image channel-fallback" aria-label="Channel image">{initial}</div>'
+
+
+def _top_content_label(top_content: object) -> str:
+    if not isinstance(top_content, dict):
+        return "No top content available"
+    content_id = top_content.get("content_id")
+    if content_id in (None, "", "<none>"):
+        return "No top content available"
+    return _text(content_id)
 
 
 def _text(value: object) -> str:

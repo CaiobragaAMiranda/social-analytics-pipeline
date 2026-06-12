@@ -89,6 +89,20 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn('src="https://example.test/channel-alias.png"', html)
 
+    def test_build_dashboard_html_renders_empty_top_content_state(self) -> None:
+        html = build_dashboard_html(
+            {
+                "source": {"provider": "youtube"},
+                "top_content": {"content_id": "<none>"},
+                "top_rows": [],
+            }
+        )
+
+        self.assertIn("No top content available", html)
+        self.assertIn("No top content rows available for this report.", html)
+        self.assertIn('class="empty-row"', html)
+        self.assertNotIn("<td>&lt;none&gt;</td><td>0</td><td>0</td>", html)
+
     def test_load_report_payload_rejects_non_object_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             report_path = Path(tmpdir) / "report.json"

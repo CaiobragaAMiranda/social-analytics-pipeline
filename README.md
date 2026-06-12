@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-090 - Dashboard visual polish
-- Last completed delivery: TASK-089 - Dashboard channel image rendering
+- Current task: TASK-091 - Dashboard empty state
+- Last completed delivery: TASK-090 - Dashboard visual polish
 
 ## Workflow
 
@@ -43,7 +43,7 @@ The next cycle is a local dashboard MVP before adding another real provider. The
 
 After the dashboard contract is useful, the next provider cycle can start. TikTok is the preferred candidate if official app access is available; otherwise the provider should remain mocked until local credentials and API access are ready.
 
-The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard includes responsive metric cards, data quality status and a top-content table.
+The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard includes responsive metric cards, data quality status, a top-content table and explicit empty states.
 
 ## Useful Commands
 
