@@ -138,6 +138,7 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.top_views, 250)
         self.assertEqual(summary.top_metric_value, 250)
         self.assertEqual(summary.sort_by, "views")
+        self.assertEqual(summary.top_limit, 5)
         self.assertEqual(len(summary.top_rows), 2)
         self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
 
@@ -158,6 +159,7 @@ class YouTubeReportTest(unittest.TestCase):
             summary = build_youtube_report_summary_with_limit(artifact_path, 1)
 
         self.assertEqual(len(summary.top_rows), 1)
+        self.assertEqual(summary.top_limit, 1)
         self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
 
     def test_build_youtube_report_summary_with_limit_rejects_invalid_limit(self) -> None:
@@ -326,10 +328,30 @@ class YouTubeReportTest(unittest.TestCase):
             output_path = project_root / "data" / "reports" / "youtube" / "summary.json"
 
             summary = build_youtube_report_summary_with_options(artifact_path, 1, "likes")
-            payload = build_youtube_report_json_payload(summary, project_root)
-            report_path = write_youtube_report_json(summary, project_root, output_path)
+            payload = build_youtube_report_json_payload(
+                summary,
+                project_root,
+                generated_at="2026-06-11T12:00:00Z",
+            )
+            report_path = write_youtube_report_json(
+                summary,
+                project_root,
+                output_path,
+                generated_at="2026-06-11T12:00:00Z",
+            )
             saved = json.loads(report_path.read_text(encoding="utf-8"))
 
+        self.assertEqual(payload["report_schema_version"], 1)
+        self.assertEqual(payload["generated_at"], "2026-06-11T12:00:00Z")
+        self.assertEqual(payload["source"]["provider"], "youtube")
+        self.assertEqual(
+            payload["source"]["artifact"],
+            "data/processed/youtube/youtube-sample.json",
+        )
+        self.assertEqual(payload["ranking"], {"metric": "likes", "limit": 1})
+        self.assertEqual(saved["generated_at"], "2026-06-11T12:00:00Z")
+        self.assertEqual(saved["source"], payload["source"])
+        self.assertEqual(saved["ranking"], payload["ranking"])
         self.assertEqual(payload["sort_by"], "likes")
         self.assertEqual(saved["totals"]["views"], 100)
         self.assertEqual(saved["totals"]["average_views_per_record"], 100.0)
@@ -340,10 +362,33 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(saved["totals"]["average_engagements_per_record"], 13.0)
         self.assertAlmostEqual(saved["totals"]["engagement_rate"], 0.13)
         self.assertAlmostEqual(saved["totals"]["engagement_rate_percent"], 13.0)
+        self.assertAlmostEqual(saved["engagement_breakdown"]["likes_percent"], 76.923076923)
+        self.assertAlmostEqual(saved["engagement_breakdown"]["comments_percent"], 15.384615384)
+        self.assertAlmostEqual(saved["engagement_breakdown"]["shares_percent"], 7.692307692)
         self.assertEqual(saved["top_content"]["metric"], "likes")
         self.assertEqual(saved["top_content"]["metric_value"], 10)
         self.assertEqual(saved["top_rows"][0]["content_id"], "video-1")
         self.assertNotIn("ignored_extra_field", saved["top_rows"][0])
+
+    def test_build_youtube_report_json_payload_uses_zero_breakdown_without_engagements(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-empty.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text(
+                json.dumps([{"content_id": "video-1", "views": 100}]),
+                encoding="utf-8",
+            )
+
+            summary = build_youtube_report_summary(artifact_path)
+            payload = build_youtube_report_json_payload(summary, project_root)
+
+        self.assertEqual(payload["totals"]["engagements"], 0)
+        self.assertEqual(payload["engagement_breakdown"]["likes_percent"], 0.0)
+        self.assertEqual(payload["engagement_breakdown"]["comments_percent"], 0.0)
+        self.assertEqual(payload["engagement_breakdown"]["shares_percent"], 0.0)
 
     def test_write_youtube_report_json_allows_compact_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -374,10 +419,16 @@ class YouTubeReportTest(unittest.TestCase):
             )
 
             summary = build_youtube_report_summary(artifact_path)
-            text = build_youtube_report_json_text(summary, project_root, indent=0)
+            text = build_youtube_report_json_text(
+                summary,
+                project_root,
+                indent=0,
+                generated_at="2026-06-11T12:00:00Z",
+            )
 
         self.assertNotIn("\n  ", text)
         self.assertEqual(json.loads(text)["records"], 1)
+        self.assertEqual(json.loads(text)["generated_at"], "2026-06-11T12:00:00Z")
 
     def test_write_youtube_report_markdown_allows_custom_output_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -6,9 +6,9 @@ Date: 2026-06-11
 
 Current phase: Post-v1 direction
 
-Current task: TASK-070 - YouTube report engagement averages.
+Current task: TASK-075 - YouTube report JSON ranking metadata.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting flow now exposes per-record averages for each engagement type.
+Overall status: the current YouTube v1 slice is closed, and the local reporting JSON now records generation, source and ranking metadata.
 
 ## Completed Milestones
 
@@ -75,6 +75,11 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - YouTube reports now expose average views per processed record.
 - YouTube reports now expose average engagements per processed record.
 - YouTube reports now expose average likes, comments and shares per processed record.
+- YouTube report JSON now exposes engagement breakdown percentages for likes, comments and shares.
+- YouTube report JSON now includes `report_schema_version`.
+- YouTube report JSON now includes a UTC `generated_at` timestamp.
+- YouTube report JSON now includes provider and source artifact metadata.
+- YouTube report JSON now includes ranking metric and limit metadata.
 
 ## Current Constraints
 

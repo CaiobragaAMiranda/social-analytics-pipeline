@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Post-v1 direction
-- Current task: TASK-070 - YouTube report engagement averages
-- Last completed delivery: TASK-069 - YouTube report average engagements
+- Current task: TASK-075 - YouTube report JSON ranking metadata
+- Last completed delivery: TASK-074 - YouTube report JSON source metadata
 
 ## Workflow
 
