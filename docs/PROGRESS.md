@@ -6,9 +6,9 @@ Date: 2026-06-12
 
 Current phase: Post-v1 direction
 
-Current task: TASK-080 - YouTube report JSON engagement data quality flag.
+Current task: TASK-083 - YouTube markdown report top rows count.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting JSON now records generation, source, ranking and engagement-aware data quality metadata.
+Overall status: the current YouTube v1 slice is closed, and local reports now expose engagement-aware data quality metadata and ranking counts in JSON and Markdown.
 
 ## Completed Milestones
 
@@ -85,6 +85,9 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - YouTube report JSON data quality now exposes a compact status.
 - YouTube report JSON data quality now marks current summaries as non-partial.
 - YouTube report JSON data quality now indicates whether engagement metrics exist.
+- YouTube markdown reports now include a compact data quality status.
+- YouTube markdown reports now indicate whether engagement metrics exist.
+- YouTube markdown reports now include the displayed top rows count.
 
 ## Current Constraints
 

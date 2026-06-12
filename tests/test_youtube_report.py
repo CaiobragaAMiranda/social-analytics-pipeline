@@ -268,6 +268,9 @@ class YouTubeReportTest(unittest.TestCase):
 
             self.assertIn("# YouTube Report", markdown)
             self.assertIn("- Ranking metric: `views`", markdown)
+            self.assertIn("- Data quality: `ok`", markdown)
+            self.assertIn("- Has engagements: `yes`", markdown)
+            self.assertIn("- Top rows: `2`", markdown)
             self.assertIn("- Average views per record: `175.00`", markdown)
             self.assertIn("- Average likes per record: `7.50`", markdown)
             self.assertIn("- Average comments per record: `2.50`", markdown)
@@ -303,6 +306,21 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertIn("- Top likes: `50`", markdown)
         self.assertIn("## Top Content by Likes", markdown)
         self.assertLess(markdown.index("video-likes"), markdown.index("video-views"))
+
+    def test_build_youtube_report_markdown_marks_empty_data_quality(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-empty.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            summary = build_youtube_report_summary(artifact_path)
+            markdown = build_youtube_report_markdown(summary, project_root)
+
+        self.assertIn("- Data quality: `empty`", markdown)
+        self.assertIn("- Has engagements: `no`", markdown)
+        self.assertIn("- Top rows: `0`", markdown)
+        self.assertIn("| <none> | 0 | 0 | 0 | 0 | 0 |", markdown)
 
     def test_write_youtube_report_json_persists_compact_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

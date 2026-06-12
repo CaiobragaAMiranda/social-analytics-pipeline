@@ -143,6 +143,9 @@ def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: P
         "",
         f"- Artifact: `{artifact_path}`",
         f"- Records: `{summary.records}`",
+        f"- Data quality: `{_data_quality_status(summary)}`",
+        f"- Has engagements: `{_yes_no(summary.total_engagements > 0)}`",
+        f"- Top rows: `{len(summary.top_rows)}`",
         f"- Total views: `{summary.total_views}`",
         f"- Average views per record: `{summary.average_views_per_record:.2f}`",
         f"- Total likes: `{summary.total_likes}`",
@@ -263,7 +266,7 @@ def build_youtube_report_json_payload(
             "has_records": summary.records > 0,
             "has_top_content": summary.top_content_id is not None,
             "is_partial": False,
-            "status": "ok" if summary.records > 0 else "empty",
+            "status": _data_quality_status(summary),
             "top_rows_count": len(summary.top_rows),
         },
         "totals": {
@@ -647,6 +650,14 @@ def _format_percentage(value: float) -> str:
 
 def _percent(value: float) -> float:
     return value * 100
+
+
+def _data_quality_status(summary: YouTubeReportSummary) -> str:
+    return "ok" if summary.records > 0 else "empty"
+
+
+def _yes_no(value: bool) -> str:
+    return "yes" if value else "no"
 
 
 def _utc_now_iso() -> str:

@@ -15,6 +15,72 @@
 
 ## Current Task
 
+### TASK-083 - YouTube markdown report top rows count
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the human-readable YouTube report show how many ranked rows are displayed.
+
+Acceptance criteria:
+
+- Markdown report output includes the top rows count.
+- Populated reports show the actual displayed row count.
+- Empty reports show `0`.
+- Existing Markdown fields remain unchanged.
+- Tests cover populated and empty Markdown reports.
+
+Evidence:
+
+- Markdown payloads now include `Top rows`.
+- Populated reports show the displayed ranking count.
+- Empty reports show `0`.
+
+### TASK-082 - YouTube markdown report engagement flag
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the human-readable YouTube report show whether engagement metrics exist.
+
+Acceptance criteria:
+
+- Markdown report output includes an engagement presence flag.
+- Reports with engagements show `yes`.
+- Reports without engagements show `no`.
+- Existing Markdown fields remain unchanged.
+- Tests cover populated and empty Markdown reports.
+
+Evidence:
+
+- Markdown payloads now include `Has engagements`.
+- Engagement-bearing reports show `yes`.
+- Empty reports show `no`.
+
+### TASK-081 - YouTube markdown report data quality status
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the human-readable YouTube report show the same compact quality status used by JSON consumers.
+
+Acceptance criteria:
+
+- Markdown report output includes a data quality status.
+- Populated reports show `ok`.
+- Empty reports show `empty`.
+- JSON status keeps using the same rule.
+- Tests cover populated and empty Markdown reports.
+
+Evidence:
+
+- Markdown payloads now include `Data quality`.
+- JSON status uses a shared helper for the same rule.
+- Tests cover `ok` and `empty` Markdown output.
+
 ### TASK-080 - YouTube report JSON engagement data quality flag
 
 Status: Done
@@ -1184,6 +1250,9 @@ Evidence:
 | TASK-078 | YouTube report JSON exposes compact data quality status. | Done |
 | TASK-079 | YouTube report JSON marks current summaries as non-partial. | Done |
 | TASK-080 | YouTube report JSON indicates whether engagement metrics exist. | Done |
+| TASK-081 | YouTube markdown reports expose compact data quality status. | Done |
+| TASK-082 | YouTube markdown reports indicate whether engagement metrics exist. | Done |
+| TASK-083 | YouTube markdown reports expose the displayed top rows count. | Done |
 
 ## Deferred Until After v1 Closure
 
