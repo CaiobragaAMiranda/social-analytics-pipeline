@@ -22,13 +22,21 @@ Build a local-first social analytics pipeline that can collect public social dat
 | Phase 2 - Orchestration and History | Airflow, scheduled DAGs and catchup. | Usable for YouTube |
 | Phase 3 - Resilience | Retries, rate limits, alerts and DLQ. | Baseline done for YouTube |
 | Phase 4 - Quality and Scale | Data validation, metrics, profiling and scaling choices. | Deferred until after v1 closure |
-| Phase 5 - Next Delivery Decision | Choose the next functional slice before new technical breadth. | Current |
+| Phase 5 - Consumption Layer | Build a simple local dashboard from generated report artifacts. | Current |
+| Phase 6 - Second Real Provider | Add one more real provider after the dashboard contract is useful. | Next |
 
 ## Near-Term Direction
 
 1. Treat the current YouTube v1 slice as closed in repository context.
-2. Choose the next functional delivery before adding more engineering polish.
-3. Prefer either a second real provider or a simple consumption/reporting layer over deeper infrastructure work.
+2. Build a local dashboard MVP from existing YouTube report JSON files.
+3. Add a second real provider only after the dashboard data contract is clear.
+4. Prefer static/local artifacts before adding a web server or cloud deployment.
+
+## Next Delivery Sequence
+
+1. Dashboard MVP: read local report JSON, render a static HTML dashboard and keep all data local.
+2. Dashboard hardening: improve the static view, support multiple report files, empty states and safe public documentation.
+3. Second provider decision: prefer TikTok Display API if official app access is available; otherwise keep the real-provider interface behind mocks until access is ready.
 
 ## Out of Scope for Now
 

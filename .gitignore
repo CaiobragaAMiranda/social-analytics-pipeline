@@ -11,6 +11,8 @@ build/
 .env
 data/raw/
 data/processed/
+data/reports/
+data/dashboard/
 data/temp/
 logs/
 docs/REVIEWS/*.md

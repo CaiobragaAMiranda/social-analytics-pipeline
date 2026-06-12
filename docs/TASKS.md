@@ -9,11 +9,230 @@
 
 ## Delivery Focus
 
-- Keep the YouTube v1 cycle closed and continue with small functional slices.
+- Keep the YouTube v1 cycle closed and move into a dashboard-first consumption slice.
 - Keep the governance pattern, but prefer larger functional tasks over tiny infrastructure refinements.
-- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the next delivery.
+- Defer the second real provider until the dashboard data contract is useful.
+- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the dashboard or provider slice.
 
 ## Current Task
+
+### TASK-093 - Dashboard engagement breakdown
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard explain the composition of total engagement.
+
+Acceptance criteria:
+
+- Dashboard shows likes, comments and shares engagement percentages.
+- The values come from the existing `engagement_breakdown` report JSON object.
+- Missing breakdown metadata renders as `0.00%`.
+- Existing dashboard sections remain unchanged.
+- Tests cover populated and missing breakdown metadata.
+
+Evidence:
+
+- Dashboard rendering now includes an `Engagement Breakdown` section.
+- The section reads `likes_percent`, `comments_percent` and `shares_percent`.
+- Tests cover populated percentages and backward-compatible missing metadata.
+
+### TASK-092 - Dashboard report metadata panel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard show the report contract metadata already present in JSON reports.
+
+Acceptance criteria:
+
+- Dashboard shows the report schema version.
+- Dashboard shows the ranking metric when present.
+- Dashboard shows the ranking limit when present.
+- Missing metadata renders as `unknown`.
+- Metadata values are HTML-escaped.
+- Tests cover populated and missing metadata.
+
+Evidence:
+
+- Dashboard rendering now includes a `Report Metadata` section.
+- The section reads `report_schema_version` and `ranking` from the existing report JSON.
+- Tests cover normal metadata, missing metadata and escaped ranking text.
+
+### TASK-091 - Dashboard empty state
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make empty report output clear in the static dashboard.
+
+Acceptance criteria:
+
+- Empty top-content reports do not render fake zero rows.
+- The quality area shows a clear top-content empty label.
+- The top-content table shows a clear empty-state row.
+- Existing populated report rendering remains unchanged.
+- Tests cover the empty-state rendering.
+
+Evidence:
+
+- Dashboard rendering now uses an explicit empty row when `top_rows` is empty.
+- Missing or empty top content now renders as `No top content available`.
+- Tests cover the empty table state and ensure fake placeholder rows are not emitted.
+
+### TASK-090 - Dashboard visual polish
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the static dashboard easier to read without adding frontend dependencies or a server.
+
+Acceptance criteria:
+
+- Dashboard uses a cleaner responsive layout.
+- Summary cards, data quality and top content are visually separated.
+- Channel image fallback remains available.
+- Existing dashboard data contract remains unchanged.
+- Tests cover the rendered dashboard shell.
+
+Evidence:
+
+- Dashboard HTML now includes a responsive shell, metric cards, quality panel and table wrapper.
+- The generator still writes one static HTML file from the same report JSON contract.
+- Tests cover the new dashboard shell while preserving content and escaping checks.
+
+### TASK-089 - Dashboard channel image rendering
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: let the dashboard display channel imagery when report metadata provides it.
+
+Acceptance criteria:
+
+- Dashboard renders `source.image_url` as a channel image.
+- Dashboard also accepts `source.channel_image_url`.
+- Dashboard shows a safe fallback avatar when no image URL exists.
+- Image and provider text values are HTML-escaped.
+- Tests cover image rendering and fallback behavior.
+
+Evidence:
+
+- Dashboard HTML now includes a channel image area in the header.
+- `source.image_url` and `source.channel_image_url` are supported.
+- Tests cover rendered image URLs and fallback output.
+
+### TASK-088 - Dashboard project root option
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: let automation discover dashboard inputs from an explicit project root.
+
+Acceptance criteria:
+
+- Dashboard CLI accepts `--project-root`.
+- The option is used for latest-report discovery.
+- Explicit `--report-json` behavior remains unchanged.
+- Tests cover argument parsing for the project root option.
+
+Evidence:
+
+- `parse_args` now supports `--project-root`.
+- `cli_entrypoint` passes the project root to `main`.
+- Dashboard parser tests cover the new option.
+
+### TASK-087 - Dashboard defaults to latest report JSON
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard command easier to run in the normal local reporting flow.
+
+Acceptance criteria:
+
+- Dashboard CLI can run without `--report-json`.
+- Default behavior selects the latest local YouTube report JSON.
+- Missing report JSON artifacts fail with a clear error.
+- Explicit `--report-json` behavior still works.
+- Tests cover latest-report discovery and missing-artifact failure.
+
+Evidence:
+
+- `find_latest_report_json` locates the latest JSON report artifact.
+- `social-dashboard` treats `--report-json` as optional.
+- Tests cover default discovery, explicit input and missing reports.
+
+### TASK-086 - Static dashboard MVP skeleton
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: create the first local static dashboard generator without adding servers or external dependencies.
+
+Acceptance criteria:
+
+- A dashboard CLI can read one report JSON file.
+- The CLI writes a static HTML dashboard file.
+- The dashboard shows core totals, data quality and top content.
+- Text values are escaped before rendering.
+- Tests cover rendering, writing, argument parsing and invalid JSON shape.
+
+Evidence:
+
+- `social_analytics_pipeline.cli.dashboard` now generates static dashboard HTML.
+- `pyproject.toml` now exposes `social-dashboard`.
+- `tests/test_dashboard.py` covers the first dashboard behavior.
+
+### TASK-085 - Record dashboard-first next delivery direction
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the next delivery sequence explicit before implementing dashboard or provider work.
+
+Acceptance criteria:
+
+- Documentation states that the dashboard MVP comes before the second provider.
+- Documentation states that the dashboard reads local report JSON files.
+- Documentation states that the second provider starts after the dashboard contract is useful.
+- Public documentation avoids secrets, local paths, raw payloads and expanded DSNs.
+
+Evidence:
+
+- `docs/PLAN.md` now defines the dashboard-first delivery sequence.
+- `README.md` now explains the next dashboard and provider cycles.
+- `docs/PROGRESS.md` now records dashboard MVP as the next action.
+
+### TASK-084 - YouTube markdown report schema version
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: make the human-readable YouTube report identify the report schema version.
+
+Acceptance criteria:
+
+- Markdown report output includes the report schema version.
+- The value uses the same schema version constant as JSON output.
+- Existing Markdown fields remain unchanged.
+- Tests cover the Markdown schema version.
+
+Evidence:
+
+- Markdown payloads now include `Report schema version`.
+- The value comes from `YOUTUBE_REPORT_SCHEMA_VERSION`.
+- Tests cover the Markdown schema version line.
 
 ### TASK-083 - YouTube markdown report top rows count
 
@@ -1253,18 +1472,28 @@ Evidence:
 | TASK-081 | YouTube markdown reports expose compact data quality status. | Done |
 | TASK-082 | YouTube markdown reports indicate whether engagement metrics exist. | Done |
 | TASK-083 | YouTube markdown reports expose the displayed top rows count. | Done |
+| TASK-084 | YouTube markdown reports expose the report schema version. | Done |
+| TASK-085 | Documentation records dashboard MVP before the second real provider. | Done |
+| TASK-086 | Static dashboard MVP can render one report JSON file to HTML. | Done |
+| TASK-087 | Dashboard CLI defaults to the latest local report JSON. | Done |
+| TASK-088 | Dashboard CLI accepts an explicit project root for report discovery. | Done |
+| TASK-089 | Dashboard renders channel imagery from report source metadata. | Done |
+| TASK-090 | Dashboard static HTML received responsive visual polish. | Done |
+| TASK-091 | Dashboard renders explicit empty states for missing top content. | Done |
+| TASK-092 | Dashboard shows report schema and ranking metadata. | Done |
+| TASK-093 | Dashboard shows engagement composition percentages. | Done |
 
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
 - Add stronger alert delivery beyond the current local fail-on-invalid mode.
 - Revisit broader Airflow/observability refinements.
-- Expand to additional real providers only after the current YouTube cycle is clearly closed.
+- Expand to an additional real provider only after the dashboard contract is useful.
 
 ## Next Candidate Deliveries
 
-- Add a second real provider path only if a public and stable source is practical.
-- Add a simple consumption layer for the existing YouTube metrics before deepening infrastructure again.
+- Build the dashboard MVP from existing report JSON files before provider expansion.
+- Add a second real provider path only if official local access is practical.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

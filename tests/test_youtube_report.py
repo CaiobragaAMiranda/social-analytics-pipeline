@@ -267,6 +267,7 @@ class YouTubeReportTest(unittest.TestCase):
             report_path = write_youtube_report_markdown(summary, project_root)
 
             self.assertIn("# YouTube Report", markdown)
+            self.assertIn("- Report schema version: `1`", markdown)
             self.assertIn("- Ranking metric: `views`", markdown)
             self.assertIn("- Data quality: `ok`", markdown)
             self.assertIn("- Has engagements: `yes`", markdown)
