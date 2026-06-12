@@ -258,6 +258,14 @@ def build_youtube_report_json_payload(
             "metric": summary.sort_by,
             "limit": summary.top_limit,
         },
+        "data_quality": {
+            "has_engagements": summary.total_engagements > 0,
+            "has_records": summary.records > 0,
+            "has_top_content": summary.top_content_id is not None,
+            "is_partial": False,
+            "status": "ok" if summary.records > 0 else "empty",
+            "top_rows_count": len(summary.top_rows),
+        },
         "totals": {
             "views": summary.total_views,
             "average_views_per_record": summary.average_views_per_record,

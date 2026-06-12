@@ -15,6 +15,115 @@
 
 ## Current Task
 
+### TASK-080 - YouTube report JSON engagement data quality flag
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let report consumers quickly identify whether engagement metrics exist in the summary.
+
+Acceptance criteria:
+
+- JSON `data_quality` includes `has_engagements`.
+- The flag is true when likes, comments or shares exist.
+- The flag is false when total engagements are zero.
+- Existing report fields remain unchanged.
+- Tests cover populated, zero-engagement and empty artifacts.
+
+Evidence:
+
+- JSON payloads now include `data_quality.has_engagements`.
+- Engagement-bearing artifacts produce `true`.
+- Zero-engagement and empty artifacts produce `false`.
+
+### TASK-079 - YouTube report JSON partial data quality flag
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: reserve explicit JSON metadata for future partial report handling without changing current behavior.
+
+Acceptance criteria:
+
+- JSON `data_quality` includes `is_partial`.
+- Current report payloads set `is_partial` to `false`.
+- Existing report fields remain unchanged.
+- Tests cover the flag for populated and empty artifacts.
+
+Evidence:
+
+- JSON payloads now include `data_quality.is_partial`.
+- Current complete artifact reports mark `is_partial` as `false`.
+- Tests cover the flag in populated and empty report payloads.
+
+### TASK-078 - YouTube report JSON data quality status
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let report consumers classify the summary quality without combining multiple fields.
+
+Acceptance criteria:
+
+- JSON `data_quality` includes `status`.
+- The status is `ok` when records exist.
+- The status is `empty` when no records exist.
+- Existing report fields remain unchanged.
+- Tests cover both statuses.
+
+Evidence:
+
+- JSON payloads now include `data_quality.status`.
+- Populated artifacts produce `ok`.
+- Empty artifacts produce `empty`.
+
+### TASK-077 - YouTube report JSON top-content data quality flag
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let report consumers quickly identify whether a JSON summary has a ranked top content item.
+
+Acceptance criteria:
+
+- JSON `data_quality` includes `has_top_content`.
+- The flag is true when a top content item exists.
+- The flag is false for empty artifacts.
+- Existing report fields remain unchanged.
+- Tests cover the flag for populated and empty artifacts.
+
+Evidence:
+
+- JSON payloads now include `data_quality.has_top_content`.
+- Existing data quality fields remain present.
+- Tests cover the flag in populated and empty report payloads.
+
+### TASK-076 - YouTube report JSON data quality metadata
+
+Status: Done
+
+Phase: Post-v1 direction
+
+Goal: let report consumers quickly identify whether a JSON summary contains usable rows.
+
+Acceptance criteria:
+
+- JSON output includes `data_quality`.
+- Data quality metadata includes whether the artifact has records.
+- Data quality metadata includes the actual top rows count.
+- Existing report fields remain unchanged.
+- Tests cover the data quality metadata.
+
+Evidence:
+
+- JSON payloads now include `data_quality.has_records`.
+- JSON payloads now include `data_quality.top_rows_count`.
+- Tests cover data quality metadata in saved and in-memory JSON payloads.
+
 ### TASK-075 - YouTube report JSON ranking metadata
 
 Status: Done
@@ -1070,6 +1179,11 @@ Evidence:
 | TASK-073 | YouTube report JSON exposes a UTC generation timestamp. | Done |
 | TASK-074 | YouTube report JSON exposes provider and source artifact metadata. | Done |
 | TASK-075 | YouTube report JSON exposes ranking metric and limit metadata. | Done |
+| TASK-076 | YouTube report JSON exposes simple data quality metadata. | Done |
+| TASK-077 | YouTube report JSON indicates whether top content exists. | Done |
+| TASK-078 | YouTube report JSON exposes compact data quality status. | Done |
+| TASK-079 | YouTube report JSON marks current summaries as non-partial. | Done |
+| TASK-080 | YouTube report JSON indicates whether engagement metrics exist. | Done |
 
 ## Deferred Until After v1 Closure
 
