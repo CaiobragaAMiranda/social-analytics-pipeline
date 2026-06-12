@@ -18,11 +18,18 @@ class DashboardTest(unittest.TestCase):
         payload = {
             "generated_at": "2026-06-12T12:00:00Z",
             "source": {"provider": "youtube"},
+            "report_schema_version": 1,
             "records": 1,
             "totals": {
                 "views": 100,
                 "engagements": 13,
                 "engagement_rate_percent": 13.0,
+            },
+            "ranking": {"metric": "views", "limit": 5},
+            "engagement_breakdown": {
+                "likes_percent": 76.92,
+                "comments_percent": 15.38,
+                "shares_percent": 7.69,
             },
             "data_quality": {"status": "ok", "has_engagements": True},
             "top_content": {"content_id": "video-1"},
@@ -46,6 +53,14 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("2026-06-12T12:00:00Z", html)
         self.assertIn("Engagement Rate", html)
         self.assertIn("13.00%", html)
+        self.assertIn("Engagement Breakdown", html)
+        self.assertIn("76.92%", html)
+        self.assertIn("15.38%", html)
+        self.assertIn("7.69%", html)
+        self.assertIn("Report Metadata", html)
+        self.assertIn("Schema version", html)
+        self.assertIn("Ranking metric", html)
+        self.assertIn("views", html)
         self.assertIn("Data Quality", html)
         self.assertIn("video-1", html)
 
@@ -53,15 +68,25 @@ class DashboardTest(unittest.TestCase):
         html = build_dashboard_html(
             {
                 "source": {"provider": "<script>"},
+                "ranking": {"metric": "<metric>"},
                 "top_content": {"content_id": "<bad>"},
                 "top_rows": [{"content_id": "<row>"}],
             }
         )
 
         self.assertIn("&lt;script&gt;", html)
+        self.assertIn("&lt;metric&gt;", html)
         self.assertIn("&lt;bad&gt;", html)
         self.assertIn("&lt;row&gt;", html)
         self.assertNotIn("<script>", html)
+
+    def test_build_dashboard_html_renders_unknown_report_metadata(self) -> None:
+        html = build_dashboard_html({"source": {"provider": "youtube"}})
+
+        self.assertIn("Report Metadata", html)
+        self.assertIn("unknown", html)
+        self.assertIn("Engagement Breakdown", html)
+        self.assertIn("0.00%", html)
 
     def test_build_dashboard_html_renders_source_image_url(self) -> None:
         html = build_dashboard_html(

@@ -16,6 +16,51 @@
 
 ## Current Task
 
+### TASK-093 - Dashboard engagement breakdown
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard explain the composition of total engagement.
+
+Acceptance criteria:
+
+- Dashboard shows likes, comments and shares engagement percentages.
+- The values come from the existing `engagement_breakdown` report JSON object.
+- Missing breakdown metadata renders as `0.00%`.
+- Existing dashboard sections remain unchanged.
+- Tests cover populated and missing breakdown metadata.
+
+Evidence:
+
+- Dashboard rendering now includes an `Engagement Breakdown` section.
+- The section reads `likes_percent`, `comments_percent` and `shares_percent`.
+- Tests cover populated percentages and backward-compatible missing metadata.
+
+### TASK-092 - Dashboard report metadata panel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard show the report contract metadata already present in JSON reports.
+
+Acceptance criteria:
+
+- Dashboard shows the report schema version.
+- Dashboard shows the ranking metric when present.
+- Dashboard shows the ranking limit when present.
+- Missing metadata renders as `unknown`.
+- Metadata values are HTML-escaped.
+- Tests cover populated and missing metadata.
+
+Evidence:
+
+- Dashboard rendering now includes a `Report Metadata` section.
+- The section reads `report_schema_version` and `ranking` from the existing report JSON.
+- Tests cover normal metadata, missing metadata and escaped ranking text.
+
 ### TASK-091 - Dashboard empty state
 
 Status: Done
@@ -1435,6 +1480,8 @@ Evidence:
 | TASK-089 | Dashboard renders channel imagery from report source metadata. | Done |
 | TASK-090 | Dashboard static HTML received responsive visual polish. | Done |
 | TASK-091 | Dashboard renders explicit empty states for missing top content. | Done |
+| TASK-092 | Dashboard shows report schema and ranking metadata. | Done |
+| TASK-093 | Dashboard shows engagement composition percentages. | Done |
 
 ## Deferred Until After v1 Closure
 

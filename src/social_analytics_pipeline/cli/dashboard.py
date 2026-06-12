@@ -28,6 +28,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     totals = payload.get("totals", {})
     data_quality = payload.get("data_quality", {})
     top_content = payload.get("top_content", {})
+    ranking = payload.get("ranking", {})
+    engagement_breakdown = payload.get("engagement_breakdown", {})
     rows = payload.get("top_rows", [])
     if not isinstance(rows, list):
         rows = []
@@ -181,6 +183,44 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     </section>
     <section class="section">
       <div class="section-header">
+        <h2>Engagement Breakdown</h2>
+      </div>
+      <div class="quality-grid">
+        <div class="quality-item">
+          <span class="label">Likes</span>
+          <strong>{_breakdown_percent(engagement_breakdown, "likes_percent")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Comments</span>
+          <strong>{_breakdown_percent(engagement_breakdown, "comments_percent")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Shares</span>
+          <strong>{_breakdown_percent(engagement_breakdown, "shares_percent")}</strong>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <h2>Report Metadata</h2>
+      </div>
+      <div class="quality-grid">
+        <div class="quality-item">
+          <span class="label">Schema version</span>
+          <strong>{_text(payload.get("report_schema_version", "unknown"))}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Ranking metric</span>
+          <strong>{_ranking_value(ranking, "metric")}</strong>
+        </div>
+        <div class="quality-item">
+          <span class="label">Ranking limit</span>
+          <strong>{_ranking_value(ranking, "limit")}</strong>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
         <h2>Data Quality</h2>
         <span class="status-pill">{_text(data_quality.get("status", "unknown"))}</span>
       </div>
@@ -319,6 +359,21 @@ def _top_content_label(top_content: object) -> str:
     if content_id in (None, "", "<none>"):
         return "No top content available"
     return _text(content_id)
+
+
+def _ranking_value(ranking: object, key: str) -> str:
+    if not isinstance(ranking, dict):
+        return "unknown"
+    value = ranking.get(key, "unknown")
+    if value in (None, ""):
+        return "unknown"
+    return _text(value)
+
+
+def _breakdown_percent(engagement_breakdown: object, key: str) -> str:
+    if not isinstance(engagement_breakdown, dict):
+        return "0.00%"
+    return f"{_number(engagement_breakdown.get(key, 0.0)):.2f}%"
 
 
 def _text(value: object) -> str:
