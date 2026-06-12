@@ -268,6 +268,9 @@ class YouTubeReportTest(unittest.TestCase):
 
             self.assertIn("# YouTube Report", markdown)
             self.assertIn("- Ranking metric: `views`", markdown)
+            self.assertIn("- Data quality: `ok`", markdown)
+            self.assertIn("- Has engagements: `yes`", markdown)
+            self.assertIn("- Top rows: `2`", markdown)
             self.assertIn("- Average views per record: `175.00`", markdown)
             self.assertIn("- Average likes per record: `7.50`", markdown)
             self.assertIn("- Average comments per record: `2.50`", markdown)
@@ -303,6 +306,21 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertIn("- Top likes: `50`", markdown)
         self.assertIn("## Top Content by Likes", markdown)
         self.assertLess(markdown.index("video-likes"), markdown.index("video-views"))
+
+    def test_build_youtube_report_markdown_marks_empty_data_quality(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-empty.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            summary = build_youtube_report_summary(artifact_path)
+            markdown = build_youtube_report_markdown(summary, project_root)
+
+        self.assertIn("- Data quality: `empty`", markdown)
+        self.assertIn("- Has engagements: `no`", markdown)
+        self.assertIn("- Top rows: `0`", markdown)
+        self.assertIn("| <none> | 0 | 0 | 0 | 0 | 0 |", markdown)
 
     def test_write_youtube_report_json_persists_compact_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -349,9 +367,21 @@ class YouTubeReportTest(unittest.TestCase):
             "data/processed/youtube/youtube-sample.json",
         )
         self.assertEqual(payload["ranking"], {"metric": "likes", "limit": 1})
+        self.assertEqual(
+            payload["data_quality"],
+            {
+                "has_engagements": True,
+                "has_records": True,
+                "has_top_content": True,
+                "is_partial": False,
+                "status": "ok",
+                "top_rows_count": 1,
+            },
+        )
         self.assertEqual(saved["generated_at"], "2026-06-11T12:00:00Z")
         self.assertEqual(saved["source"], payload["source"])
         self.assertEqual(saved["ranking"], payload["ranking"])
+        self.assertEqual(saved["data_quality"], payload["data_quality"])
         self.assertEqual(payload["sort_by"], "likes")
         self.assertEqual(saved["totals"]["views"], 100)
         self.assertEqual(saved["totals"]["average_views_per_record"], 100.0)
@@ -386,9 +416,43 @@ class YouTubeReportTest(unittest.TestCase):
             payload = build_youtube_report_json_payload(summary, project_root)
 
         self.assertEqual(payload["totals"]["engagements"], 0)
+        self.assertEqual(
+            payload["data_quality"],
+            {
+                "has_engagements": False,
+                "has_records": True,
+                "has_top_content": True,
+                "is_partial": False,
+                "status": "ok",
+                "top_rows_count": 1,
+            },
+        )
         self.assertEqual(payload["engagement_breakdown"]["likes_percent"], 0.0)
         self.assertEqual(payload["engagement_breakdown"]["comments_percent"], 0.0)
         self.assertEqual(payload["engagement_breakdown"]["shares_percent"], 0.0)
+
+    def test_build_youtube_report_json_payload_marks_empty_data_quality(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube-empty.json"
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            summary = build_youtube_report_summary(artifact_path)
+            payload = build_youtube_report_json_payload(summary, project_root)
+
+        self.assertEqual(payload["records"], 0)
+        self.assertEqual(
+            payload["data_quality"],
+            {
+                "has_engagements": False,
+                "has_records": False,
+                "has_top_content": False,
+                "is_partial": False,
+                "status": "empty",
+                "top_rows_count": 0,
+            },
+        )
 
     def test_write_youtube_report_json_allows_compact_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

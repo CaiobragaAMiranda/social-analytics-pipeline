@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-11
+Date: 2026-06-12
 
 Current phase: Post-v1 direction
 
-Current task: TASK-075 - YouTube report JSON ranking metadata.
+Current task: TASK-083 - YouTube markdown report top rows count.
 
-Overall status: the current YouTube v1 slice is closed, and the local reporting JSON now records generation, source and ranking metadata.
+Overall status: the current YouTube v1 slice is closed, and local reports now expose engagement-aware data quality metadata and ranking counts in JSON and Markdown.
 
 ## Completed Milestones
 
@@ -80,6 +80,14 @@ Overall status: the current YouTube v1 slice is closed, and the local reporting 
 - YouTube report JSON now includes a UTC `generated_at` timestamp.
 - YouTube report JSON now includes provider and source artifact metadata.
 - YouTube report JSON now includes ranking metric and limit metadata.
+- YouTube report JSON now includes simple data quality metadata.
+- YouTube report JSON data quality now indicates whether top content exists.
+- YouTube report JSON data quality now exposes a compact status.
+- YouTube report JSON data quality now marks current summaries as non-partial.
+- YouTube report JSON data quality now indicates whether engagement metrics exist.
+- YouTube markdown reports now include a compact data quality status.
+- YouTube markdown reports now indicate whether engagement metrics exist.
+- YouTube markdown reports now include the displayed top rows count.
 
 ## Current Constraints
 
