@@ -141,6 +141,7 @@ def build_youtube_report_markdown(summary: YouTubeReportSummary, project_root: P
     lines = [
         "# YouTube Report",
         "",
+        f"- Report schema version: `{YOUTUBE_REPORT_SCHEMA_VERSION}`",
         f"- Artifact: `{artifact_path}`",
         f"- Records: `{summary.records}`",
         f"- Data quality: `{_data_quality_status(summary)}`",

@@ -4,11 +4,11 @@
 
 Date: 2026-06-12
 
-Current phase: Post-v1 direction
+Current phase: Consumption layer
 
-Current task: TASK-083 - YouTube markdown report top rows count.
+Current task: TASK-090 - Dashboard visual polish.
 
-Overall status: the current YouTube v1 slice is closed, and local reports now expose engagement-aware data quality metadata and ranking counts in JSON and Markdown.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts with channel imagery support and a cleaner static layout.
 
 ## Completed Milestones
 
@@ -88,16 +88,23 @@ Overall status: the current YouTube v1 slice is closed, and local reports now ex
 - YouTube markdown reports now include a compact data quality status.
 - YouTube markdown reports now indicate whether engagement metrics exist.
 - YouTube markdown reports now include the displayed top rows count.
+- YouTube markdown reports now include the report schema version.
+- The next delivery direction is now dashboard MVP first, then second real provider.
+- The dashboard MVP now has a local static HTML generator command.
+- The dashboard CLI now defaults to the latest local YouTube report JSON.
+- The dashboard CLI now accepts a project root for latest-report discovery.
+- The dashboard now renders channel images when report source metadata provides an image URL.
+- The dashboard now uses a cleaner responsive layout for metrics, data quality and top content.
 
 ## Current Constraints
 
 - `.env`, raw data and processed data must remain local and ignored by Git.
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
-- New work should prefer functional closure tasks over further sophistication unless the user explicitly asks for it.
+- New work should prefer the dashboard MVP before deeper infrastructure or provider expansion.
 
 ## Next Actions
 
-- Decide whether the next slice should be another real provider or a simple consumption/reporting layer.
-- Keep additional infrastructure polish deferred unless it clearly unlocks the next slice.
-- Decide whether to deepen the simple consumption layer or open a second real provider.
+- Expand the static local dashboard from generated YouTube report JSON files.
+- Keep dashboard inputs local and generated from existing artifacts.
+- Start the second real provider only after the dashboard contract is clear.

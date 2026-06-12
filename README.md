@@ -6,9 +6,9 @@ The repository is the source of truth. Work is split into small, reviewable task
 
 ## Current Status
 
-- Phase: Post-v1 direction
-- Current task: TASK-083 - YouTube markdown report top rows count
-- Last completed delivery: TASK-082 - YouTube markdown report engagement flag
+- Phase: Consumption layer
+- Current task: TASK-090 - Dashboard visual polish
+- Last completed delivery: TASK-089 - Dashboard channel image rendering
 
 ## Workflow
 
@@ -35,7 +35,15 @@ YouTube v1 is considered closed when all of the following are true:
 
 The repository now treats this YouTube v1 slice as closed. The next decision should favor product value, such as another real provider or a simple layer to consume the metrics already being collected.
 
-The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact, prints compact aggregate metrics and writes a markdown report.
+The repository now includes that simple consumption layer in local CLI form: a YouTube report command that reads the latest processed artifact, prints compact aggregate metrics and writes markdown and JSON reports.
+
+## Next Delivery
+
+The next cycle is a local dashboard MVP before adding another real provider. The dashboard should read generated report JSON files, render a static HTML view and avoid new secrets, servers or cloud dependencies.
+
+After the dashboard contract is useful, the next provider cycle can start. TikTok is the preferred candidate if official app access is available; otherwise the provider should remain mocked until local credentials and API access are ready.
+
+The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard includes responsive metric cards, data quality status and a top-content table.
 
 ## Useful Commands
 
