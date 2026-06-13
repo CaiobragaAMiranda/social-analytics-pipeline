@@ -6,9 +6,9 @@ Date: 2026-06-13
 
 Current phase: Consumption layer
 
-Current task: TASK-102 - Channel identity configuration.
+Current task: TASK-103 - Second real provider decision.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel and can aggregate multiple local report JSON artifacts by channel identity.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration.
 
 ## Completed Milestones
 
@@ -106,6 +106,7 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard channel contract now accepts platform source metrics and consolidates platform totals.
 - The dashboard now shows per-platform source cards for YouTube, TikTok and Instagram.
 - The dashboard can now aggregate multiple report JSON artifacts into channel options with platform source breakdowns.
+- The dashboard can now apply a local channel identity config for monitored channel names and images.
 
 ## Current Constraints
 

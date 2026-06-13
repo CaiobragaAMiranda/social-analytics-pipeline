@@ -342,6 +342,94 @@ class DashboardTest(unittest.TestCase):
             self.assertIn('"views": "300"', html)
             self.assertIn('"engagements": "40"', html)
 
+    def test_main_applies_channel_identity_config_to_single_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            report_path = root / "youtube.json"
+            config_path = root / "channels.json"
+            output_path = root / "index.html"
+            report_path.write_text(
+                json.dumps(
+                    {
+                        "source": {
+                            "provider": "youtube",
+                            "channel_handle": "@brand",
+                        },
+                        "records": 1,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": "brand",
+                                "display_name": "Configured Brand",
+                                "image_url": "https://example.com/brand.png",
+                                "platforms": {"youtube": {"handle": "@brand"}},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(report_path, output_path, channels_config_path=config_path)
+
+            html = output_path.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertIn('<option value="0">Configured Brand</option>', html)
+            self.assertIn('src="https://example.com/brand.png"', html)
+
+    def test_multi_report_dashboard_payload_applies_channel_identity_config(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "channels.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": "brand",
+                                "display_name": "Configured Brand",
+                                "platforms": {
+                                    "youtube": {"handle": "@brand"},
+                                    "instagram": {"handle": "@brand"},
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            from social_analytics_pipeline.config import load_channel_identity_config
+
+            channels_config = load_channel_identity_config(config_path)
+
+            payload = build_multi_report_dashboard_payload(
+                [
+                    {
+                        "source": {
+                            "provider": "youtube",
+                            "channel_handle": "@brand",
+                        },
+                        "records": 1,
+                    },
+                    {
+                        "source": {
+                            "provider": "instagram",
+                            "channel_handle": "@brand",
+                        },
+                        "records": 1,
+                    },
+                ],
+                channels_config,
+            )
+
+            self.assertEqual(len(payload["channels"]), 1)
+            self.assertEqual(payload["channels"][0]["source"]["channel_name"], "Configured Brand")
+
     def test_build_multi_report_dashboard_payload_groups_by_channel_identity(self) -> None:
         payload = build_multi_report_dashboard_payload(
             [
@@ -466,12 +554,15 @@ class DashboardTest(unittest.TestCase):
                 "dashboard.html",
                 "--project-root",
                 "workspace",
+                "--channels-config",
+                "config/channels.local.json",
             ]
         )
 
         self.assertEqual(args.report_json, [Path("report.json")])
         self.assertEqual(args.output, Path("dashboard.html"))
         self.assertEqual(args.project_root, Path("workspace"))
+        self.assertEqual(args.channels_config, Path("config/channels.local.json"))
         self.assertFalse(args.all_reports)
 
     def test_parse_args_accepts_multiple_report_json_files(self) -> None:

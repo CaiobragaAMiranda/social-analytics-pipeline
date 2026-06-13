@@ -1652,6 +1652,7 @@ Evidence:
 | TASK-099 | Dashboard channel contract now supports platform source metrics. | Done |
 | TASK-100 | Dashboard shows per-platform source cards inside selected channels. | Done |
 | TASK-101 | Dashboard aggregates multiple report JSON artifacts by channel identity. | Done |
+| TASK-102 | Dashboard can apply local monitored channel identity configuration. | Done |
 
 ## Next Channel-Oriented Tasks
 
@@ -1681,7 +1682,7 @@ Implementation notes:
 
 ### TASK-102 - Channel identity configuration
 
-Status: Pending
+Status: Done
 
 Phase: Consumption layer
 
@@ -1694,6 +1695,14 @@ Acceptance criteria:
 - The dashboard/report layer can use the configured display name and image URL.
 - Missing platform handles are allowed.
 - Tests cover complete and partial channel mappings.
+
+Implementation notes:
+
+- `config/channels.example.json` documents a safe placeholder mapping for YouTube, TikTok and Instagram.
+- `config/channels.local.json` is ignored and can hold local real handles or IDs.
+- `social-dashboard --channels-config` can apply monitored channel display names and image URLs.
+- Matching is provider-aware, so the same handle string on the wrong provider is not treated as a match.
+- Missing platform entries are allowed for partial monitoring.
 
 ### TASK-103 - Second real provider decision
 

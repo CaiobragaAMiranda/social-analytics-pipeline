@@ -5,6 +5,12 @@ import json
 from pathlib import Path
 from typing import Any
 
+from social_analytics_pipeline.config import (
+    ChannelIdentityConfig,
+    load_channel_identity_config,
+    match_channel_identity,
+)
+
 DEFAULT_DASHBOARD_OUTPUT = Path("data/dashboard/index.html")
 DEFAULT_REPORT_JSON_DIR = Path("data/reports/youtube-json")
 
@@ -32,9 +38,13 @@ def load_report_payloads(report_json_paths: list[Path]) -> list[dict[str, Any]]:
     return [load_report_payload(report_json_path) for report_json_path in report_json_paths]
 
 
-def build_multi_report_dashboard_payload(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+def build_multi_report_dashboard_payload(
+    payloads: list[dict[str, Any]],
+    channels_config: tuple[ChannelIdentityConfig, ...] = (),
+) -> dict[str, Any]:
     grouped: dict[str, list[dict[str, Any]]] = {}
     for payload in payloads:
+        payload = _apply_channel_config(payload, channels_config)
         grouped.setdefault(_channel_identity(payload), []).append(payload)
 
     return {
@@ -497,14 +507,18 @@ def main(
     output_path: Path = DEFAULT_DASHBOARD_OUTPUT,
     project_root: Path | None = None,
     all_reports: bool = False,
+    channels_config_path: Path | None = None,
 ) -> int:
     root = project_root or Path.cwd()
     target_reports = _dashboard_report_paths(report_json_path, root, all_reports)
+    channels_config = (
+        load_channel_identity_config(channels_config_path) if channels_config_path else ()
+    )
     payloads = load_report_payloads(target_reports)
     payload = (
-        build_multi_report_dashboard_payload(payloads)
+        build_multi_report_dashboard_payload(payloads, channels_config)
         if len(payloads) > 1
-        else payloads[0]
+        else _apply_channel_config(payloads[0], channels_config)
     )
     dashboard_path = write_dashboard_html(payload, output_path)
     print("report_json_paths=" + ",".join(path.as_posix() for path in target_reports))
@@ -544,6 +558,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "Defaults to the current directory."
         ),
     )
+    parser.add_argument(
+        "--channels-config",
+        type=Path,
+        help="Optional local channel identity config JSON with public placeholders only.",
+    )
     args = parser.parse_args(argv)
     if args.all_reports and args.report_json:
         parser.error("--all-reports cannot be used with --report-json.")
@@ -552,7 +571,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def cli_entrypoint() -> int:
     args = parse_args()
-    return main(args.report_json, args.output, args.project_root, args.all_reports)
+    return main(
+        args.report_json,
+        args.output,
+        args.project_root,
+        args.all_reports,
+        args.channels_config,
+    )
 
 
 def _dashboard_report_paths(
@@ -572,6 +597,22 @@ def _dashboard_report_paths(
     if report_json_path is not None:
         return [report_json_path]
     return [find_latest_report_json(project_root)]
+
+
+def _apply_channel_config(
+    payload: dict[str, Any],
+    channels_config: tuple[ChannelIdentityConfig, ...],
+) -> dict[str, Any]:
+    channel_config = match_channel_identity(payload, channels_config)
+    if channel_config is None:
+        return payload
+
+    source = _source_object(payload).copy()
+    source["channel_id"] = channel_config.channel_id
+    source["channel_name"] = channel_config.display_name
+    if channel_config.image_url:
+        source["image_url"] = channel_config.image_url
+    return {**payload, "source": source}
 
 
 def _channel_identity(payload: dict[str, Any]) -> str:
