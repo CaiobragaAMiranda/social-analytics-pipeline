@@ -9,6 +9,7 @@ venv/
 dist/
 build/
 .env
+config/channels.local.json
 data/raw/
 data/processed/
 data/reports/

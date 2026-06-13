@@ -1,0 +1,21 @@
+{
+  "channels": [
+    {
+      "id": "example-brand",
+      "display_name": "Example Brand Channel",
+      "image_url": "https://example.com/channel-image.png",
+      "platforms": {
+        "youtube": {
+          "channel_id": "UC_EXAMPLE_CHANNEL_ID",
+          "handle": "@example-youtube"
+        },
+        "tiktok": {
+          "handle": "@example-tiktok"
+        },
+        "instagram": {
+          "handle": "@example-instagram"
+        }
+      }
+    }
+  ]
+}

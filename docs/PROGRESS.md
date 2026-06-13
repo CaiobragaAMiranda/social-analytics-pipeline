@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-12
+Date: 2026-06-13
 
 Current phase: Consumption layer
 
-Current task: TASK-093 - Dashboard engagement breakdown.
+Current task: TASK-103 - Second real provider decision.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts with channel imagery support, engagement breakdown, report metadata, a cleaner static layout and explicit empty states.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration.
 
 ## Completed Milestones
 
@@ -98,16 +98,24 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard now renders clear empty states when top content rows are missing.
 - The dashboard now shows report schema and ranking metadata from report JSON.
 - The dashboard now shows likes, comments and shares as engagement breakdown percentages.
+- The dashboard now shows per-record averages from report JSON totals.
+- The dashboard now shows the source artifact used to produce the report view.
+- The dashboard now formats valid generated timestamps for easier reading.
+- The dashboard now uses a single-page channel selector layout inspired by the provided reference.
+- The roadmap now prioritizes consolidated channel analytics over platform-first selection.
+- The dashboard channel contract now accepts platform source metrics and consolidates platform totals.
+- The dashboard now shows per-platform source cards for YouTube, TikTok and Instagram.
+- The dashboard can now aggregate multiple report JSON artifacts into channel options with platform source breakdowns.
+- The dashboard can now apply a local channel identity config for monitored channel names and images.
 
 ## Current Constraints
 
 - `.env`, raw data and processed data must remain local and ignored by Git.
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
-- New work should prefer the dashboard MVP before deeper infrastructure or provider expansion.
+- New work should prefer the channel-first dashboard contract before deeper infrastructure or provider expansion.
 
 ## Next Actions
 
-- Expand the static local dashboard from generated YouTube report JSON files.
-- Keep dashboard inputs local and generated from existing artifacts.
-- Start the second real provider only after the dashboard contract is clear.
+- Group multiple report JSON files under monitored channel identities.
+- Start the second real provider only after the channel contract is clear.

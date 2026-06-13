@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-093 - Dashboard engagement breakdown
-- Last completed delivery: TASK-092 - Dashboard report metadata panel
+- Current task: TASK-103 - Second real provider decision
+- Last completed delivery: TASK-102 - Channel identity configuration
 
 ## Workflow
 
@@ -39,11 +39,13 @@ The repository now includes that simple consumption layer in local CLI form: a Y
 
 ## Next Delivery
 
-The next cycle is a local dashboard MVP before adding another real provider. The dashboard should read generated report JSON files, render a static HTML view and avoid new secrets, servers or cloud dependencies.
+The next cycle is a local channel-first dashboard MVP before adding another real provider. The dashboard should read generated report JSON files, render a static HTML view and avoid new secrets, servers or cloud dependencies.
 
-After the dashboard contract is useful, the next provider cycle can start. TikTok is the preferred candidate if official app access is available; otherwise the provider should remain mocked until local credentials and API access are ready.
+The user-facing dashboard selector should choose monitored channels/accounts, not platforms. YouTube, TikTok and Instagram should appear as data sources inside the selected channel, with consolidated totals and per-platform breakdowns.
 
-The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard includes responsive metric cards, engagement breakdown, report metadata, data quality status, a top-content table and explicit empty states.
+After the channel contract is useful, the next provider cycle can start. TikTok or Instagram can be selected only if official API access is practical; otherwise those sources should remain mocked until local credentials and access are ready.
+
+The first dashboard slice exposes a `social-dashboard` command that reads report JSON files and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The command also accepts repeated `--report-json` values or `--all-reports` to aggregate multiple local artifacts by channel identity. A local `--channels-config` JSON file can map platform handles or IDs to a monitored channel display name and image URL; use `config/channels.example.json` as the safe placeholder template and keep `config/channels.local.json` uncommitted. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, a top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
 
 ## Useful Commands
 

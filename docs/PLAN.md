@@ -22,26 +22,31 @@ Build a local-first social analytics pipeline that can collect public social dat
 | Phase 2 - Orchestration and History | Airflow, scheduled DAGs and catchup. | Usable for YouTube |
 | Phase 3 - Resilience | Retries, rate limits, alerts and DLQ. | Baseline done for YouTube |
 | Phase 4 - Quality and Scale | Data validation, metrics, profiling and scaling choices. | Deferred until after v1 closure |
-| Phase 5 - Consumption Layer | Build a simple local dashboard from generated report artifacts. | Current |
-| Phase 6 - Second Real Provider | Add one more real provider after the dashboard contract is useful. | Next |
+| Phase 5 - Consumption Layer | Build a channel-first dashboard from generated report artifacts. | Current |
+| Phase 6 - Second Real Provider | Add one more real provider after the channel contract is useful. | Next |
 
 ## Near-Term Direction
 
 1. Treat the current YouTube v1 slice as closed in repository context.
-2. Build a local dashboard MVP from existing YouTube report JSON files.
-3. Add a second real provider only after the dashboard data contract is clear.
-4. Prefer static/local artifacts before adding a web server or cloud deployment.
+2. Build a local channel-first dashboard from existing report JSON files.
+3. Make the user-facing selector choose monitored channels/accounts, not platforms.
+4. Treat YouTube, TikTok and Instagram as platform sources inside the selected channel.
+5. Add a second real provider only after the channel dashboard data contract is clear.
+6. Prefer static/local artifacts before adding a web server or cloud deployment.
 
 ## Next Delivery Sequence
 
-1. Dashboard MVP: read local report JSON, render a static HTML dashboard and keep all data local.
-2. Dashboard hardening: improve the static view, support multiple report files, empty states and safe public documentation.
-3. Second provider decision: prefer TikTok Display API if official app access is available; otherwise keep the real-provider interface behind mocks until access is ready.
+1. Channel contract: define one monitored channel with consolidated totals and platform sources.
+2. Dashboard breakdown: show selected-channel totals plus per-platform YouTube, TikTok and Instagram cards.
+3. Multi-report aggregation: group multiple report JSON files into channel options.
+4. Channel identity config: map platform handles/IDs to one monitored channel identity.
+5. Second provider decision: prefer an official API only after the channel contract can absorb it.
 
 ## Out of Scope for Now
 
 - Cloud deployment.
-- Full analytics dashboard.
+- Full analytics dashboard beyond the channel-first MVP.
 - Paid API integrations before the local MVP is stable.
+- Non-official scraping or bypassing platform access rules.
 - Large-scale async fetching before real volume requires it.
 - Additional engineering polish that does not change the current YouTube delivery outcome.
