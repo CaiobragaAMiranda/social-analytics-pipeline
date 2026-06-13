@@ -16,6 +16,30 @@
 
 ## Current Task
 
+### TASK-097 - Channel selector dashboard redesign
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: redesign the static dashboard as a single-page channel analytics view with channel selection.
+
+Acceptance criteria:
+
+- Dashboard uses a darker single-page layout with a teal sidebar and compact cards.
+- Dashboard renders a channel selector.
+- Dashboard shows the selected channel name, provider and image/fallback avatar.
+- Dashboard shows productions, total views, total engagements and semiannual performance.
+- Dashboard can render multiple channel options when the payload contains a `channels` list.
+- Existing values remain safely escaped or serialized.
+- Tests cover the redesigned layout and multiple channel options.
+
+Evidence:
+
+- Dashboard HTML now renders a sidebar, channel selector and channel-focused card layout.
+- Channel data is embedded as safe JSON and updated client-side when a channel is selected.
+- Tests cover the redesigned shell, escaped values and multi-channel options.
+
 ### TASK-096 - Dashboard generated date formatting
 
 Status: Done
@@ -1553,6 +1577,7 @@ Evidence:
 | TASK-094 | Dashboard shows per-record average metrics. | Done |
 | TASK-095 | Dashboard shows the source artifact used for the report. | Done |
 | TASK-096 | Dashboard formats generated timestamps for readability. | Done |
+| TASK-097 | Dashboard was redesigned as a single-page channel selector view. | Done |
 
 ## Deferred Until After v1 Closure
 

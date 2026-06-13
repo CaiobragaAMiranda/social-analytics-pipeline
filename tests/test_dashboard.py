@@ -56,10 +56,13 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn("Social Analytics Dashboard", html)
         self.assertIn('class="dashboard-shell"', html)
-        self.assertIn('class="provider-pill">youtube', html)
+        self.assertIn("Channel Analytics", html)
+        self.assertIn('class="channel-select"', html)
+        self.assertIn("Semiannual Performance", html)
+        self.assertIn("Productions", html)
         self.assertIn("channel-fallback", html)
         self.assertIn("2026-06-12 12:00 UTC", html)
-        self.assertIn("Engagement Rate", html)
+        self.assertIn("Semiannual Performance", html)
         self.assertIn("13.00%", html)
         self.assertIn("Engagement Breakdown", html)
         self.assertIn("76.92%", html)
@@ -95,7 +98,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("&lt;metric&gt;", html)
         self.assertIn("&lt;bad&gt;", html)
         self.assertIn("&lt;row&gt;", html)
-        self.assertNotIn("<script>", html)
+        self.assertIn("\\u003cscript\\u003e", html)
+        self.assertNotIn("><script>", html)
 
     def test_build_dashboard_html_renders_unknown_report_metadata(self) -> None:
         html = build_dashboard_html({"source": {"provider": "youtube"}})
@@ -117,6 +121,29 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn("Source artifact", html)
         self.assertIn("data/processed/youtube/fallback.json", html)
+
+    def test_build_dashboard_html_renders_multiple_channel_options(self) -> None:
+        html = build_dashboard_html(
+            {
+                "channels": [
+                    {
+                        "source": {"provider": "youtube", "channel_name": "Channel A"},
+                        "records": 2,
+                        "totals": {"views": 100},
+                    },
+                    {
+                        "source": {"provider": "youtube", "channel_name": "Channel B"},
+                        "records": 3,
+                        "totals": {"views": 200},
+                    },
+                ]
+            }
+        )
+
+        self.assertIn('<option value="0">Channel A</option>', html)
+        self.assertIn('<option value="1">Channel B</option>', html)
+        self.assertIn('"name": "Channel B"', html)
+        self.assertIn('"views": "200"', html)
 
     def test_build_dashboard_html_renders_source_image_url(self) -> None:
         html = build_dashboard_html(

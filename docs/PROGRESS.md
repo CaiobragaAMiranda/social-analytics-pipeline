@@ -6,9 +6,9 @@ Date: 2026-06-12
 
 Current phase: Consumption layer
 
-Current task: TASK-096 - Dashboard generated date formatting.
+Current task: TASK-097 - Channel selector dashboard redesign.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts with channel imagery support, per-record averages, engagement breakdown, readable generation time, source artifact metadata, report metadata, a cleaner static layout and explicit empty states.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view with channel selection, channel imagery support, per-record averages, engagement breakdown, readable generation time, source artifact metadata, report metadata, a cleaner static layout and explicit empty states.
 
 ## Completed Milestones
 
@@ -101,6 +101,7 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard now shows per-record averages from report JSON totals.
 - The dashboard now shows the source artifact used to produce the report view.
 - The dashboard now formats valid generated timestamps for easier reading.
+- The dashboard now uses a single-page channel selector layout inspired by the provided reference.
 
 ## Current Constraints
 
