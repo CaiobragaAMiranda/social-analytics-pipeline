@@ -172,6 +172,35 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     .quality-item {{ border-left: 3px solid #0dd7bf; padding-left: 0.75rem; }}
     .quality-item strong {{ display: block; margin-top: 0.2rem; }}
     .main-grid {{ display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }}
+    .platform-grid {{
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }}
+    .platform-card {{
+      background: #203d47;
+      border: 1px solid rgba(136, 181, 190, 0.18);
+      border-radius: 4px;
+      display: grid;
+      gap: 0.65rem;
+      min-width: 0;
+      padding: 1rem;
+    }}
+    .platform-card.unavailable {{
+      opacity: 0.58;
+    }}
+    .platform-title {{
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      text-transform: uppercase;
+    }}
+    .platform-status {{
+      color: #89f4e7;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }}
     .table-wrap {{ overflow-x: auto; }}
     table {{ border-collapse: collapse; min-width: 680px; width: 100%; }}
     th, td {{
@@ -186,13 +215,15 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .dashboard-shell {{ grid-template-columns: 1fr; }}
       .sidebar {{ flex-direction: row; flex-wrap: wrap; align-items: center; }}
       .nav-list {{ display: none; }}
-      .hero-grid, .main-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+      .hero-grid, .main-grid, .platform-grid {{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }}
     }}
     @media (max-width: 540px) {{
       .content {{ padding: 1rem; }}
       .topbar {{ align-items: flex-start; flex-direction: column; }}
       .channel-select {{ width: 100%; }}
-      .hero-grid, .main-grid, .quality-grid {{ grid-template-columns: 1fr; }}
+      .hero-grid, .main-grid, .quality-grid, .platform-grid {{ grid-template-columns: 1fr; }}
       .channel-image {{ height: 64px; width: 64px; }}
     }}
   </style>
@@ -240,6 +271,14 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         {_metric_card("Productions", active["records"], False, "data-records")}
         {_metric_card("Total Views", active["views"], False, "data-views")}
         {_metric_card("Total Engagements", active["engagements"], False, "data-engagements")}
+      </section>
+      <section class="section">
+        <div class="section-header">
+          <h2>Platform Sources</h2>
+        </div>
+        <div class="platform-grid" data-platform-sources>
+          {_platform_cards(active)}
+        </div>
       </section>
       <section class="main-grid">
         <div class="section">
@@ -350,6 +389,49 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         return tr;
       }}));
     }};
+    const renderPlatforms = (platforms) => {{
+      const target = document.querySelector("[data-platform-sources]");
+      const orderedProviders = ["youtube", "tiktok", "instagram"];
+      target.replaceChildren(...orderedProviders.map((provider) => {{
+        const platform = platforms.find((item) => item.provider === provider) || {{
+          provider,
+          status: "unavailable",
+          records: "unavailable",
+          views: "unavailable",
+          engagements: "unavailable",
+          engagement_rate: "unavailable",
+        }};
+        const card = document.createElement("article");
+        const stateClass = platform.status === "unavailable" ? "unavailable" : "";
+        card.className = `platform-card ${{stateClass}}`;
+        const title = document.createElement("div");
+        title.className = "platform-title";
+        const name = document.createElement("strong");
+        name.textContent = platform.provider;
+        const status = document.createElement("span");
+        status.className = "platform-status";
+        status.textContent = platform.status;
+        title.append(name, status);
+        card.append(title);
+        [
+          ["Productions", platform.records],
+          ["Views", platform.views],
+          ["Engagements", platform.engagements],
+          ["Performance", platform.engagement_rate],
+        ].forEach(([label, value]) => {{
+          const item = document.createElement("div");
+          item.className = "quality-item";
+          const itemLabel = document.createElement("span");
+          itemLabel.className = "label";
+          itemLabel.textContent = label;
+          const itemValue = document.createElement("strong");
+          itemValue.textContent = value;
+          item.append(itemLabel, itemValue);
+          card.append(item);
+        }});
+        return card;
+      }}));
+    }};
     const renderChannel = (channel) => {{
       renderImage(channel);
       setText("[data-channel-name]", channel.name);
@@ -373,6 +455,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-quality-status]", channel.quality_status);
       setText("[data-has-engagements]", channel.has_engagements);
       setText("[data-top-item]", channel.top_item);
+      renderPlatforms(channel.platforms);
       renderRows(channel.top_rows);
     }};
     select.addEventListener("change", () => renderChannel(channels[select.selectedIndex]));
@@ -600,6 +683,47 @@ def _channel_table_rows(channel: dict[str, Any]) -> str:
     if not isinstance(rows, list) or not rows:
         return _empty_table_row()
     return "\n".join(_table_row(row) for row in rows)
+
+
+def _platform_cards(channel: dict[str, Any]) -> str:
+    platforms = channel.get("platforms", [])
+    if not isinstance(platforms, list):
+        platforms = []
+    by_provider = {
+        platform["provider"]: platform
+        for platform in platforms
+        if isinstance(platform, dict) and "provider" in platform
+    }
+    return "\n".join(
+        _platform_card(
+            by_provider.get(
+                provider,
+                {
+                    "provider": provider,
+                    "status": "unavailable",
+                    "records": "unavailable",
+                    "views": "unavailable",
+                    "engagements": "unavailable",
+                    "engagement_rate": "unavailable",
+                },
+            )
+        )
+        for provider in ("youtube", "tiktok", "instagram")
+    )
+
+
+def _platform_card(platform: dict[str, Any]) -> str:
+    unavailable = " unavailable" if platform.get("status") == "unavailable" else ""
+    return f"""<article class="platform-card{unavailable}">
+  <div class="platform-title">
+    <strong>{_text(platform.get("provider", "unknown"))}</strong>
+    <span class="platform-status">{_text(platform.get("status", "unknown"))}</span>
+  </div>
+  {_metric_item("Productions", platform.get("records", "unavailable"), "")}
+  {_metric_item("Views", platform.get("views", "unavailable"), "")}
+  {_metric_item("Engagements", platform.get("engagements", "unavailable"), "")}
+  {_metric_item("Performance", platform.get("engagement_rate", "unavailable"), "")}
+</article>"""
 
 
 def _display_number(value: object) -> str:

@@ -197,6 +197,34 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('"views": "500"', html)
         self.assertIn('"engagements": "75"', html)
         self.assertIn('"engagement_rate": "15.00%"', html)
+        self.assertIn("Platform Sources", html)
+        self.assertIn('<strong>youtube</strong>', html)
+        self.assertIn('<strong>tiktok</strong>', html)
+        self.assertIn('<strong>instagram</strong>', html)
+
+    def test_build_dashboard_html_marks_missing_platform_sources_unavailable(self) -> None:
+        html = build_dashboard_html(
+            {
+                "channels": [
+                    {
+                        "source": {"provider": "multi-platform", "channel_name": "Partial"},
+                        "platforms": [
+                            {
+                                "provider": "youtube",
+                                "records": 1,
+                                "totals": {"views": 100, "engagements": 10},
+                            }
+                        ],
+                    }
+                ]
+            }
+        )
+
+        self.assertIn("Platform Sources", html)
+        self.assertIn('<strong>youtube</strong>', html)
+        self.assertIn('<strong>tiktok</strong>', html)
+        self.assertIn('<strong>instagram</strong>', html)
+        self.assertIn("unavailable", html)
 
     def test_build_dashboard_html_renders_source_image_url(self) -> None:
         html = build_dashboard_html(

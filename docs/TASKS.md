@@ -18,6 +18,29 @@
 
 ## Current Task
 
+### TASK-100 - Dashboard platform breakdown inside selected channel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show platform-specific metrics inside the selected channel view.
+
+Acceptance criteria:
+
+- Dashboard still selects by channel, not by platform.
+- The selected channel shows consolidated top cards.
+- The selected channel shows platform cards for YouTube, TikTok and Instagram when present.
+- Missing platform data renders as unavailable instead of zeroing silently.
+- Tests cover mixed platform availability.
+
+Evidence:
+
+- Dashboard now renders a `Platform Sources` section inside the selected channel view.
+- Platform cards show productions, views, engagements and performance.
+- Missing platform sources render as `unavailable`.
+- Tests cover complete and partial platform availability.
+
 ### TASK-099 - Cross-platform channel dashboard contract
 
 Status: Done
@@ -1627,24 +1650,9 @@ Evidence:
 | TASK-097 | Dashboard was redesigned as a single-page channel selector view. | Done |
 | TASK-098 | Roadmap was realigned around channel-first multi-platform analytics. | Done |
 | TASK-099 | Dashboard channel contract now supports platform source metrics. | Done |
+| TASK-100 | Dashboard shows per-platform source cards inside selected channels. | Done |
 
 ## Next Channel-Oriented Tasks
-
-### TASK-100 - Dashboard platform breakdown inside selected channel
-
-Status: Pending
-
-Phase: Consumption layer
-
-Goal: show platform-specific metrics inside the selected channel view.
-
-Acceptance criteria:
-
-- Dashboard still selects by channel, not by platform.
-- The selected channel shows consolidated top cards.
-- The selected channel shows platform cards for YouTube, TikTok and Instagram when present.
-- Missing platform data renders as unavailable instead of zeroing silently.
-- Tests cover mixed platform availability.
 
 ### TASK-101 - Multi-report channel aggregation
 
