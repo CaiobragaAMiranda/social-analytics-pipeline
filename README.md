@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Second real provider
-- Current task: TASK-104 - Instagram provider skeleton
-- Last completed delivery: TASK-103 - Second real provider decision
+- Current task: TASK-105 - Instagram local pipeline command
+- Last completed delivery: TASK-104 - Instagram provider skeleton
 
 ## Workflow
 

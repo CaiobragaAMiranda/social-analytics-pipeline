@@ -1654,6 +1654,7 @@ Evidence:
 | TASK-101 | Dashboard aggregates multiple report JSON artifacts by channel identity. | Done |
 | TASK-102 | Dashboard can apply local monitored channel identity configuration. | Done |
 | TASK-103 | Instagram was selected as the next real provider. | Done |
+| TASK-104 | Instagram provider skeleton was added behind local credentials. | Done |
 
 ## Next Channel-Oriented Tasks
 
@@ -1730,7 +1731,7 @@ Implementation notes:
 
 ### TASK-104 - Instagram provider skeleton
 
-Status: Pending
+Status: Done
 
 Phase: Second real provider
 
@@ -1743,6 +1744,30 @@ Acceptance criteria:
 - Provider methods map account/media metrics toward the existing `SocialMetric` schema.
 - Tests use fake HTTP responses only.
 - No scraping, browser automation or non-official access is introduced.
+
+Implementation notes:
+
+- `InstagramApiConfig` reads placeholder local variables for token, account ID and pagination.
+- `InstagramGraphApiProvider` collects account metadata and paginated media payloads through an injectable HTTP client.
+- Provider payloads include existing collection metadata and normalize through the current Instagram schema path.
+- Tests use fake HTTP responses and verify sanitized HTTP errors.
+- No CLI, Airflow DAG or automatic real Instagram run was added in this task.
+
+### TASK-105 - Instagram local pipeline command
+
+Status: Pending
+
+Phase: Second real provider
+
+Goal: make the Instagram provider runnable through an explicit local command.
+
+Acceptance criteria:
+
+- Command fails closed when Instagram credentials are missing.
+- Command writes local raw and processed artifacts without committing generated data.
+- Command output is compact and does not print tokens or raw payloads.
+- Tests cover dry-run or fake-provider execution only.
+- Documentation explains local operator steps with placeholders.
 
 ## Deferred Until After v1 Closure
 
