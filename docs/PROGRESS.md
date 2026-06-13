@@ -6,9 +6,9 @@ Date: 2026-06-13
 
 Current phase: Second real provider
 
-Current task: TASK-105 - Instagram local pipeline command.
+Current task: TASK-106 - Instagram local report artifact.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. ADR-0002 selects Instagram as the next real provider for authorized professional accounts, and the provider skeleton is now available behind local credentials.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. ADR-0002 selects Instagram as the next real provider for authorized professional accounts, and the provider can now run through an explicit local command behind local credentials.
 
 ## Completed Milestones
 
@@ -109,6 +109,7 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard can now apply a local channel identity config for monitored channel names and images.
 - The second real provider decision now selects Instagram and defers TikTok.
 - The Instagram provider skeleton now supports authorized account/media collection with fake-HTTP test coverage.
+- The Instagram provider can now run through `instagram-local-pipeline` and write ignored local raw, processed and run-summary artifacts.
 
 ## Current Constraints
 
@@ -119,5 +120,5 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Add a local Instagram pipeline command behind explicit credentials.
+- Add an Instagram report JSON artifact compatible with the channel-first dashboard.
 - Keep TikTok mocked until an official analytics path fits this project.

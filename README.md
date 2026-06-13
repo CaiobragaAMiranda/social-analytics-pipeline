@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Second real provider
-- Current task: TASK-105 - Instagram local pipeline command
-- Last completed delivery: TASK-104 - Instagram provider skeleton
+- Current task: TASK-106 - Instagram local report artifact
+- Last completed delivery: TASK-105 - Instagram local pipeline command
 
 ## Workflow
 
@@ -46,6 +46,8 @@ The user-facing dashboard selector should choose monitored channels/accounts, no
 After the channel contract is useful, the next provider cycle can start. ADR-0002 selects Instagram as the next real provider, limited to authorized Instagram professional accounts through official Meta APIs. TikTok remains deferred until a better official analytics path fits the monitored-channel use case.
 
 The first dashboard slice exposes a `social-dashboard` command that reads report JSON files and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The command also accepts repeated `--report-json` values or `--all-reports` to aggregate multiple local artifacts by channel identity. A local `--channels-config` JSON file can map platform handles or IDs to a monitored channel display name and image URL; use `config/channels.example.json` as the safe placeholder template and keep `config/channels.local.json` uncommitted. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, a top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
+
+The Instagram provider is available through the explicit `instagram-local-pipeline` command. It requires local `INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_USER_ID` values, writes ignored local artifacts, and prints only compact masked execution summaries.
 
 ## Useful Commands
 

@@ -17,6 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
+instagram-local-pipeline = "social_analytics_pipeline.cli.instagram_local_pipeline:main"
 social-dashboard = "social_analytics_pipeline.cli.dashboard:cli_entrypoint"
 youtube-report = "social_analytics_pipeline.cli.youtube_report:cli_entrypoint"
 

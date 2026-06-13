@@ -1655,6 +1655,7 @@ Evidence:
 | TASK-102 | Dashboard can apply local monitored channel identity configuration. | Done |
 | TASK-103 | Instagram was selected as the next real provider. | Done |
 | TASK-104 | Instagram provider skeleton was added behind local credentials. | Done |
+| TASK-105 | Instagram provider can run through an explicit local pipeline command. | Done |
 
 ## Next Channel-Oriented Tasks
 
@@ -1755,7 +1756,7 @@ Implementation notes:
 
 ### TASK-105 - Instagram local pipeline command
 
-Status: Pending
+Status: Done
 
 Phase: Second real provider
 
@@ -1769,6 +1770,30 @@ Acceptance criteria:
 - Tests cover dry-run or fake-provider execution only.
 - Documentation explains local operator steps with placeholders.
 
+Implementation notes:
+
+- `instagram-local-pipeline` runs the Instagram provider only when explicit local credentials exist.
+- The command writes raw, processed and run-summary JSON artifacts under ignored local data directories.
+- The command prints compact masked output and never prints tokens, account IDs or raw payloads.
+- Tests cover fake-provider execution, interval resolution, loader behavior and missing credentials.
+- The first Instagram local load target is intentionally JSON-only.
+
+### TASK-106 - Instagram local report artifact
+
+Status: Pending
+
+Phase: Second real provider
+
+Goal: generate a dashboard-compatible report JSON from processed Instagram metrics.
+
+Acceptance criteria:
+
+- Report command reads the latest or explicit processed Instagram artifact.
+- Report JSON uses the same dashboard contract shape as YouTube reports.
+- Source metadata uses placeholder-safe fields and local relative paths only.
+- Tests cover totals, top content and empty inputs.
+- No real Instagram credentials or raw payloads are printed.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -1780,7 +1805,7 @@ Acceptance criteria:
 
 - Define and implement the channel-first multi-platform dashboard contract.
 - Group multiple reports into monitored channels before provider expansion.
-- Add the smallest Instagram provider skeleton behind local credentials.
+- Add a dashboard-compatible Instagram report JSON artifact.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
