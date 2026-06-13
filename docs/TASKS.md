@@ -9,12 +9,36 @@
 
 ## Delivery Focus
 
-- Keep the YouTube v1 cycle closed and move into a dashboard-first consumption slice.
+- Keep the YouTube v1 cycle closed and move into a channel-first dashboard slice.
 - Keep the governance pattern, but prefer larger functional tasks over tiny infrastructure refinements.
-- Defer the second real provider until the dashboard data contract is useful.
-- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the dashboard or provider slice.
+- The user-facing selector must be a monitored channel/account, not a platform selector.
+- YouTube, TikTok and Instagram are data sources inside a selected channel.
+- Defer real TikTok and Instagram API work until the consolidated channel contract is useful.
+- Defer extra observability, stronger alerting and broader orchestration work unless they directly unlock the channel dashboard or provider slice.
 
 ## Current Task
+
+### TASK-098 - Channel-oriented roadmap refactor
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: realign the backlog so the dashboard is organized around monitored channels rather than individual platforms.
+
+Acceptance criteria:
+
+- Documentation states that the dashboard selector is channel/account-first.
+- Documentation states that platforms are sources inside a selected channel.
+- Near-term tasks prioritize the consolidated channel contract before new real providers.
+- TikTok and Instagram real integrations remain deferred until official access and the dashboard contract are ready.
+- Public documentation avoids secrets, local paths, raw payloads and expanded DSNs.
+
+Evidence:
+
+- Delivery focus now states the channel-first dashboard direction.
+- Next tasks now define a cross-platform channel contract before provider expansion.
+- README, plan and progress docs now describe the consolidated channel objective.
 
 ### TASK-097 - Channel selector dashboard redesign
 
@@ -1578,18 +1602,101 @@ Evidence:
 | TASK-095 | Dashboard shows the source artifact used for the report. | Done |
 | TASK-096 | Dashboard formats generated timestamps for readability. | Done |
 | TASK-097 | Dashboard was redesigned as a single-page channel selector view. | Done |
+| TASK-098 | Roadmap was realigned around channel-first multi-platform analytics. | Done |
+
+## Next Channel-Oriented Tasks
+
+### TASK-099 - Cross-platform channel dashboard contract
+
+Status: Pending
+
+Phase: Consumption layer
+
+Goal: define the report JSON shape for one monitored channel with multiple platform sources.
+
+Acceptance criteria:
+
+- A channel object has a stable channel identifier, display name and optional image URL.
+- A channel object has consolidated totals across all available platforms.
+- A channel object has a `platforms` list for YouTube, TikTok and Instagram source metrics.
+- Missing platforms can be represented without breaking rendering.
+- Tests cover the contract with one and multiple platform sources.
+
+### TASK-100 - Dashboard platform breakdown inside selected channel
+
+Status: Pending
+
+Phase: Consumption layer
+
+Goal: show platform-specific metrics inside the selected channel view.
+
+Acceptance criteria:
+
+- Dashboard still selects by channel, not by platform.
+- The selected channel shows consolidated top cards.
+- The selected channel shows platform cards for YouTube, TikTok and Instagram when present.
+- Missing platform data renders as unavailable instead of zeroing silently.
+- Tests cover mixed platform availability.
+
+### TASK-101 - Multi-report channel aggregation
+
+Status: Pending
+
+Phase: Consumption layer
+
+Goal: let the dashboard build a channel list from multiple report JSON artifacts.
+
+Acceptance criteria:
+
+- Dashboard can accept or discover multiple report JSON files.
+- Reports with the same channel identity are grouped into one channel option.
+- Reports from different providers become platform sources inside the channel.
+- Existing single-report behavior remains supported.
+- Tests cover single-report and multi-report aggregation.
+
+### TASK-102 - Channel identity configuration
+
+Status: Pending
+
+Phase: Consumption layer
+
+Goal: map platform-specific accounts to a single monitored channel identity.
+
+Acceptance criteria:
+
+- Local configuration can map one channel to YouTube, TikTok and Instagram handles/IDs.
+- Configuration examples use placeholders only.
+- The dashboard/report layer can use the configured display name and image URL.
+- Missing platform handles are allowed.
+- Tests cover complete and partial channel mappings.
+
+### TASK-103 - Second real provider decision
+
+Status: Pending
+
+Phase: Second real provider
+
+Goal: choose the next real provider only after the channel contract can absorb it.
+
+Acceptance criteria:
+
+- The decision compares TikTok and Instagram official API availability.
+- The selected provider has local credential requirements documented with placeholders only.
+- The implementation plan avoids scraping and non-official access.
+- The provider must produce metrics compatible with the channel dashboard contract.
 
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
 - Add stronger alert delivery beyond the current local fail-on-invalid mode.
 - Revisit broader Airflow/observability refinements.
-- Expand to an additional real provider only after the dashboard contract is useful.
+- Expand to TikTok or Instagram real APIs only after the channel-first dashboard contract is useful.
 
 ## Next Candidate Deliveries
 
-- Build the dashboard MVP from existing report JSON files before provider expansion.
-- Add a second real provider path only if official local access is practical.
+- Define and implement the channel-first multi-platform dashboard contract.
+- Group multiple reports into monitored channels before provider expansion.
+- Add a second real provider path only if official local access is practical and compatible with the channel contract.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

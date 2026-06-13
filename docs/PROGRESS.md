@@ -2,13 +2,13 @@
 
 ## Current Snapshot
 
-Date: 2026-06-12
+Date: 2026-06-13
 
 Current phase: Consumption layer
 
-Current task: TASK-097 - Channel selector dashboard redesign.
+Current task: TASK-098 - Channel-oriented roadmap refactor.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view with channel selection, channel imagery support, per-record averages, engagement breakdown, readable generation time, source artifact metadata, report metadata, a cleaner static layout and explicit empty states.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The next direction is channel-first multi-platform analytics: the user chooses a monitored channel/account, while YouTube, TikTok and Instagram become sources inside that selected channel.
 
 ## Completed Milestones
 
@@ -102,16 +102,18 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard now shows the source artifact used to produce the report view.
 - The dashboard now formats valid generated timestamps for easier reading.
 - The dashboard now uses a single-page channel selector layout inspired by the provided reference.
+- The roadmap now prioritizes consolidated channel analytics over platform-first selection.
 
 ## Current Constraints
 
 - `.env`, raw data and processed data must remain local and ignored by Git.
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
-- New work should prefer the dashboard MVP before deeper infrastructure or provider expansion.
+- New work should prefer the channel-first dashboard contract before deeper infrastructure or provider expansion.
 
 ## Next Actions
 
-- Expand the static local dashboard from generated YouTube report JSON files.
-- Keep dashboard inputs local and generated from existing artifacts.
-- Start the second real provider only after the dashboard contract is clear.
+- Define a cross-platform channel dashboard contract.
+- Show consolidated channel totals plus per-platform breakdowns.
+- Group multiple report JSON files under monitored channel identities.
+- Start the second real provider only after the channel contract is clear.
