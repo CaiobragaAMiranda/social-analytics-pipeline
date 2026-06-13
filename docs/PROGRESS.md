@@ -6,9 +6,9 @@ Date: 2026-06-13
 
 Current phase: Consumption layer
 
-Current task: TASK-098 - Channel-oriented roadmap refactor.
+Current task: TASK-099 - Cross-platform channel dashboard contract.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The next direction is channel-first multi-platform analytics: the user chooses a monitored channel/account, while YouTube, TikTok and Instagram become sources inside that selected channel.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, so YouTube, TikTok and Instagram can become sources inside the selected channel instead of separate user-facing choices.
 
 ## Completed Milestones
 
@@ -103,6 +103,7 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard now formats valid generated timestamps for easier reading.
 - The dashboard now uses a single-page channel selector layout inspired by the provided reference.
 - The roadmap now prioritizes consolidated channel analytics over platform-first selection.
+- The dashboard channel contract now accepts platform source metrics and consolidates platform totals.
 
 ## Current Constraints
 
@@ -113,7 +114,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Define a cross-platform channel dashboard contract.
 - Show consolidated channel totals plus per-platform breakdowns.
 - Group multiple report JSON files under monitored channel identities.
 - Start the second real provider only after the channel contract is clear.

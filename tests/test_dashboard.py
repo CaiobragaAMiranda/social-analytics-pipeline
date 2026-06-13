@@ -145,6 +145,59 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('"name": "Channel B"', html)
         self.assertIn('"views": "200"', html)
 
+    def test_build_dashboard_html_supports_cross_platform_channel_contract(self) -> None:
+        html = build_dashboard_html(
+            {
+                "channels": [
+                    {
+                        "source": {
+                            "provider": "multi-platform",
+                            "channel_name": "Brand Channel",
+                        },
+                        "records": 8,
+                        "platforms": [
+                            {
+                                "provider": "youtube",
+                                "records": 3,
+                                "totals": {
+                                    "views": 100,
+                                    "engagements": 10,
+                                    "engagement_rate_percent": 10.0,
+                                },
+                            },
+                            {
+                                "provider": "tiktok",
+                                "records": 4,
+                                "totals": {
+                                    "views": 250,
+                                    "engagements": 50,
+                                    "engagement_rate_percent": 20.0,
+                                },
+                            },
+                            {
+                                "provider": "instagram",
+                                "records": 1,
+                                "totals": {
+                                    "views": 150,
+                                    "engagements": 15,
+                                    "engagement_rate_percent": 10.0,
+                                },
+                            },
+                        ],
+                    }
+                ]
+            }
+        )
+
+        self.assertIn('<option value="0">Brand Channel</option>', html)
+        self.assertIn('"platforms": [', html)
+        self.assertIn('"provider": "youtube"', html)
+        self.assertIn('"provider": "tiktok"', html)
+        self.assertIn('"provider": "instagram"', html)
+        self.assertIn('"views": "500"', html)
+        self.assertIn('"engagements": "75"', html)
+        self.assertIn('"engagement_rate": "15.00%"', html)
+
     def test_build_dashboard_html_renders_source_image_url(self) -> None:
         html = build_dashboard_html(
             {

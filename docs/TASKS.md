@@ -18,6 +18,29 @@
 
 ## Current Task
 
+### TASK-099 - Cross-platform channel dashboard contract
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: define and support the report JSON shape for one monitored channel with multiple platform sources.
+
+Acceptance criteria:
+
+- A channel object has a stable display identity.
+- A channel object can include a `platforms` list for YouTube, TikTok and Instagram source metrics.
+- Platform source metrics include provider, records, views, engagements and engagement rate.
+- Dashboard channel totals can be consolidated from platform sources.
+- Existing single-report behavior remains supported.
+- Tests cover the contract with YouTube, TikTok and Instagram platform sources.
+
+Evidence:
+
+- Dashboard channel modeling now accepts a `platforms` list.
+- Platform totals are consolidated into selected-channel cards.
+- Tests cover a channel with YouTube, TikTok and Instagram platform metrics.
+
 ### TASK-098 - Channel-oriented roadmap refactor
 
 Status: Done
@@ -1603,24 +1626,9 @@ Evidence:
 | TASK-096 | Dashboard formats generated timestamps for readability. | Done |
 | TASK-097 | Dashboard was redesigned as a single-page channel selector view. | Done |
 | TASK-098 | Roadmap was realigned around channel-first multi-platform analytics. | Done |
+| TASK-099 | Dashboard channel contract now supports platform source metrics. | Done |
 
 ## Next Channel-Oriented Tasks
-
-### TASK-099 - Cross-platform channel dashboard contract
-
-Status: Pending
-
-Phase: Consumption layer
-
-Goal: define the report JSON shape for one monitored channel with multiple platform sources.
-
-Acceptance criteria:
-
-- A channel object has a stable channel identifier, display name and optional image URL.
-- A channel object has consolidated totals across all available platforms.
-- A channel object has a `platforms` list for YouTube, TikTok and Instagram source metrics.
-- Missing platforms can be represented without breaking rendering.
-- Tests cover the contract with one and multiple platform sources.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 

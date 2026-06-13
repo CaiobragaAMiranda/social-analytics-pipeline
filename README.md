@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-098 - Channel-oriented roadmap refactor
-- Last completed delivery: TASK-097 - Channel selector dashboard redesign
+- Current task: TASK-099 - Cross-platform channel dashboard contract
+- Last completed delivery: TASK-098 - Channel-oriented roadmap refactor
 
 ## Workflow
 
@@ -45,7 +45,7 @@ The user-facing dashboard selector should choose monitored channels/accounts, no
 
 After the channel contract is useful, the next provider cycle can start. TikTok or Instagram can be selected only if official API access is practical; otherwise those sources should remain mocked until local credentials and access are ready.
 
-The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, a top-content table and explicit empty states. The next dashboard step is to consolidate multiple platform reports under each monitored channel.
+The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, a top-content table and explicit empty states. The dashboard contract now accepts platform source metrics inside each monitored channel. The next dashboard step is to show the platform breakdown visually inside the selected channel.
 
 ## Useful Commands
 

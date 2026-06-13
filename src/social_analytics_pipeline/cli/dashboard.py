@@ -447,9 +447,12 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
     source = payload.get("source", {})
     if not isinstance(source, dict):
         source = {}
+    platforms = _platform_models(payload.get("platforms", []))
     totals = payload.get("totals", {})
     if not isinstance(totals, dict):
         totals = {}
+    if platforms:
+        totals = _consolidated_platform_totals(platforms, totals)
     data_quality = payload.get("data_quality", {})
     if not isinstance(data_quality, dict):
         data_quality = {}
@@ -491,6 +494,44 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "has_engagements": _yes_no(data_quality.get("has_engagements", False)),
         "top_item": _top_content_label(top_content, escape=False),
         "top_rows": [_row_model(row) for row in rows],
+        "platforms": platforms,
+    }
+
+
+def _platform_models(platforms: object) -> list[dict[str, Any]]:
+    if not isinstance(platforms, list):
+        return []
+    return [_platform_model(platform) for platform in platforms if isinstance(platform, dict)]
+
+
+def _platform_model(platform: dict[str, Any]) -> dict[str, Any]:
+    totals = platform.get("totals", {})
+    if not isinstance(totals, dict):
+        totals = {}
+    return {
+        "provider": str(platform.get("provider", "unknown")),
+        "status": str(platform.get("status", "available")),
+        "records": _display_number(platform.get("records", 0)),
+        "views": _display_number(totals.get("views", 0)),
+        "engagements": _display_number(totals.get("engagements", 0)),
+        "engagement_rate": f"{_number(totals.get('engagement_rate_percent', 0.0)):.2f}%",
+    }
+
+
+def _consolidated_platform_totals(
+    platforms: list[dict[str, Any]],
+    fallback_totals: dict[str, Any],
+) -> dict[str, Any]:
+    total_views = sum(_plain_number(platform["views"]) for platform in platforms)
+    total_engagements = sum(_plain_number(platform["engagements"]) for platform in platforms)
+    engagement_rate_percent = (
+        (total_engagements / total_views) * 100 if total_views else 0.0
+    )
+    return {
+        **fallback_totals,
+        "views": total_views,
+        "engagements": total_engagements,
+        "engagement_rate_percent": engagement_rate_percent,
     }
 
 
@@ -566,6 +607,12 @@ def _display_number(value: object) -> str:
     if number.is_integer():
         return f"{int(number):,}"
     return f"{number:,.2f}"
+
+
+def _plain_number(value: object) -> float:
+    if isinstance(value, str):
+        value = value.replace(",", "")
+    return _number(value)
 
 
 def _card(label: str, value: object) -> str:
@@ -674,6 +721,11 @@ def _text(value: object) -> str:
 def _number(value: object) -> float:
     if isinstance(value, int | float):
         return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return 0.0
     return 0.0
 
 
