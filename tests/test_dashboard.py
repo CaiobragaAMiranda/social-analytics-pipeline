@@ -5,7 +5,9 @@ from pathlib import Path
 
 from social_analytics_pipeline.cli.dashboard import (
     build_dashboard_html,
+    build_multi_report_dashboard_payload,
     find_latest_report_json,
+    find_report_json_files,
     load_report_payload,
     main,
     parse_args,
@@ -295,6 +297,77 @@ class DashboardTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
 
+    def test_main_writes_dashboard_from_multiple_report_json_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            youtube_path = root / "youtube.json"
+            tiktok_path = root / "tiktok.json"
+            output_path = root / "index.html"
+            youtube_path.write_text(
+                json.dumps(
+                    {
+                        "generated_at": "2026-06-12T12:00:00Z",
+                        "source": {
+                            "provider": "youtube",
+                            "channel_name": "Brand Channel",
+                        },
+                        "records": 2,
+                        "totals": {"views": 100, "engagements": 10},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            tiktok_path.write_text(
+                json.dumps(
+                    {
+                        "generated_at": "2026-06-13T12:00:00Z",
+                        "source": {
+                            "provider": "tiktok",
+                            "channel_name": "Brand Channel",
+                        },
+                        "records": 3,
+                        "totals": {"views": 200, "engagements": 30},
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main([youtube_path, tiktok_path], output_path)
+
+            html = output_path.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertIn('<option value="0">Brand Channel</option>', html)
+            self.assertIn('"provider": "youtube"', html)
+            self.assertIn('"provider": "tiktok"', html)
+            self.assertIn('"views": "300"', html)
+            self.assertIn('"engagements": "40"', html)
+
+    def test_build_multi_report_dashboard_payload_groups_by_channel_identity(self) -> None:
+        payload = build_multi_report_dashboard_payload(
+            [
+                {
+                    "source": {"provider": "youtube", "channel_handle": "@brand"},
+                    "records": 1,
+                    "totals": {"views": 100},
+                },
+                {
+                    "source": {"provider": "instagram", "channel_handle": "@brand"},
+                    "records": 2,
+                    "totals": {"views": 150},
+                },
+                {
+                    "source": {"provider": "youtube", "channel_handle": "@other"},
+                    "records": 3,
+                    "totals": {"views": 250},
+                },
+            ]
+        )
+
+        self.assertEqual(len(payload["channels"]), 2)
+        self.assertEqual(payload["channels"][0]["records"], 3)
+        self.assertEqual(len(payload["channels"][0]["platforms"]), 2)
+        self.assertEqual(payload["channels"][1]["records"], 3)
+
     def test_find_latest_report_json_uses_sorted_latest_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
@@ -306,6 +379,18 @@ class DashboardTest(unittest.TestCase):
             newer.write_text("{}", encoding="utf-8")
 
             self.assertEqual(find_latest_report_json(project_root), newer)
+
+    def test_find_report_json_files_uses_sorted_reports(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            report_dir = project_root / "data" / "reports" / "youtube-json"
+            report_dir.mkdir(parents=True)
+            first = report_dir / "youtube-20260501.json"
+            second = report_dir / "youtube-20260502.json"
+            second.write_text("{}", encoding="utf-8")
+            first.write_text("{}", encoding="utf-8")
+
+            self.assertEqual(find_report_json_files(project_root), [first, second])
 
     def test_find_latest_report_json_fails_when_missing(self) -> None:
         with (
@@ -328,6 +413,50 @@ class DashboardTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(output_path.exists())
 
+    def test_main_all_reports_discovers_report_json_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            report_dir = project_root / "data" / "reports" / "youtube-json"
+            report_dir.mkdir(parents=True)
+            youtube_path = report_dir / "youtube-20260501.json"
+            tiktok_path = report_dir / "tiktok-20260501.json"
+            output_path = project_root / "dashboard.html"
+            youtube_path.write_text(
+                json.dumps(
+                    {
+                        "source": {
+                            "provider": "youtube",
+                            "channel_name": "Brand Channel",
+                        },
+                        "records": 1,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            tiktok_path.write_text(
+                json.dumps(
+                    {
+                        "source": {
+                            "provider": "tiktok",
+                            "channel_name": "Brand Channel",
+                        },
+                        "records": 1,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            exit_code = main(
+                output_path=output_path,
+                project_root=project_root,
+                all_reports=True,
+            )
+
+            html = output_path.read_text(encoding="utf-8")
+            self.assertEqual(exit_code, 0)
+            self.assertIn('"provider": "youtube"', html)
+            self.assertIn('"provider": "tiktok"', html)
+
     def test_parse_args_accepts_optional_report_json_and_output(self) -> None:
         args = parse_args(
             [
@@ -340,14 +469,34 @@ class DashboardTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(args.report_json, Path("report.json"))
+        self.assertEqual(args.report_json, [Path("report.json")])
         self.assertEqual(args.output, Path("dashboard.html"))
         self.assertEqual(args.project_root, Path("workspace"))
+        self.assertFalse(args.all_reports)
+
+    def test_parse_args_accepts_multiple_report_json_files(self) -> None:
+        args = parse_args(
+            [
+                "--report-json",
+                "youtube.json",
+                "--report-json",
+                "tiktok.json",
+            ]
+        )
+
+        self.assertEqual(args.report_json, [Path("youtube.json"), Path("tiktok.json")])
+
+    def test_parse_args_accepts_all_reports(self) -> None:
+        args = parse_args(["--all-reports"])
+
+        self.assertTrue(args.all_reports)
+        self.assertIsNone(args.report_json)
 
     def test_parse_args_allows_default_report_json(self) -> None:
         args = parse_args([])
 
         self.assertIsNone(args.report_json)
+        self.assertFalse(args.all_reports)
 
 
 if __name__ == "__main__":

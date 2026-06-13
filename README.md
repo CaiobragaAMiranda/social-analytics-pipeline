@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-100 - Dashboard platform breakdown inside selected channel
-- Last completed delivery: TASK-099 - Cross-platform channel dashboard contract
+- Current task: TASK-102 - Channel identity configuration
+- Last completed delivery: TASK-101 - Multi-report channel aggregation
 
 ## Workflow
 
@@ -45,7 +45,7 @@ The user-facing dashboard selector should choose monitored channels/accounts, no
 
 After the channel contract is useful, the next provider cycle can start. TikTok or Instagram can be selected only if official API access is practical; otherwise those sources should remain mocked until local credentials and access are ready.
 
-The first dashboard slice exposes a `social-dashboard` command that reads one report JSON file and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, a top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
+The first dashboard slice exposes a `social-dashboard` command that reads report JSON files and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The command also accepts repeated `--report-json` values or `--all-reports` to aggregate multiple local artifacts by channel identity. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, a top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
 
 ## Useful Commands
 

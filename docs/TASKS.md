@@ -1651,12 +1651,13 @@ Evidence:
 | TASK-098 | Roadmap was realigned around channel-first multi-platform analytics. | Done |
 | TASK-099 | Dashboard channel contract now supports platform source metrics. | Done |
 | TASK-100 | Dashboard shows per-platform source cards inside selected channels. | Done |
+| TASK-101 | Dashboard aggregates multiple report JSON artifacts by channel identity. | Done |
 
 ## Next Channel-Oriented Tasks
 
 ### TASK-101 - Multi-report channel aggregation
 
-Status: Pending
+Status: Done
 
 Phase: Consumption layer
 
@@ -1669,6 +1670,14 @@ Acceptance criteria:
 - Reports from different providers become platform sources inside the channel.
 - Existing single-report behavior remains supported.
 - Tests cover single-report and multi-report aggregation.
+
+Implementation notes:
+
+- `social-dashboard` now accepts repeated `--report-json` values.
+- `social-dashboard --all-reports` discovers every local JSON report in the default report directory.
+- Reports with matching channel identity are grouped into one dashboard channel.
+- Each grouped report becomes a platform source for the selected channel.
+- Existing single-report and latest-report behavior remains supported.
 
 ### TASK-102 - Channel identity configuration
 

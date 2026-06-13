@@ -10,11 +10,15 @@ DEFAULT_REPORT_JSON_DIR = Path("data/reports/youtube-json")
 
 
 def find_latest_report_json(project_root: Path) -> Path:
-    report_dir = project_root / DEFAULT_REPORT_JSON_DIR
-    reports = sorted(report_dir.glob("*.json"))
+    reports = find_report_json_files(project_root)
     if not reports:
         raise RuntimeError("No report JSON artifacts found. Generate a report JSON first.")
     return reports[-1]
+
+
+def find_report_json_files(project_root: Path) -> list[Path]:
+    report_dir = project_root / DEFAULT_REPORT_JSON_DIR
+    return sorted(report_dir.glob("*.json"))
 
 
 def load_report_payload(report_json_path: Path) -> dict[str, Any]:
@@ -22,6 +26,23 @@ def load_report_payload(report_json_path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise RuntimeError("Dashboard report JSON must contain an object.")
     return payload
+
+
+def load_report_payloads(report_json_paths: list[Path]) -> list[dict[str, Any]]:
+    return [load_report_payload(report_json_path) for report_json_path in report_json_paths]
+
+
+def build_multi_report_dashboard_payload(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for payload in payloads:
+        grouped.setdefault(_channel_identity(payload), []).append(payload)
+
+    return {
+        "channels": [
+            _aggregated_channel_payload(channel_payloads)
+            for channel_payloads in grouped.values()
+        ]
+    }
 
 
 def build_dashboard_html(payload: dict[str, Any]) -> str:
@@ -472,15 +493,21 @@ def write_dashboard_html(payload: dict[str, Any], output_path: Path) -> Path:
 
 
 def main(
-    report_json_path: Path | None = None,
+    report_json_path: Path | list[Path] | None = None,
     output_path: Path = DEFAULT_DASHBOARD_OUTPUT,
     project_root: Path | None = None,
+    all_reports: bool = False,
 ) -> int:
     root = project_root or Path.cwd()
-    target_report = report_json_path or find_latest_report_json(root)
-    payload = load_report_payload(target_report)
+    target_reports = _dashboard_report_paths(report_json_path, root, all_reports)
+    payloads = load_report_payloads(target_reports)
+    payload = (
+        build_multi_report_dashboard_payload(payloads)
+        if len(payloads) > 1
+        else payloads[0]
+    )
     dashboard_path = write_dashboard_html(payload, output_path)
-    print(f"report_json_path={target_report.as_posix()}")
+    print("report_json_paths=" + ",".join(path.as_posix() for path in target_reports))
     print(f"dashboard_path={dashboard_path.as_posix()}")
     return 0
 
@@ -491,8 +518,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--report-json",
+        action="append",
         type=Path,
-        help="Report JSON artifact to render. Defaults to the latest local YouTube report JSON.",
+        help=(
+            "Report JSON artifact to render. Can be provided more than once. "
+            "Defaults to the latest local YouTube report JSON."
+        ),
+    )
+    parser.add_argument(
+        "--all-reports",
+        action="store_true",
+        help="Render all local report JSON artifacts from the default report directory.",
     )
     parser.add_argument(
         "--output",
@@ -508,12 +544,146 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "Defaults to the current directory."
         ),
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.all_reports and args.report_json:
+        parser.error("--all-reports cannot be used with --report-json.")
+    return args
 
 
 def cli_entrypoint() -> int:
     args = parse_args()
-    return main(args.report_json, args.output, args.project_root)
+    return main(args.report_json, args.output, args.project_root, args.all_reports)
+
+
+def _dashboard_report_paths(
+    report_json_path: Path | list[Path] | None,
+    project_root: Path,
+    all_reports: bool,
+) -> list[Path]:
+    if all_reports:
+        reports = find_report_json_files(project_root)
+        if not reports:
+            raise RuntimeError("No report JSON artifacts found. Generate a report JSON first.")
+        return reports
+    if isinstance(report_json_path, list):
+        if not report_json_path:
+            return [find_latest_report_json(project_root)]
+        return report_json_path
+    if report_json_path is not None:
+        return [report_json_path]
+    return [find_latest_report_json(project_root)]
+
+
+def _channel_identity(payload: dict[str, Any]) -> str:
+    source = payload.get("source", {})
+    if not isinstance(source, dict):
+        source = {}
+    candidates = [
+        source.get("channel_id"),
+        source.get("channel_handle"),
+        source.get("channel_name"),
+        source.get("name"),
+        payload.get("channel_id"),
+        payload.get("channel_handle"),
+        payload.get("channel_name"),
+        source.get("provider"),
+        payload.get("provider"),
+    ]
+    for candidate in candidates:
+        if candidate:
+            return str(candidate).strip().lower()
+    return "unknown"
+
+
+def _aggregated_channel_payload(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    first_payload = payloads[0] if payloads else {}
+    source = _source_object(first_payload)
+    channel_name = _channel_display_name(first_payload)
+    return {
+        "generated_at": _latest_generated_at(payloads),
+        "source": {
+            "provider": "multi-platform",
+            "channel_name": channel_name,
+            "image_url": source.get("image_url") or source.get("channel_image_url") or "",
+        },
+        "report_schema_version": first_payload.get("report_schema_version", "unknown"),
+        "records": sum(_number(payload.get("records", 0)) for payload in payloads),
+        "ranking": _first_dict_value(payloads, "ranking"),
+        "data_quality": _aggregated_data_quality(payloads),
+        "top_content": _first_dict_value(payloads, "top_content"),
+        "top_rows": [
+            row
+            for payload in payloads
+            for row in payload.get("top_rows", [])
+            if isinstance(row, dict)
+        ],
+        "platforms": [_platform_payload_from_report(payload) for payload in payloads],
+    }
+
+
+def _platform_payload_from_report(payload: dict[str, Any]) -> dict[str, Any]:
+    source = _source_object(payload)
+    data_quality = payload.get("data_quality", {})
+    if not isinstance(data_quality, dict):
+        data_quality = {}
+    totals = payload.get("totals", {})
+    if not isinstance(totals, dict):
+        totals = {}
+    return {
+        "provider": str(source.get("provider", payload.get("provider", "unknown"))),
+        "status": str(data_quality.get("status", "available")),
+        "records": payload.get("records", 0),
+        "totals": totals,
+    }
+
+
+def _source_object(payload: dict[str, Any]) -> dict[str, Any]:
+    source = payload.get("source", {})
+    return source if isinstance(source, dict) else {}
+
+
+def _channel_display_name(payload: dict[str, Any]) -> str:
+    source = _source_object(payload)
+    candidates = [
+        source.get("channel_name"),
+        source.get("name"),
+        payload.get("channel_name"),
+        payload.get("channel_handle"),
+        source.get("channel_handle"),
+        source.get("provider"),
+        payload.get("provider"),
+    ]
+    for candidate in candidates:
+        if candidate:
+            return str(candidate)
+    return "unknown"
+
+
+def _latest_generated_at(payloads: list[dict[str, Any]]) -> str:
+    generated = [
+        str(payload.get("generated_at"))
+        for payload in payloads
+        if payload.get("generated_at")
+    ]
+    return sorted(generated)[-1] if generated else "unknown"
+
+
+def _first_dict_value(payloads: list[dict[str, Any]], key: str) -> dict[str, Any]:
+    for payload in payloads:
+        value = payload.get(key)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def _aggregated_data_quality(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    records = sum(_number(payload.get("records", 0)) for payload in payloads)
+    has_engagements = any(
+        bool(payload.get("data_quality", {}).get("has_engagements", False))
+        for payload in payloads
+        if isinstance(payload.get("data_quality", {}), dict)
+    )
+    return {"status": "ok" if records else "empty", "has_engagements": has_engagements}
 
 
 def _dashboard_channels(payload: dict[str, Any]) -> list[dict[str, Any]]:
