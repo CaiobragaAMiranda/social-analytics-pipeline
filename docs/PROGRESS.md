@@ -4,11 +4,11 @@
 
 Date: 2026-06-13
 
-Current phase: Consumption layer
+Current phase: Second real provider
 
-Current task: TASK-103 - Second real provider decision.
+Current task: TASK-104 - Instagram provider skeleton.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. ADR-0002 selects Instagram as the next real provider for authorized professional accounts.
 
 ## Completed Milestones
 
@@ -107,15 +107,16 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard now shows per-platform source cards for YouTube, TikTok and Instagram.
 - The dashboard can now aggregate multiple report JSON artifacts into channel options with platform source breakdowns.
 - The dashboard can now apply a local channel identity config for monitored channel names and images.
+- The second real provider decision now selects Instagram and defers TikTok.
 
 ## Current Constraints
 
 - `.env`, raw data and processed data must remain local and ignored by Git.
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
-- New work should prefer the channel-first dashboard contract before deeper infrastructure or provider expansion.
+- Instagram real-provider work must use official Meta APIs and authorized professional accounts only.
 
 ## Next Actions
 
-- Group multiple report JSON files under monitored channel identities.
-- Start the second real provider only after the channel contract is clear.
+- Add the smallest Instagram provider skeleton behind local credentials.
+- Keep TikTok mocked until an official analytics path fits this project.

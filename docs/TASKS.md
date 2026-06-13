@@ -1653,6 +1653,7 @@ Evidence:
 | TASK-100 | Dashboard shows per-platform source cards inside selected channels. | Done |
 | TASK-101 | Dashboard aggregates multiple report JSON artifacts by channel identity. | Done |
 | TASK-102 | Dashboard can apply local monitored channel identity configuration. | Done |
+| TASK-103 | Instagram was selected as the next real provider. | Done |
 
 ## Next Channel-Oriented Tasks
 
@@ -1706,7 +1707,7 @@ Implementation notes:
 
 ### TASK-103 - Second real provider decision
 
-Status: Pending
+Status: Done
 
 Phase: Second real provider
 
@@ -1719,18 +1720,42 @@ Acceptance criteria:
 - The implementation plan avoids scraping and non-official access.
 - The provider must produce metrics compatible with the channel dashboard contract.
 
+Implementation notes:
+
+- ADR-0002 selects Instagram as the next real provider.
+- The decision is limited to authorized Instagram professional accounts.
+- TikTok remains deferred because the official public-data path is research-oriented and constrained.
+- Public docs use placeholder credential names only.
+- The next implementation step is a small Instagram provider skeleton.
+
+### TASK-104 - Instagram provider skeleton
+
+Status: Pending
+
+Phase: Second real provider
+
+Goal: add the smallest official-API Instagram provider shape without making automatic real calls.
+
+Acceptance criteria:
+
+- Provider requires explicit local credentials and fails closed when missing.
+- Public configuration examples use placeholders only.
+- Provider methods map account/media metrics toward the existing `SocialMetric` schema.
+- Tests use fake HTTP responses only.
+- No scraping, browser automation or non-official access is introduced.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
 - Add stronger alert delivery beyond the current local fail-on-invalid mode.
 - Revisit broader Airflow/observability refinements.
-- Expand to TikTok or Instagram real APIs only after the channel-first dashboard contract is useful.
+- Expand TikTok only after an official analytics path fits the channel-first dashboard contract.
 
 ## Next Candidate Deliveries
 
 - Define and implement the channel-first multi-platform dashboard contract.
 - Group multiple reports into monitored channels before provider expansion.
-- Add a second real provider path only if official local access is practical and compatible with the channel contract.
+- Add the smallest Instagram provider skeleton behind local credentials.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

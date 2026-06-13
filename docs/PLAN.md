@@ -31,7 +31,7 @@ Build a local-first social analytics pipeline that can collect public social dat
 2. Build a local channel-first dashboard from existing report JSON files.
 3. Make the user-facing selector choose monitored channels/accounts, not platforms.
 4. Treat YouTube, TikTok and Instagram as platform sources inside the selected channel.
-5. Add a second real provider only after the channel dashboard data contract is clear.
+5. Add Instagram as the second real provider only for authorized professional accounts.
 6. Prefer static/local artifacts before adding a web server or cloud deployment.
 
 ## Next Delivery Sequence
@@ -40,7 +40,8 @@ Build a local-first social analytics pipeline that can collect public social dat
 2. Dashboard breakdown: show selected-channel totals plus per-platform YouTube, TikTok and Instagram cards.
 3. Multi-report aggregation: group multiple report JSON files into channel options.
 4. Channel identity config: map platform handles/IDs to one monitored channel identity.
-5. Second provider decision: prefer an official API only after the channel contract can absorb it.
+5. Second provider decision: Instagram is selected for authorized professional accounts.
+6. Instagram provider skeleton: add the smallest official-API provider shape before real local calls.
 
 ## Out of Scope for Now
 
@@ -48,5 +49,6 @@ Build a local-first social analytics pipeline that can collect public social dat
 - Full analytics dashboard beyond the channel-first MVP.
 - Paid API integrations before the local MVP is stable.
 - Non-official scraping or bypassing platform access rules.
+- Arbitrary public Instagram profile analytics without account authorization.
 - Large-scale async fetching before real volume requires it.
 - Additional engineering polish that does not change the current YouTube delivery outcome.
