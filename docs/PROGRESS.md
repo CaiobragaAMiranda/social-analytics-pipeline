@@ -4,11 +4,11 @@
 
 Date: 2026-06-13
 
-Current phase: Second real provider
+Current phase: Consumption layer
 
-Current task: TASK-106 - Instagram local report artifact.
+Current task: TASK-110 - PR review follow-up and next slice decision.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. ADR-0002 selects Instagram as the next real provider for authorized professional accounts, and the provider can now run through an explicit local command behind local credentials.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same static dashboard.
 
 ## Completed Milestones
 
@@ -110,6 +110,15 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The second real provider decision now selects Instagram and defers TikTok.
 - The Instagram provider skeleton now supports authorized account/media collection with fake-HTTP test coverage.
 - The Instagram provider can now run through `instagram-local-pipeline` and write ignored local raw, processed and run-summary artifacts.
+- The metric schema and local artifact loader now preserve optional channel and content display metadata.
+- The real YouTube provider now fetches channel snippet/statistics metadata for human channel names, images and follower counts.
+- YouTube report JSON now preserves optional human channel and content metadata for dashboard consumers.
+- The dashboard top-content view now prioritizes title, thumbnail/fallback, link and publish date before technical IDs.
+- Instagram report JSON now exposes dashboard-compatible totals, ranking, data quality, production dates and top content.
+- Instagram normalization now preserves caption, permalink, media image, username and profile image metadata when available.
+- The dashboard report discovery now includes Instagram JSON report artifacts.
+- `dashboard-smoke` now generates safe sample YouTube and Instagram artifacts from fixtures in an isolated ignored smoke workspace and builds a local static dashboard through all-report discovery.
+- The current dashboard/provider batch passed local validation and is ready for PR #33 review follow-up.
 
 ## Current Constraints
 
@@ -120,5 +129,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Add an Instagram report JSON artifact compatible with the channel-first dashboard.
+- Review GitHub Actions and CodeRabbit feedback for PR #33 after the branch update.
+- Keep technical IDs as secondary metadata or fallbacks, not primary dashboard labels.
 - Keep TikTok mocked until an official analytics path fits this project.

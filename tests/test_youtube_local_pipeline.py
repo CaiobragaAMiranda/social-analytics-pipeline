@@ -27,12 +27,26 @@ class FakeHttpJsonClient:
                 "items": [
                     {
                         "id": "yt-video-001",
-                        "snippet": {"publishedAt": "2026-05-20T14:30:00Z"},
+                        "snippet": {
+                            "publishedAt": "2026-05-20T14:30:00Z",
+                            "title": "Pipeline demo",
+                            "channelTitle": "Test Channel",
+                        },
                         "statistics": {
                             "likeCount": "10",
                             "commentCount": "2",
                             "viewCount": "100",
                         },
+                    }
+                ]
+            }
+
+        if url.endswith("/channels"):
+            return {
+                "items": [
+                    {
+                        "snippet": {"title": "Test Channel"},
+                        "statistics": {"subscriberCount": "1000"},
                     }
                 ]
             }
@@ -52,12 +66,26 @@ class FakeInvalidHttpJsonClient:
                 "items": [
                     {
                         "id": "yt-video-001",
-                        "snippet": {"publishedAt": "2026-05-20T14:30:00Z"},
+                        "snippet": {
+                            "publishedAt": "2026-05-20T14:30:00Z",
+                            "title": "Pipeline demo",
+                            "channelTitle": "Test Channel",
+                        },
                         "statistics": {
                             "likeCount": "-10",
                             "commentCount": "2",
                             "viewCount": "100",
                         },
+                    }
+                ]
+            }
+
+        if url.endswith("/channels"):
+            return {
+                "items": [
+                    {
+                        "snippet": {"title": "Test Channel"},
+                        "statistics": {"subscriberCount": "1000"},
                     }
                 ]
             }
@@ -96,6 +124,8 @@ class YouTubeLocalPipelineTest(unittest.TestCase):
         self.assertTrue(run_summary_exists)
         self.assertEqual(processed_rows[0]["provider"], "youtube")
         self.assertEqual(processed_rows[0]["content_id"], "yt-video-001")
+        self.assertEqual(processed_rows[0]["title"], "Pipeline demo")
+        self.assertEqual(processed_rows[0]["channel_name"], "Test Channel")
         self.assertEqual(run_summary["provider"], "youtube")
         self.assertEqual(run_summary["status"], "ok")
         self.assertEqual(run_summary["counts"]["valid_records"], 1)

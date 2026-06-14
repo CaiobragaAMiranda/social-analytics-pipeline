@@ -9,7 +9,7 @@ from social_analytics_pipeline.providers.base import SocialProvider
 INSTAGRAM_GRAPH_API_BASE_URL = "https://graph.facebook.com"
 DEFAULT_INSTAGRAM_MEDIA_FIELDS = (
     "id,media_type,timestamp,like_count,comments_count,caption,permalink,"
-    "plays,impressions,shares"
+    "media_url,thumbnail_url,plays,impressions,shares"
 )
 
 
@@ -114,7 +114,7 @@ class InstagramGraphApiProvider(SocialProvider):
         return self.http_client.get_json(
             f"{self.config.base_url}/{account_id}",
             {
-                "fields": "id,username,followers_count",
+                "fields": "id,username,followers_count,profile_picture_url",
                 "access_token": self.config.access_token,
             },
         )

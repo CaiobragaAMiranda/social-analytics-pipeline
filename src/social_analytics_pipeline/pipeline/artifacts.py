@@ -43,6 +43,11 @@ def metric_to_artifact_row(metric: SocialMetric) -> dict[str, Any]:
         "views": metric.views,
         "followers": metric.followers,
         "raw_path": metric.raw_path.as_posix(),
+        "title": metric.title,
+        "thumbnail_url": metric.thumbnail_url,
+        "content_url": metric.content_url,
+        "channel_name": metric.channel_name,
+        "channel_image_url": metric.channel_image_url,
     }
 
 

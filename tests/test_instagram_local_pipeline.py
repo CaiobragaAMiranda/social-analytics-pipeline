@@ -22,6 +22,7 @@ class FakeInstagramHttpJsonClient:
                 "id": "ig-account-1",
                 "username": "example_account",
                 "followers_count": 1200,
+                "profile_picture_url": "https://example.test/profile.jpg",
             }
         if url.endswith("/ig-account-1/media"):
             return {
@@ -30,6 +31,9 @@ class FakeInstagramHttpJsonClient:
                         "id": "ig-media-1",
                         "media_type": "IMAGE",
                         "timestamp": "2026-05-20T14:30:00Z",
+                        "caption": "Launch post",
+                        "permalink": "https://example.test/post",
+                        "media_url": "https://example.test/post.jpg",
                         "like_count": 12,
                         "comments_count": 3,
                         "impressions": 100,
@@ -70,6 +74,14 @@ class InstagramLocalPipelineTest(unittest.TestCase):
         self.assertEqual(len(raw_files), 1)
         self.assertEqual(processed_rows[0]["provider"], "instagram")
         self.assertEqual(processed_rows[0]["content_id"], "ig-media-1")
+        self.assertEqual(processed_rows[0]["title"], "Launch post")
+        self.assertEqual(processed_rows[0]["thumbnail_url"], "https://example.test/post.jpg")
+        self.assertEqual(processed_rows[0]["content_url"], "https://example.test/post")
+        self.assertEqual(processed_rows[0]["channel_name"], "example_account")
+        self.assertEqual(
+            processed_rows[0]["channel_image_url"],
+            "https://example.test/profile.jpg",
+        )
         self.assertEqual(run_summary["provider"], "instagram")
         self.assertEqual(run_summary["status"], "ok")
         self.assertEqual(run_summary["counts"]["valid_records"], 1)

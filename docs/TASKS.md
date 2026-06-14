@@ -18,6 +18,31 @@
 
 ## Current Task
 
+### TASK-106 - Human channel and content display metadata
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard identify monitored channels and content with human-readable names, images and links instead of technical IDs.
+
+Acceptance criteria:
+
+- The channel selector uses the monitored channel display name and channel image when configured or available from provider metadata.
+- Provider names such as YouTube, TikTok and Instagram appear as data sources, not as selectable channel labels.
+- Top content rows/cards prioritize title, thumbnail/image, content type, publish date and link when available.
+- Technical IDs remain available only as secondary metadata or fallback text.
+- Tests cover channel name/image resolution and content display fallbacks.
+
+Evidence:
+
+- YouTube report JSON now preserves optional content title, thumbnail URL, content URL, content type and publish date.
+- The normalized metric schema now preserves optional channel name, channel image, content title, thumbnail and link metadata.
+- The real YouTube provider now fetches channel snippet/statistics metadata and attaches it to collected video payloads.
+- The dashboard top-content table now prioritizes title, thumbnail/fallback, publish date and link.
+- Technical content IDs now render as secondary metadata when available.
+- Tests cover provider enrichment, normalization, artifact serialization, report JSON propagation and dashboard rendering for human metadata.
+
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
 Status: Done
@@ -1656,6 +1681,8 @@ Evidence:
 | TASK-103 | Instagram was selected as the next real provider. | Done |
 | TASK-104 | Instagram provider skeleton was added behind local credentials. | Done |
 | TASK-105 | Instagram provider can run through an explicit local pipeline command. | Done |
+| TASK-106 | Dashboard content display now prioritizes human metadata over technical IDs. | Done |
+| TASK-107 | Instagram report JSON can feed the channel-first dashboard contract. | Done |
 
 ## Next Channel-Oriented Tasks
 
@@ -1778,9 +1805,9 @@ Implementation notes:
 - Tests cover fake-provider execution, interval resolution, loader behavior and missing credentials.
 - The first Instagram local load target is intentionally JSON-only.
 
-### TASK-106 - Instagram local report artifact
+### TASK-107 - Instagram local report artifact
 
-Status: Pending
+Status: Done
 
 Phase: Second real provider
 
@@ -1794,6 +1821,75 @@ Acceptance criteria:
 - Tests cover totals, top content and empty inputs.
 - No real Instagram credentials or raw payloads are printed.
 
+Evidence:
+
+- `instagram-report` can read the latest or explicit processed Instagram artifact.
+- Instagram report JSON writes the same dashboard contract sections used by YouTube reports.
+- Instagram normalizer now preserves caption, permalink, media image, username and profile image when available.
+- `social-dashboard --all-reports` now discovers Instagram report JSON artifacts alongside YouTube report JSON artifacts.
+- Tests cover Instagram totals, top content, empty artifacts, CLI output, metadata propagation and dashboard discovery.
+
+### TASK-108 - Multi-provider dashboard smoke
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: validate a local dashboard run with more than one provider report artifact.
+
+Acceptance criteria:
+
+- A local smoke path can generate or use safe sample YouTube and Instagram report JSON artifacts.
+- `social-dashboard --all-reports` renders both providers into the channel-first dashboard contract.
+- The smoke path uses placeholders or generated fake data only.
+- Documentation records the command sequence without local secrets, real IDs or absolute paths.
+
+Evidence:
+
+- `dashboard-smoke` generates safe sample YouTube and Instagram processed artifacts from committed fixtures.
+- The smoke command writes dashboard-compatible YouTube and Instagram report JSON artifacts under an ignored isolated smoke workspace.
+- The smoke command builds a static dashboard through all-report discovery from both provider reports.
+- Tests cover direct smoke execution, CLI execution and relative output handling.
+
+### TASK-109 - Review and package current task batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: prepare the accumulated dashboard/provider changes for commit and PR review.
+
+Acceptance criteria:
+
+- Local validation results are current.
+- Sensitive information scan is clean.
+- Gemini review is retried or explicitly recorded as unavailable.
+- Commit groups are clear and avoid generated local data.
+- PR notes summarize completed tasks and remaining tradeoffs.
+
+Evidence:
+
+- Local validation passed with lint, docs verification, security scan and the full test suite.
+- Sensitive information scan found no committed secrets, local paths, raw payloads, expanded DSNs, ports or IPs in versionable files.
+- Gemini review was retried and timed out without producing a new review artifact, so it is recorded as unavailable for this batch.
+- Generated smoke artifacts remain ignored under local data directories.
+- PR #33 is the review target for the current dashboard/provider batch.
+
+### TASK-110 - PR review follow-up and next slice decision
+
+Status: Pending
+
+Phase: Governance
+
+Goal: use GitHub Actions and CodeRabbit feedback to decide whether to merge the current batch or fix review findings first.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the branch update.
+- CodeRabbit review is checked for actionable findings.
+- Any necessary fixes are applied before merge.
+- If no blockers exist, the PR can be merged and the next implementation slice can be selected.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -1803,9 +1899,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Define and implement the channel-first multi-platform dashboard contract.
-- Group multiple reports into monitored channels before provider expansion.
-- Add a dashboard-compatible Instagram report JSON artifact.
+- Review PR feedback for the current task batch and decide whether to merge.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

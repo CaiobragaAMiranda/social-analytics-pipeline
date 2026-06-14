@@ -32,7 +32,14 @@ class FakeHttpJsonClient:
                 "items": [
                     {
                         "id": video_id,
-                        "snippet": {"publishedAt": "2026-05-20T14:30:00Z"},
+                        "snippet": {
+                            "publishedAt": "2026-05-20T14:30:00Z",
+                            "title": f"Video {video_id}",
+                            "channelTitle": "Bora Leao",
+                            "thumbnails": {
+                                "medium": {"url": f"https://example.test/{video_id}.jpg"}
+                            },
+                        },
                         "statistics": {
                             "likeCount": "10",
                             "commentCount": "2",
@@ -44,6 +51,23 @@ class FakeHttpJsonClient:
             }
 
         if url.endswith("/channels"):
+            if "id" in params:
+                return {
+                    "items": [
+                        {
+                            "id": "UCresolved123",
+                            "snippet": {
+                                "title": "Bora Leao",
+                                "thumbnails": {
+                                    "medium": {
+                                        "url": "https://example.test/channel.jpg"
+                                    }
+                                },
+                            },
+                            "statistics": {"subscriberCount": "1234"},
+                        }
+                    ]
+                }
             return {
                 "items": [
                     {
@@ -226,11 +250,13 @@ class YouTubeProviderTest(unittest.TestCase):
         self.assertEqual([payload["id"] for payload in payloads], ["yt-video-001", "yt-video-002"])
         self.assertEqual(payloads[0]["_collection"]["provider"], "youtube")
         self.assertEqual(payloads[0]["_collection"]["account_id"], "yt-channel-1")
-        self.assertEqual(len(http_client.calls), 3)
+        self.assertEqual(payloads[0]["channel"]["title"], "Bora Leao")
+        self.assertEqual(len(http_client.calls), 4)
         self.assertEqual(http_client.calls[0][1]["publishedAfter"], "2026-05-01T00:00:00Z")
         self.assertEqual(http_client.calls[0][1]["publishedBefore"], "2026-05-27T00:00:00Z")
         self.assertEqual(http_client.calls[1][1]["pageToken"], "page-2")
         self.assertEqual(http_client.calls[2][1]["part"], "snippet,statistics")
+        self.assertEqual(http_client.calls[3][1]["part"], "snippet,statistics")
 
     def test_resolve_channel_id_uses_handle_without_at_sign(self) -> None:
         http_client = FakeHttpJsonClient()
@@ -263,7 +289,12 @@ class YouTubeProviderTest(unittest.TestCase):
         self.assertEqual(metric.likes, 10)
         self.assertEqual(metric.comments, 2)
         self.assertEqual(metric.views, 100)
-        self.assertIsNone(metric.followers)
+        self.assertEqual(metric.followers, 1234)
+        self.assertEqual(metric.title, "Video yt-video-001")
+        self.assertEqual(metric.thumbnail_url, "https://example.test/yt-video-001.jpg")
+        self.assertEqual(metric.content_url, "https://www.youtube.com/watch?v=yt-video-001")
+        self.assertEqual(metric.channel_name, "Bora Leao")
+        self.assertEqual(metric.channel_image_url, "https://example.test/channel.jpg")
 
 
 if __name__ == "__main__":

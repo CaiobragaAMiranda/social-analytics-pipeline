@@ -2,6 +2,7 @@ import argparse
 import datetime as dt
 import html
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,11 @@ from social_analytics_pipeline.config import (
 
 DEFAULT_DASHBOARD_OUTPUT = Path("data/dashboard/index.html")
 DEFAULT_REPORT_JSON_DIR = Path("data/reports/youtube-json")
+DEFAULT_REPORT_JSON_DIRS = (
+    Path("data/reports/youtube-json"),
+    Path("data/reports/instagram-json"),
+)
+DEFAULT_CHANNELS_CONFIG = Path("config/channels.local.json")
 
 
 def find_latest_report_json(project_root: Path) -> Path:
@@ -23,8 +29,12 @@ def find_latest_report_json(project_root: Path) -> Path:
 
 
 def find_report_json_files(project_root: Path) -> list[Path]:
-    report_dir = project_root / DEFAULT_REPORT_JSON_DIR
-    return sorted(report_dir.glob("*.json"))
+    reports: list[Path] = []
+    for report_dir in DEFAULT_REPORT_JSON_DIRS:
+        reports.extend((project_root / report_dir).glob("*.json"))
+    if reports:
+        return sorted(reports)
+    return sorted((project_root / DEFAULT_REPORT_JSON_DIR).glob("*.json"))
 
 
 def load_report_payload(report_json_path: Path) -> dict[str, Any]:
@@ -70,8 +80,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
   <style>
     * {{ box-sizing: border-box; }}
     body {{
-      background: #1f3c46;
-      color: #eef8f8;
+      background: #080916;
+      color: #eef8ff;
       font-family: Arial, sans-serif;
       margin: 0;
     }}
@@ -81,8 +91,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       min-height: 100vh;
     }}
     .sidebar {{
-      background: #12d8bd;
-      color: #14343d;
+      background: linear-gradient(180deg, #12152a 0%, #0b1024 100%);
+      border-right: 1px solid rgba(56, 243, 223, 0.25);
+      color: #eef8ff;
       display: flex;
       flex-direction: column;
       gap: 1.4rem;
@@ -103,16 +114,17 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       min-width: 0;
     }}
     .channel-image {{
-      border: 2px solid rgba(20, 52, 61, 0.28);
+      border: 2px solid rgba(42, 235, 223, 0.8);
       border-radius: 50%;
       flex: 0 0 auto;
       height: 64px;
       object-fit: cover;
+      box-shadow: 0 0 26px rgba(26, 220, 214, 0.28);
       width: 64px;
     }}
     .channel-fallback {{
       align-items: center;
-      background: #254a55;
+      background: radial-gradient(circle at 30% 30%, #1eead8, #1950d1 64%, #182039 65%);
       color: #fff;
       display: flex;
       font-size: 1.6rem;
@@ -146,10 +158,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }}
     h1 {{ font-size: 1.35rem; line-height: 1.2; margin: 0; text-transform: uppercase; }}
     h2 {{ font-size: 0.85rem; letter-spacing: 0; margin: 0; text-transform: uppercase; }}
-    .meta {{ color: #a7c1c8; line-height: 1.45; margin: 0; overflow-wrap: anywhere; }}
+    .meta {{ color: #9da7bc; line-height: 1.45; margin: 0; overflow-wrap: anywhere; }}
     .channel-select {{
-      background: #284b57;
-      border: 1px solid #4e7480;
+      background: #111428;
+      border: 1px solid #2f3654;
       border-radius: 999px;
       color: #eef8f8;
       min-width: 220px;
@@ -157,16 +169,34 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }}
     .hero-grid {{ display: grid; gap: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }}
     .card {{
-      background: #294b57;
-      border: 1px solid rgba(136, 181, 190, 0.18);
-      border-radius: 4px;
+      background: linear-gradient(145deg, #101326 0%, #090b18 100%);
+      border: 1px solid #2f3654;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 18px 38px rgba(0, 0, 0, 0.22);
       min-width: 0;
       padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
     }}
-    .card.accent {{ background: #0dd7bf; color: #153942; }}
-    .label {{ color: #a9c2c9; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; }}
-    .accent .label {{ color: #16434b; }}
+    .card::after {{
+      background: radial-gradient(circle, rgba(28, 232, 216, 0.18), transparent 62%);
+      content: "";
+      height: 7rem;
+      position: absolute;
+      right: -2.5rem;
+      top: -2.5rem;
+      width: 7rem;
+    }}
+    .card.accent {{
+      background: linear-gradient(145deg, #12162d 0%, #0a1029 100%);
+      border-color: rgba(30, 234, 216, 0.74);
+      box-shadow: 0 0 34px rgba(26, 220, 214, 0.18);
+      color: #eef8ff;
+    }}
+    .label {{ color: #9da7bc; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; }}
+    .accent .label {{ color: #9af7ee; }}
     .value {{
+      color: #27ead8;
       font-size: 1.75rem;
       font-weight: bold;
       line-height: 1.2;
@@ -174,9 +204,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       overflow-wrap: anywhere;
     }}
     .section {{
-      background: #294b57;
-      border: 1px solid rgba(136, 181, 190, 0.18);
-      border-radius: 4px;
+      background: linear-gradient(145deg, #101326 0%, #090b18 100%);
+      border: 1px solid #2f3654;
+      border-radius: 8px;
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
       padding: 1rem;
     }}
     .section-header {{
@@ -187,10 +218,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       margin-bottom: 0.85rem;
     }}
     .status-pill {{
-      background: rgba(13, 215, 191, 0.16);
-      border: 1px solid rgba(13, 215, 191, 0.45);
+      background: rgba(30, 234, 216, 0.12);
+      border: 1px solid rgba(30, 234, 216, 0.45);
       border-radius: 999px;
-      color: #89f4e7;
+      color: #85fff4;
       font-size: 0.82rem;
       font-weight: bold;
       padding: 0.28rem 0.6rem;
@@ -200,18 +231,79 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       gap: 0.75rem;
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }}
-    .quality-item {{ border-left: 3px solid #0dd7bf; padding-left: 0.75rem; }}
+    .quality-item {{ border-left: 3px solid #1eead8; padding-left: 0.75rem; }}
     .quality-item strong {{ display: block; margin-top: 0.2rem; }}
     .main-grid {{ display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }}
+    .analytics-grid {{ display: grid; gap: 1rem; grid-template-columns: 1.25fr 0.75fr; }}
+    .chart-card {{ min-height: 16rem; }}
+    .chart-bars {{ display: grid; gap: 0.75rem; }}
+    .chart-row {{
+      align-items: center;
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: minmax(5rem, 0.7fr) minmax(0, 2fr) 4.5rem;
+    }}
+    .chart-label, .chart-value {{ color: #c8d2e3; font-size: 0.78rem; overflow-wrap: anywhere; }}
+    .chart-value {{ text-align: right; }}
+    .chart-track {{
+      background: #20243b;
+      border-radius: 999px;
+      height: 0.8rem;
+      overflow: hidden;
+    }}
+    .chart-fill {{
+      background: linear-gradient(90deg, #1950d1 0%, #1eead8 72%, #54ff8a 100%);
+      border-radius: inherit;
+      box-shadow: 0 0 22px rgba(30, 234, 216, 0.48);
+      height: 100%;
+      min-width: 0.25rem;
+    }}
+    .donut-grid {{
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }}
+    .donut {{
+      align-items: center;
+      display: grid;
+      gap: 0.55rem;
+      justify-items: center;
+      text-align: center;
+    }}
+    .donut-ring {{
+      align-items: center;
+      background: conic-gradient(#1eead8 calc(var(--value) * 1%), #24283f 0);
+      border-radius: 50%;
+      display: flex;
+      height: 5rem;
+      justify-content: center;
+      position: relative;
+      width: 5rem;
+    }}
+    .donut-ring::after {{
+      background: #101326;
+      border-radius: 50%;
+      content: "";
+      height: 3.25rem;
+      position: absolute;
+      width: 3.25rem;
+    }}
+    .donut-ring strong {{
+      color: #eef8ff;
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 1;
+    }}
+    .donut span {{ color: #9da7bc; font-size: 0.78rem; }}
     .platform-grid {{
       display: grid;
       gap: 1rem;
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }}
     .platform-card {{
-      background: #203d47;
-      border: 1px solid rgba(136, 181, 190, 0.18);
-      border-radius: 4px;
+      background: #111428;
+      border: 1px solid #2f3654;
+      border-radius: 8px;
       display: grid;
       gap: 0.65rem;
       min-width: 0;
@@ -219,6 +311,51 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }}
     .platform-card.unavailable {{
       opacity: 0.58;
+    }}
+    .production-panel {{
+      overflow-x: auto;
+    }}
+    .production-heatmap {{
+      display: grid;
+      gap: 0.4rem;
+      min-width: 760px;
+    }}
+    .production-months {{
+      color: #9da7bc;
+      display: grid;
+      font-size: 0.78rem;
+      grid-template-columns: repeat(6, 1fr);
+      padding-left: 1.4rem;
+    }}
+    .production-grid {{
+      display: grid;
+      gap: 0.22rem;
+      grid-auto-flow: column;
+      grid-template-rows: repeat(7, 0.85rem);
+      width: max-content;
+    }}
+    .production-day {{
+      background: #20243b;
+      border-radius: 3px;
+      height: 0.85rem;
+      width: 0.85rem;
+    }}
+    .production-day.level-1 {{ background: #1950d1; }}
+    .production-day.level-2 {{ background: #168ac7; }}
+    .production-day.level-3 {{ background: #1eead8; }}
+    .production-day.level-4 {{ background: #54ff8a; }}
+    .production-footer {{
+      align-items: center;
+      color: #9da7bc;
+      display: flex;
+      font-size: 0.8rem;
+      justify-content: space-between;
+      margin-top: 0.8rem;
+    }}
+    .production-legend {{
+      align-items: center;
+      display: flex;
+      gap: 0.35rem;
     }}
     .platform-title {{
       align-items: center;
@@ -228,7 +365,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       text-transform: uppercase;
     }}
     .platform-status {{
-      color: #89f4e7;
+      color: #85fff4;
       font-size: 0.7rem;
       font-weight: bold;
     }}
@@ -239,14 +376,54 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       padding: 0.72rem;
       text-align: left;
     }}
-    th {{ background: #203d47; color: #a7c1c8; font-size: 0.78rem; text-transform: uppercase; }}
+    th {{ background: #111428; color: #9da7bc; font-size: 0.78rem; text-transform: uppercase; }}
     tr:last-child td {{ border-bottom: 0; }}
+    .content-cell {{
+      align-items: center;
+      display: flex;
+      gap: 0.75rem;
+      min-width: 18rem;
+    }}
+    .content-thumb {{
+      background: #20243b;
+      border: 1px solid rgba(30, 234, 216, 0.2);
+      border-radius: 6px;
+      flex: 0 0 auto;
+      height: 3rem;
+      object-fit: cover;
+      width: 4.5rem;
+    }}
+    .content-thumb.fallback {{
+      align-items: center;
+      color: #85fff4;
+      display: flex;
+      font-size: 0.72rem;
+      font-weight: bold;
+      justify-content: center;
+      text-transform: uppercase;
+    }}
+    .content-title {{
+      color: #eef8ff;
+      display: block;
+      font-weight: bold;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }}
+    .content-title:hover {{ color: #27ead8; }}
+    .content-meta {{
+      color: #9da7bc;
+      display: block;
+      font-size: 0.74rem;
+      margin-top: 0.2rem;
+      overflow-wrap: anywhere;
+    }}
     .empty-row td {{ color: #a7c1c8; padding: 1.25rem 0.72rem; text-align: center; }}
     @media (max-width: 980px) {{
       .dashboard-shell {{ grid-template-columns: 1fr; }}
       .sidebar {{ flex-direction: row; flex-wrap: wrap; align-items: center; }}
       .nav-list {{ display: none; }}
-      .hero-grid, .main-grid, .platform-grid {{
+      .hero-grid, .main-grid, .platform-grid, .analytics-grid {{
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }}
     }}
@@ -254,7 +431,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .content {{ padding: 1rem; }}
       .topbar {{ align-items: flex-start; flex-direction: column; }}
       .channel-select {{ width: 100%; }}
-      .hero-grid, .main-grid, .quality-grid, .platform-grid {{ grid-template-columns: 1fr; }}
+      .hero-grid, .main-grid, .quality-grid,
+      .platform-grid, .analytics-grid, .donut-grid {{ grid-template-columns: 1fr; }}
       .channel-image {{ height: 64px; width: 64px; }}
     }}
   </style>
@@ -303,12 +481,39 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         {_metric_card("Total Views", active["views"], False, "data-views")}
         {_metric_card("Total Engagements", active["engagements"], False, "data-engagements")}
       </section>
+      <section class="analytics-grid">
+        <div class="section chart-card">
+          <div class="section-header">
+            <h2>Top Content Views</h2>
+          </div>
+          <div data-view-bars>
+            {_view_bars(active)}
+          </div>
+        </div>
+        <div class="section chart-card">
+          <div class="section-header">
+            <h2>Engagement Mix</h2>
+          </div>
+          <div data-engagement-donuts>
+            {_engagement_donuts(active)}
+          </div>
+        </div>
+      </section>
       <section class="section">
         <div class="section-header">
           <h2>Platform Sources</h2>
         </div>
         <div class="platform-grid" data-platform-sources>
           {_platform_cards(active)}
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-header">
+          <h2>Production Calendar</h2>
+          <span class="status-pill" data-production-total>{_text(active["production_total"])}</span>
+        </div>
+        <div class="production-panel" data-production-calendar>
+          {_production_calendar(active)}
         </div>
       </section>
       <section class="main-grid">
@@ -365,7 +570,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           <table>
             <thead>
               <tr>
-                <th>Content ID</th><th>Views</th><th>Likes</th>
+                <th>Content</th><th>Published</th><th>Views</th><th>Likes</th>
                 <th>Comments</th><th>Shares</th>
               </tr>
             </thead>
@@ -390,7 +595,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         const img = document.createElement("img");
         img.className = "channel-image";
         img.src = channel.image_url;
-        img.alt = `${{channel.name}} channel image`;
+        const altBase = channel.name.toLowerCase().endsWith("channel")
+          ? channel.name
+          : `${{channel.name}} channel`;
+        img.alt = `${{altBase}} image`;
         target.replaceChildren(img);
         return;
       }}
@@ -405,20 +613,54 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       if (!rows.length) {{
         target.innerHTML = (
           '<tr class="empty-row">'
-          + '<td colspan="5">No top content rows available for this report.</td>'
+          + '<td colspan="6">No top content rows available for this report.</td>'
           + '</tr>'
         );
         return;
       }}
       target.replaceChildren(...rows.map((row) => {{
         const tr = document.createElement("tr");
-        ["content_id", "views", "likes", "comments", "shares"].forEach((key) => {{
+        tr.appendChild(renderContentCell(row));
+        ["published_at", "views", "likes", "comments", "shares"].forEach((key) => {{
           const td = document.createElement("td");
           td.textContent = row[key];
           tr.appendChild(td);
         }});
         return tr;
       }}));
+    }};
+    const renderContentCell = (row) => {{
+      const td = document.createElement("td");
+      const wrapper = document.createElement("div");
+      wrapper.className = "content-cell";
+      if (row.thumbnail_url) {{
+        const img = document.createElement("img");
+        img.className = "content-thumb";
+        img.src = row.thumbnail_url;
+        img.alt = `${{row.display_title}} thumbnail`;
+        wrapper.appendChild(img);
+      }} else {{
+        const fallback = document.createElement("div");
+        fallback.className = "content-thumb fallback";
+        fallback.textContent = row.content_type || "content";
+        wrapper.appendChild(fallback);
+      }}
+      const text = document.createElement("div");
+      const title = document.createElement(row.content_url ? "a" : "span");
+      title.className = "content-title";
+      title.textContent = row.display_title;
+      if (row.content_url) {{
+        title.href = row.content_url;
+        title.target = "_blank";
+        title.rel = "noreferrer";
+      }}
+      const meta = document.createElement("span");
+      meta.className = "content-meta";
+      meta.textContent = row.content_id ? `ID: ${{row.content_id}}` : "";
+      text.append(title, meta);
+      wrapper.appendChild(text);
+      td.appendChild(wrapper);
+      return td;
     }};
     const renderPlatforms = (platforms) => {{
       const target = document.querySelector("[data-platform-sources]");
@@ -463,6 +705,108 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         return card;
       }}));
     }};
+    const numberFromText = (value) => {{
+      const parsed = Number(String(value).replace(/[%,$]/g, "").replace(/,/g, ""));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }};
+    const renderViewBars = (rows) => {{
+      const target = document.querySelector("[data-view-bars]");
+      if (!rows.length) {{
+        target.innerHTML = '<p class="meta">No ranked content available for this chart.</p>';
+        return;
+      }}
+      const maxViews = Math.max(...rows.map((row) => numberFromText(row.views)), 1);
+      const chart = document.createElement("div");
+      chart.className = "chart-bars";
+      rows.slice(0, 6).forEach((row) => {{
+        const value = numberFromText(row.views);
+        const chartRow = document.createElement("div");
+        chartRow.className = "chart-row";
+        const label = document.createElement("span");
+        label.className = "chart-label";
+        label.textContent = row.display_title;
+        const track = document.createElement("div");
+        track.className = "chart-track";
+        const fill = document.createElement("div");
+        fill.className = "chart-fill";
+        fill.style.width = `${{Math.max(4, (value / maxViews) * 100)}}%`;
+        track.appendChild(fill);
+        const valueText = document.createElement("span");
+        valueText.className = "chart-value";
+        valueText.textContent = row.views;
+        chartRow.append(label, track, valueText);
+        chart.appendChild(chartRow);
+      }});
+      target.replaceChildren(chart);
+    }};
+    const renderEngagementDonuts = (channel) => {{
+      const target = document.querySelector("[data-engagement-donuts]");
+      const metrics = [
+        ["Likes", channel.likes_percent],
+        ["Comments", channel.comments_percent],
+        ["Shares", channel.shares_percent],
+      ];
+      const grid = document.createElement("div");
+      grid.className = "donut-grid";
+      metrics.forEach(([label, value]) => {{
+        const item = document.createElement("div");
+        item.className = "donut";
+        const ring = document.createElement("div");
+        ring.className = "donut-ring";
+        ring.style.setProperty("--value", Math.min(100, numberFromText(value)));
+        const strong = document.createElement("strong");
+        strong.textContent = value;
+        ring.appendChild(strong);
+        const caption = document.createElement("span");
+        caption.textContent = label;
+        item.append(ring, caption);
+        grid.appendChild(item);
+      }});
+      target.replaceChildren(grid);
+    }};
+    const renderProductionCalendar = (channel) => {{
+      const target = document.querySelector("[data-production-calendar]");
+      const total = document.querySelector("[data-production-total]");
+      total.textContent = channel.production_total;
+      if (!channel.production_days.length) {{
+        target.innerHTML = '<p class="meta">No publication dates available for this report.</p>';
+        return;
+      }}
+      const wrapper = document.createElement("div");
+      wrapper.className = "production-heatmap";
+      const months = document.createElement("div");
+      months.className = "production-months";
+      channel.production_months.forEach((month) => {{
+        const item = document.createElement("span");
+        item.textContent = month;
+        months.appendChild(item);
+      }});
+      const grid = document.createElement("div");
+      grid.className = "production-grid";
+      channel.production_days.forEach((day) => {{
+        const cell = document.createElement("span");
+        cell.className = `production-day level-${{day.level}}`;
+        cell.title = `${{day.date}}: ${{day.count}} production(s)`;
+        cell.setAttribute("aria-label", cell.title);
+        grid.appendChild(cell);
+      }});
+      const footer = document.createElement("div");
+      footer.className = "production-footer";
+      const summary = document.createElement("span");
+      summary.textContent = channel.production_summary;
+      const legend = document.createElement("div");
+      legend.className = "production-legend";
+      legend.append("Less");
+      [0, 1, 2, 3, 4].forEach((level) => {{
+        const cell = document.createElement("span");
+        cell.className = `production-day level-${{level}}`;
+        legend.appendChild(cell);
+      }});
+      legend.append("More");
+      footer.append(summary, legend);
+      wrapper.append(months, grid, footer);
+      target.replaceChildren(wrapper);
+    }};
     const renderChannel = (channel) => {{
       renderImage(channel);
       setText("[data-channel-name]", channel.name);
@@ -486,7 +830,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-quality-status]", channel.quality_status);
       setText("[data-has-engagements]", channel.has_engagements);
       setText("[data-top-item]", channel.top_item);
+      renderViewBars(channel.top_rows);
+      renderEngagementDonuts(channel);
       renderPlatforms(channel.platforms);
+      renderProductionCalendar(channel);
       renderRows(channel.top_rows);
     }};
     select.addEventListener("change", () => renderChannel(channels[select.selectedIndex]));
@@ -511,6 +858,7 @@ def main(
 ) -> int:
     root = project_root or Path.cwd()
     target_reports = _dashboard_report_paths(report_json_path, root, all_reports)
+    channels_config_path = channels_config_path or _default_channels_config_path(root)
     channels_config = (
         load_channel_identity_config(channels_config_path) if channels_config_path else ()
     )
@@ -599,6 +947,11 @@ def _dashboard_report_paths(
     return [find_latest_report_json(project_root)]
 
 
+def _default_channels_config_path(project_root: Path) -> Path | None:
+    candidate = project_root / DEFAULT_CHANNELS_CONFIG
+    return candidate if candidate.exists() else None
+
+
 def _apply_channel_config(
     payload: dict[str, Any],
     channels_config: tuple[ChannelIdentityConfig, ...],
@@ -652,6 +1005,12 @@ def _aggregated_channel_payload(payloads: list[dict[str, Any]]) -> dict[str, Any
         "ranking": _first_dict_value(payloads, "ranking"),
         "data_quality": _aggregated_data_quality(payloads),
         "top_content": _first_dict_value(payloads, "top_content"),
+        "production_dates": [
+            date
+            for payload in payloads
+            for date in payload.get("production_dates", [])
+            if date
+        ],
         "top_rows": [
             row
             for payload in payloads
@@ -691,13 +1050,23 @@ def _channel_display_name(payload: dict[str, Any]) -> str:
         payload.get("channel_name"),
         payload.get("channel_handle"),
         source.get("channel_handle"),
-        source.get("provider"),
-        payload.get("provider"),
     ]
     for candidate in candidates:
         if candidate:
             return str(candidate)
-    return "unknown"
+    return _provider_channel_label(source.get("provider", payload.get("provider", "unknown")))
+
+
+def _provider_channel_label(provider: object) -> str:
+    provider_name = str(provider or "unknown").strip()
+    if not provider_name or provider_name == "unknown":
+        return "Unknown channel"
+    display_names = {
+        "youtube": "YouTube",
+        "tiktok": "TikTok",
+        "instagram": "Instagram",
+    }
+    return f"{display_names.get(provider_name.lower(), provider_name.title())} channel"
 
 
 def _latest_generated_at(payloads: list[dict[str, Any]]) -> str:
@@ -756,9 +1125,17 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
     rows = payload.get("top_rows", [])
     if not isinstance(rows, list):
         rows = []
+    production_source = payload.get("production_dates", rows)
+    if not isinstance(production_source, list):
+        production_source = rows
 
     provider = source.get("provider", payload.get("provider", "unknown"))
-    name = source.get("name") or source.get("channel_name") or provider
+    name = (
+        source.get("name")
+        or source.get("channel_name")
+        or source.get("channel_handle")
+        or _provider_channel_label(provider)
+    )
     image_url = source.get("image_url") or source.get("channel_image_url")
     channel_name = str(name or "unknown")
 
@@ -788,6 +1165,10 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "has_engagements": _yes_no(data_quality.get("has_engagements", False)),
         "top_item": _top_content_label(top_content, escape=False),
         "top_rows": [_row_model(row) for row in rows],
+        "production_total": _production_total(production_source),
+        "production_summary": _production_summary(production_source),
+        "production_months": _production_months(production_source),
+        "production_days": _production_days(production_source),
         "platforms": platforms,
     }
 
@@ -832,13 +1213,113 @@ def _consolidated_platform_totals(
 def _row_model(row: object) -> dict[str, str]:
     if not isinstance(row, dict):
         row = {}
+    display_title = _content_display_title(row)
     return {
         "content_id": str(row.get("content_id", "<none>")),
+        "display_title": display_title,
+        "thumbnail_url": _optional_text(row.get("thumbnail_url") or row.get("image_url")),
+        "content_url": _optional_text(row.get("content_url") or row.get("permalink")),
+        "content_type": _optional_text(row.get("content_type") or row.get("type")) or "content",
+        "published_at": str(row.get("published_at", "")),
         "views": str(row.get("views", 0)),
         "likes": str(row.get("likes", 0)),
         "comments": str(row.get("comments", 0)),
         "shares": str(row.get("shares", 0)),
     }
+
+
+def _production_total(rows: list[object]) -> str:
+    dates = _published_dates(rows)
+    if not dates:
+        return "No dates"
+    return f"{len(dates)} productions"
+
+
+def _production_summary(rows: list[object]) -> str:
+    dates = _published_dates(rows)
+    if not dates:
+        return "Publication dates unavailable"
+    unique_days = len(set(dates))
+    return f"{len(dates)} productions across {unique_days} day(s)"
+
+
+def _production_months(rows: list[object]) -> list[str]:
+    dates = _published_dates(rows)
+    if not dates:
+        return []
+    start_day, end_day = _production_window(dates)
+    month_names: list[str] = []
+    current = dt.date(start_day.year, start_day.month, 1)
+    while current <= end_day:
+        month_names.append(current.strftime("%b"))
+        if current.month == 12:
+            current = dt.date(current.year + 1, 1, 1)
+        else:
+            current = dt.date(current.year, current.month + 1, 1)
+    return month_names[-6:]
+
+
+def _production_days(rows: list[object]) -> list[dict[str, str | int]]:
+    dates = _published_dates(rows)
+    if not dates:
+        return []
+    counts: dict[dt.date, int] = {}
+    for date in dates:
+        counts[date] = counts.get(date, 0) + 1
+    start_day, end_day = _production_window(dates)
+    max_count = max(counts.values(), default=0)
+    days = []
+    current = start_day
+    while current <= end_day:
+        count = counts.get(current, 0)
+        days.append(
+            {
+                "date": current.isoformat(),
+                "count": count,
+                "level": _production_level(count, max_count),
+            }
+        )
+        current += dt.timedelta(days=1)
+    return days
+
+
+def _published_dates(rows: list[object]) -> list[dt.date]:
+    dates = []
+    for row in rows:
+        if isinstance(row, str):
+            date = _parse_date(row)
+            if date:
+                dates.append(date)
+            continue
+        if not isinstance(row, dict):
+            continue
+        value = row.get("published_at")
+        if not value:
+            continue
+        date = _parse_date(value)
+        if date:
+            dates.append(date)
+    return dates
+
+
+def _parse_date(value: object) -> dt.date | None:
+    try:
+        return dt.datetime.fromisoformat(str(value).replace("Z", "+00:00")).date()
+    except ValueError:
+        return None
+
+
+def _production_window(dates: list[dt.date]) -> tuple[dt.date, dt.date]:
+    end_day = max(dates)
+    start_day = end_day - dt.timedelta(days=181)
+    start_day -= dt.timedelta(days=start_day.weekday())
+    return start_day, end_day
+
+
+def _production_level(count: int, max_count: int) -> int:
+    if count < 1 or max_count < 1:
+        return 0
+    return min(4, max(1, math.ceil((count / max_count) * 4)))
 
 
 def _json_script_payload(channels: list[dict[str, Any]]) -> str:
@@ -855,9 +1336,12 @@ def _channel_image_markup(channel: dict[str, Any]) -> str:
     image_url = channel.get("image_url")
     name = channel.get("name", "unknown")
     if image_url:
+        alt_name = str(name)
+        if not alt_name.lower().endswith("channel"):
+            alt_name = f"{alt_name} channel"
         return (
             f'<img class="channel-image" src="{_text(image_url)}" '
-            f'alt="{_text(name)} channel image">'
+            f'alt="{_text(alt_name)} image">'
         )
     initial = _text(channel.get("initial", "?"))
     return f'<div class="channel-image channel-fallback" aria-label="Channel image">{initial}</div>'
@@ -923,6 +1407,90 @@ def _platform_cards(channel: dict[str, Any]) -> str:
     )
 
 
+def _view_bars(channel: dict[str, Any]) -> str:
+    rows = channel.get("top_rows", [])
+    if not isinstance(rows, list) or not rows:
+        return '<p class="meta">No ranked content available for this chart.</p>'
+    max_views = max(
+        (_plain_number(row.get("views", 0)) for row in rows if isinstance(row, dict)),
+        default=1,
+    )
+    max_views = max(max_views, 1)
+    bars = []
+    for row in rows[:6]:
+        if not isinstance(row, dict):
+            continue
+        views = _plain_number(row.get("views", 0))
+        width = max(4, (views / max_views) * 100)
+        bars.append(
+            '<div class="chart-row">'
+            f'<span class="chart-label">{_text(row.get("display_title", "<none>"))}</span>'
+            '<div class="chart-track">'
+            f'<div class="chart-fill" style="width: {width:.2f}%"></div>'
+            "</div>"
+            f'<span class="chart-value">{_text(row.get("views", 0))}</span>'
+            "</div>"
+        )
+    return '<div class="chart-bars">' + "".join(bars) + "</div>"
+
+
+def _engagement_donuts(channel: dict[str, Any]) -> str:
+    metrics = [
+        ("Likes", channel.get("likes_percent", "0.00%")),
+        ("Comments", channel.get("comments_percent", "0.00%")),
+        ("Shares", channel.get("shares_percent", "0.00%")),
+    ]
+    items = []
+    for label, value in metrics:
+        percent = min(100, _percent_number(value))
+        items.append(
+            '<div class="donut">'
+            f'<div class="donut-ring" style="--value: {percent:.2f}">'
+            f"<strong>{_text(value)}</strong>"
+            "</div>"
+            f"<span>{_text(label)}</span>"
+            "</div>"
+        )
+    return '<div class="donut-grid">' + "".join(items) + "</div>"
+
+
+def _production_calendar(channel: dict[str, Any]) -> str:
+    days = channel.get("production_days", [])
+    if not isinstance(days, list) or not days:
+        return '<p class="meta">No publication dates available for this report.</p>'
+    months = channel.get("production_months", [])
+    if not isinstance(months, list):
+        months = []
+    month_markup = "".join(f"<span>{_text(month)}</span>" for month in months)
+    day_markup = "".join(
+        (
+            f'<span class="production-day level-{_text(day.get("level", 0))}" '
+            f'title="{_text(day.get("date", "unknown"))}: '
+            f'{_text(day.get("count", 0))} production(s)" '
+            f'aria-label="{_text(day.get("date", "unknown"))}: '
+            f'{_text(day.get("count", 0))} production(s)"></span>'
+        )
+        for day in days
+        if isinstance(day, dict)
+    )
+    return f"""<div class="production-heatmap">
+  <div class="production-months">{month_markup}</div>
+  <div class="production-grid">{day_markup}</div>
+  <div class="production-footer">
+    <span>{_text(channel.get("production_summary", ""))}</span>
+    <div class="production-legend">
+      <span>Less</span>
+      <span class="production-day level-0"></span>
+      <span class="production-day level-1"></span>
+      <span class="production-day level-2"></span>
+      <span class="production-day level-3"></span>
+      <span class="production-day level-4"></span>
+      <span>More</span>
+    </div>
+  </div>
+</div>"""
+
+
 def _platform_card(platform: dict[str, Any]) -> str:
     unavailable = " unavailable" if platform.get("status") == "unavailable" else ""
     return f"""<article class="platform-card{unavailable}">
@@ -950,6 +1518,12 @@ def _plain_number(value: object) -> float:
     return _number(value)
 
 
+def _percent_number(value: object) -> float:
+    if isinstance(value, str):
+        value = value.replace("%", "")
+    return _plain_number(value)
+
+
 def _card(label: str, value: object) -> str:
     return (
         '<article class="card">'
@@ -964,7 +1538,8 @@ def _table_row(row: object) -> str:
         row = {}
     return (
         "<tr>"
-        f"<td>{_text(row.get('content_id', '<none>'))}</td>"
+        f"<td>{_content_cell(row)}</td>"
+        f"<td>{_text(row.get('published_at', ''))}</td>"
         f"<td>{_text(row.get('views', 0))}</td>"
         f"<td>{_text(row.get('likes', 0))}</td>"
         f"<td>{_text(row.get('comments', 0))}</td>"
@@ -976,7 +1551,7 @@ def _table_row(row: object) -> str:
 def _empty_table_row() -> str:
     return (
         '<tr class="empty-row">'
-        '<td colspan="5">No top content rows available for this report.</td>'
+        '<td colspan="6">No top content rows available for this report.</td>'
         "</tr>"
     )
 
@@ -1009,10 +1584,45 @@ def _source_artifact(payload: dict[str, Any], source: object, escape: bool = Tru
 def _top_content_label(top_content: object, escape: bool = True) -> str:
     if not isinstance(top_content, dict):
         return "No top content available"
-    content_id = top_content.get("content_id")
-    if content_id in (None, "", "<none>"):
+    title = _content_display_title(top_content)
+    if title in ("", "<none>"):
         return "No top content available"
-    return _text(content_id) if escape else str(content_id)
+    return _text(title) if escape else title
+
+
+def _content_cell(row: dict[str, Any]) -> str:
+    title = _content_display_title(row)
+    url = _optional_text(row.get("content_url") or row.get("permalink"))
+    thumbnail_url = _optional_text(row.get("thumbnail_url") or row.get("image_url"))
+    content_type = _optional_text(row.get("content_type") or row.get("type")) or "content"
+    content_id = _optional_text(row.get("content_id"))
+    thumb = (
+        f'<img class="content-thumb" src="{_text(thumbnail_url)}" '
+        f'alt="{_text(title)} thumbnail">'
+        if thumbnail_url
+        else f'<div class="content-thumb fallback">{_text(content_type)}</div>'
+    )
+    title_markup = (
+        f'<a class="content-title" href="{_text(url)}" target="_blank" '
+        f'rel="noreferrer">{_text(title)}</a>'
+        if url
+        else f'<span class="content-title">{_text(title)}</span>'
+    )
+    meta = f'<span class="content-meta">ID: {_text(content_id)}</span>' if content_id else ""
+    return f'<div class="content-cell">{thumb}<div>{title_markup}{meta}</div></div>'
+
+
+def _content_display_title(row: dict[str, Any]) -> str:
+    for key in ("display_title", "title", "content_title", "name", "caption"):
+        value = row.get(key)
+        if value not in (None, "", "<none>"):
+            return str(value)
+    content_id = row.get("content_id")
+    return str(content_id) if content_id not in (None, "", "<none>") else "<none>"
+
+
+def _optional_text(value: object) -> str:
+    return "" if value in (None, "", "<none>") else str(value)
 
 
 def _ranking_value(ranking: object, key: str, escape: bool = True) -> str:

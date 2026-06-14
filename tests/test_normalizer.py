@@ -37,6 +37,11 @@ class NormalizerTest(unittest.TestCase):
                 views=2300,
                 followers=5400,
                 raw_path=self.raw_path,
+                title="Example launch post",
+                thumbnail_url="https://example.com/instagram/post-001.jpg",
+                content_url="https://example.com/instagram/post-001",
+                channel_name="example_instagram",
+                channel_image_url="https://example.com/instagram/channel.jpg",
             ),
         )
 
@@ -56,6 +61,11 @@ class NormalizerTest(unittest.TestCase):
         self.assertEqual(metric.shares, None)
         self.assertEqual(metric.views, 8500)
         self.assertEqual(metric.followers, 22000)
+        self.assertEqual(metric.title, "Como automatizar analytics sociais")
+        self.assertEqual(metric.thumbnail_url, "https://example.com/yt-video-001.jpg")
+        self.assertEqual(metric.content_url, "https://www.youtube.com/watch?v=yt-video-001")
+        self.assertEqual(metric.channel_name, "Mock YouTube Channel")
+        self.assertEqual(metric.channel_image_url, "https://example.com/youtube-channel.jpg")
 
     def test_normalizes_tiktok_payload(self) -> None:
         payload = self.providers["tiktok"].collect_metrics(

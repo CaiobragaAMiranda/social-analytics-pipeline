@@ -21,6 +21,11 @@ class ArtifactLoaderTest(unittest.TestCase):
         self.assertEqual(row["collected_at"], "2026-05-28T00:00:00+00:00")
         self.assertEqual(row["published_at"], None)
         self.assertEqual(row["raw_path"], "data/raw/mock/sample.json")
+        self.assertEqual(row["title"], "Post title")
+        self.assertEqual(row["thumbnail_url"], "https://example.test/post.jpg")
+        self.assertEqual(row["content_url"], "https://example.test/post")
+        self.assertEqual(row["channel_name"], "Brand Channel")
+        self.assertEqual(row["channel_image_url"], "https://example.test/channel.jpg")
 
     def test_json_metric_artifact_loader_writes_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -71,6 +76,11 @@ class ArtifactLoaderTest(unittest.TestCase):
             views=4,
             followers=5,
             raw_path=Path("data/raw/mock/sample.json"),
+            title="Post title",
+            thumbnail_url="https://example.test/post.jpg",
+            content_url="https://example.test/post",
+            channel_name="Brand Channel",
+            channel_image_url="https://example.test/channel.jpg",
         )
 
 

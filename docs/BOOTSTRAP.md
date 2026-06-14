@@ -127,6 +127,26 @@ Use `--count-artifacts` to print only the number of processed YouTube artifacts.
 Use `--fail-if-missing` with list-only modes when automation should fail if no artifact exists.
 Use only one list-only mode at a time: `--list-artifacts`, `--latest-artifact` or `--count-artifacts`.
 
+Instagram dashboard JSON report:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_report
+```
+
+Use `--artifact data/processed/instagram/<artifact>.json` to report a specific processed Instagram artifact.
+Use `--json-output data/reports/instagram-json/<report>.json` to choose the report path.
+Use `--top <n>`, `--sort-by views|likes|comments|shares`, `--print-json`, `--quiet` and `--fail-if-empty` the same way as the YouTube report flow.
+
+Safe multi-provider dashboard smoke:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.dashboard_smoke
+```
+
+This command uses committed fixture payloads only. It writes ignored smoke artifacts under `data/temp/dashboard-smoke/` and the static HTML output under `data/dashboard/`.
+
 Controlled backfill example:
 
 ```powershell
