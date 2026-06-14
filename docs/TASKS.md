@@ -1877,7 +1877,7 @@ Evidence:
 
 ### TASK-110 - PR review follow-up and next slice decision
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -1890,6 +1890,134 @@ Acceptance criteria:
 - Any necessary fixes are applied before merge.
 - If no blockers exist, the PR can be merged and the next implementation slice can be selected.
 
+Evidence:
+
+- PR #33 passed GitHub Actions, secret scan and CodeRabbit.
+- A Linux-only smoke test output issue was fixed before merge.
+- PR #33 was squash-merged into `master`.
+- The next implementation slice was selected to strengthen channel identity grouping in the multi-provider smoke path.
+
+### TASK-111 - Channel identity smoke consolidation
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the safe multi-provider smoke prove that YouTube and Instagram reports can render as sources inside one monitored channel.
+
+Acceptance criteria:
+
+- `dashboard-smoke` creates an ignored local channel identity config using placeholders only.
+- The smoke config maps sample YouTube and Instagram fixture reports to one monitored channel.
+- The generated dashboard has one monitored channel option instead of one option per provider report.
+- Tests verify the generated config and consolidated dashboard output.
+
+Evidence:
+
+- `dashboard-smoke` now writes `data/temp/dashboard-smoke/config/channels.local.json`.
+- The smoke dashboard renders `Sample Monitored Channel` as the single channel selector option.
+- YouTube and Instagram remain visible as platform sources inside that selected channel.
+- Tests cover the smoke config path, generated channel identity and single-option selector.
+
+### TASK-112 - Next implementation slice decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next small implementation slice after the channel-first dashboard smoke proves provider grouping.
+
+Acceptance criteria:
+
+- The next slice is tied to the channel-first dashboard or real-provider usefulness.
+- The scope stays small enough for one focused PR.
+- Public documentation continues to avoid secrets, local paths, raw payloads and real identifiers.
+
+Evidence:
+
+- The next slice was selected as global top-content ranking for aggregated channel dashboards.
+- The slice stays inside the dashboard consumption layer and uses existing report JSON data.
+- No new provider credentials, real identifiers, raw payloads or external services are introduced.
+
+### TASK-113 - Aggregated channel top-content ranking
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make consolidated channel dashboards rank top content across providers instead of preserving provider file order.
+
+Acceptance criteria:
+
+- Aggregated channel `top_rows` are sorted by the configured ranking metric.
+- The fallback ranking metric is `views`.
+- Aggregated channel `top_content` reflects the first sorted top row.
+- Tests cover mixed-provider reports where the later provider has the stronger top content.
+
+Evidence:
+
+- Multi-report dashboard aggregation now sorts combined `top_rows` by ranking metric descending.
+- Aggregated `top_content` now follows the sorted rows.
+- Dashboard tests cover cross-provider top row ordering.
+
+### TASK-114 - Top-content platform metadata
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make each aggregated top-content row show which platform produced it.
+
+Acceptance criteria:
+
+- Aggregated top-content rows preserve their provider source.
+- Dashboard row metadata shows the provider when available.
+- Content IDs remain secondary metadata.
+- Tests cover provider metadata in aggregated payloads and rendered HTML.
+
+Evidence:
+
+- Aggregated top rows are now annotated with their report provider.
+- Top-content metadata now renders platform and ID together when both are available.
+- Dashboard tests cover provider metadata propagation and display.
+
+### TASK-115 - Package three-task dashboard batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-111, TASK-113 and TASK-114 as the current three-task batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no committed secrets, local paths, raw payloads, expanded DSNs, ports or IPs in versionable files.
+- The local smoke dashboard was regenerated from safe fixtures and shows platform metadata in top-content rows.
+- The batch is ready for commit and PR review.
+
+### TASK-116 - PR review for three-task dashboard batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current dashboard batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -1899,9 +2027,11 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review PR feedback for the current task batch and decide whether to merge.
+- Review the current three-task PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
 
 Every implementation PR should pass local validation where practical, GitHub Actions, secret scan and CodeRabbit. Gemini or ChatGPT review packets are used when available.
+
+Small tasks are batched in groups of up to three before commit and PR. Open a PR earlier only when the change is large, risky, security-sensitive, blocks further work, or needs external review before continuing.

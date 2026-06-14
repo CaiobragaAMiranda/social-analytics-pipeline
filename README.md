@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-110 - PR review follow-up and next slice decision
-- Last completed delivery: TASK-109 - Review and package current task batch
+- Current task: TASK-116 - PR review for three-task dashboard batch
+- Last completed delivery: TASK-115 - Package three-task dashboard batch
 
 ## Workflow
 
@@ -19,7 +19,10 @@ Before coding a task:
 3. Implement only after the user confirms or asks to continue.
 4. Update documentation and progress.
 5. Run local validation.
-6. Open a PR so GitHub Actions and CodeRabbit can review it.
+6. Batch up to three small tasks before committing and opening a PR.
+7. Open a PR so GitHub Actions and CodeRabbit can review it.
+
+Exceptions: commit and open a PR earlier when a task is large, risky, security-sensitive, blocks further work, or needs external review before continuing.
 
 ## YouTube v1 Closure
 
@@ -49,7 +52,11 @@ The first dashboard slice exposes a `social-dashboard` command that reads report
 
 The Instagram provider is available through the explicit `instagram-local-pipeline` command. It requires local `INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_USER_ID` values, writes ignored local artifacts, and prints only compact masked execution summaries. Processed Instagram artifacts can be converted into dashboard-compatible JSON with `instagram-report`.
 
-The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials.
+The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
+
+When multiple provider reports are grouped into one monitored channel, top content is ranked globally across providers by the configured ranking metric, with `views` as the fallback.
+
+Aggregated top-content rows also show their provider platform before the secondary technical content ID.
 
 ## Useful Commands
 
