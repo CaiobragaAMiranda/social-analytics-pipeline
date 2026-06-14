@@ -100,6 +100,7 @@ class YouTubeReportTest(unittest.TestCase):
                     [
                         {
                             "content_id": "video-1",
+                            "published_at": "2026-05-20T14:30:00+00:00",
                             "likes": 10,
                             "comments": 2,
                             "shares": 1,
@@ -243,6 +244,7 @@ class YouTubeReportTest(unittest.TestCase):
                     [
                         {
                             "content_id": "video-1",
+                            "published_at": "2026-05-20T14:30:00+00:00",
                             "likes": 10,
                             "comments": 2,
                             "shares": 1,
@@ -333,11 +335,18 @@ class YouTubeReportTest(unittest.TestCase):
                     [
                         {
                             "content_id": "video-1",
+                            "title": "Launch Review",
+                            "thumbnail_url": "https://example.test/thumb.jpg",
+                            "content_url": "https://example.test/watch",
+                            "content_type": "video",
+                            "channel_name": "Brand Channel",
+                            "channel_image_url": "https://example.test/channel.jpg",
                             "likes": 10,
                             "comments": 2,
                             "shares": 1,
                             "views": 100,
                             "followers": 1000,
+                            "published_at": "2026-05-20T14:30:00+00:00",
                             "ignored_extra_field": "not exported",
                         }
                     ]
@@ -367,6 +376,8 @@ class YouTubeReportTest(unittest.TestCase):
             payload["source"]["artifact"],
             "data/processed/youtube/youtube-sample.json",
         )
+        self.assertEqual(payload["source"]["channel_name"], "Brand Channel")
+        self.assertEqual(payload["source"]["channel_image_url"], "https://example.test/channel.jpg")
         self.assertEqual(payload["ranking"], {"metric": "likes", "limit": 1})
         self.assertEqual(
             payload["data_quality"],
@@ -398,7 +409,15 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertAlmostEqual(saved["engagement_breakdown"]["shares_percent"], 7.692307692)
         self.assertEqual(saved["top_content"]["metric"], "likes")
         self.assertEqual(saved["top_content"]["metric_value"], 10)
+        self.assertEqual(saved["top_content"]["title"], "Launch Review")
+        self.assertEqual(saved["top_content"]["thumbnail_url"], "https://example.test/thumb.jpg")
+        self.assertEqual(saved["top_content"]["content_url"], "https://example.test/watch")
+        self.assertEqual(saved["production_dates"], ["2026-05-20T14:30:00+00:00"])
         self.assertEqual(saved["top_rows"][0]["content_id"], "video-1")
+        self.assertEqual(saved["top_rows"][0]["title"], "Launch Review")
+        self.assertEqual(saved["top_rows"][0]["thumbnail_url"], "https://example.test/thumb.jpg")
+        self.assertEqual(saved["top_rows"][0]["content_url"], "https://example.test/watch")
+        self.assertEqual(saved["top_rows"][0]["published_at"], "2026-05-20T14:30:00+00:00")
         self.assertNotIn("ignored_extra_field", saved["top_rows"][0])
 
     def test_build_youtube_report_json_payload_uses_zero_breakdown_without_engagements(

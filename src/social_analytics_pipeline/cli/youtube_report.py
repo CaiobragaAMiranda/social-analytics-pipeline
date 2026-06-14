@@ -248,6 +248,7 @@ def build_youtube_report_json_payload(
     generated_at: str | None = None,
 ) -> dict[str, Any]:
     artifact = _display_path(summary.artifact_path, project_root)
+    top_row = summary.top_rows[0] if summary.top_rows else None
     return {
         "report_schema_version": YOUTUBE_REPORT_SCHEMA_VERSION,
         "generated_at": generated_at or _utc_now_iso(),
@@ -255,6 +256,8 @@ def build_youtube_report_json_payload(
         "source": {
             "provider": "youtube",
             "artifact": artifact,
+            "channel_name": _channel_name(top_row),
+            "channel_image_url": _channel_image_url(top_row),
         },
         "records": summary.records,
         "sort_by": summary.sort_by,
@@ -294,10 +297,19 @@ def build_youtube_report_json_payload(
         },
         "top_content": {
             "content_id": summary.top_content_id,
+            "title": _content_title(top_row) if top_row else None,
+            "thumbnail_url": _content_thumbnail_url(top_row) if top_row else None,
+            "content_url": _content_url(top_row) if top_row else None,
+            "content_type": _content_type(top_row) if top_row else None,
+            "published_at": top_row.get("published_at") if top_row else None,
             "views": summary.top_views,
             "metric": summary.sort_by,
             "metric_value": summary.top_metric_value,
         },
+        "production_dates": _production_dates(
+            summary.top_rows,
+            load_youtube_report_rows(summary.artifact_path),
+        ),
         "top_rows": [_report_row(row) for row in summary.top_rows],
     }
 
@@ -627,12 +639,86 @@ def _metric_value(row: dict[str, Any] | None, field: str) -> int:
 def _report_row(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "content_id": row.get("content_id", "<none>"),
+        "title": _content_title(row),
+        "thumbnail_url": _content_thumbnail_url(row),
+        "content_url": _content_url(row),
+        "content_type": _content_type(row),
+        "channel_name": _channel_name(row),
+        "channel_image_url": _channel_image_url(row),
+        "published_at": row.get("published_at"),
         "views": _metric_value(row, "views"),
         "likes": _metric_value(row, "likes"),
         "comments": _metric_value(row, "comments"),
         "shares": _metric_value(row, "shares"),
         "followers": _metric_value(row, "followers"),
     }
+
+
+def _production_dates(
+    top_rows: list[dict[str, Any]],
+    all_rows: list[dict[str, Any]],
+) -> list[str]:
+    rows = all_rows or top_rows
+    return [
+        str(row["published_at"])
+        for row in rows
+        if isinstance(row, dict) and row.get("published_at")
+    ]
+
+
+def _content_title(row: dict[str, Any] | None) -> str | None:
+    if not row:
+        return None
+    for key in ("title", "content_title", "name", "caption"):
+        value = row.get(key)
+        if value not in (None, ""):
+            return str(value)
+    content_id = row.get("content_id")
+    return str(content_id) if content_id not in (None, "", "<none>") else None
+
+
+def _content_thumbnail_url(row: dict[str, Any] | None) -> str | None:
+    if not row:
+        return None
+    for key in ("thumbnail_url", "image_url", "media_url", "picture_url"):
+        value = row.get(key)
+        if value not in (None, ""):
+            return str(value)
+    return None
+
+
+def _content_url(row: dict[str, Any] | None) -> str | None:
+    if not row:
+        return None
+    for key in ("content_url", "url", "permalink"):
+        value = row.get(key)
+        if value not in (None, ""):
+            return str(value)
+    content_id = row.get("content_id")
+    if content_id not in (None, "", "<none>"):
+        return f"https://www.youtube.com/watch?v={content_id}"
+    return None
+
+
+def _content_type(row: dict[str, Any] | None) -> str:
+    if not row:
+        return "video"
+    value = row.get("content_type") or row.get("type")
+    return str(value) if value not in (None, "") else "video"
+
+
+def _channel_name(row: dict[str, Any] | None) -> str | None:
+    if not row:
+        return None
+    value = row.get("channel_name")
+    return str(value) if value not in (None, "") else None
+
+
+def _channel_image_url(row: dict[str, Any] | None) -> str | None:
+    if not row:
+        return None
+    value = row.get("channel_image_url")
+    return str(value) if value not in (None, "") else None
 
 
 def _metric_label(metric: str) -> str:

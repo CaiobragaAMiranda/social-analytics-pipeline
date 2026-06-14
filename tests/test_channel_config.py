@@ -118,6 +118,30 @@ class ChannelConfigTest(unittest.TestCase):
 
             self.assertIsNone(match)
 
+    def test_match_channel_identity_uses_single_provider_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "channels.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": "brand",
+                                "display_name": "Brand Channel",
+                                "platforms": {"youtube": {"handle": "@brand"}},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            channels = load_channel_identity_config(config_path)
+
+            match = match_channel_identity({"source": {"provider": "youtube"}}, channels)
+
+            self.assertIsNotNone(match)
+            self.assertEqual(match.display_name if match else "", "Brand Channel")
+
 
 if __name__ == "__main__":
     unittest.main()

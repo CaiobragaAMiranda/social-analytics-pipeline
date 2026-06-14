@@ -170,6 +170,7 @@ class YouTubeDataApiProvider(SocialProvider):
         if not video_ids:
             return []
 
+        channel = self._collect_channel_profile(account_id)
         videos: list[dict[str, Any]] = []
         for batch in _chunks(video_ids, 50):
             response = self.http_client.get_json(
@@ -181,11 +182,35 @@ class YouTubeDataApiProvider(SocialProvider):
                 },
             )
             videos.extend(
-                self._with_collection_context(item, account_id, start_at, end_at)
+                self._with_collection_context(item, account_id, start_at, end_at, channel)
                 for item in response.get("items", [])
             )
 
         return videos
+
+    def _collect_channel_profile(self, channel_id: str) -> dict[str, Any]:
+        response = self.http_client.get_json(
+            f"{self.config.base_url}/channels",
+            {
+                "part": "snippet,statistics",
+                "id": channel_id,
+                "key": self.config.api_key,
+            },
+        )
+        items = response.get("items", [])
+        if not items:
+            return {}
+        item = items[0]
+        if not isinstance(item, dict):
+            return {}
+        snippet = item.get("snippet", {})
+        statistics = item.get("statistics", {})
+        channel: dict[str, Any] = {}
+        if isinstance(snippet, dict):
+            channel.update(snippet)
+        if isinstance(statistics, dict):
+            channel.update(statistics)
+        return channel
 
     def _collect_video_ids(
         self,
@@ -228,8 +253,11 @@ class YouTubeDataApiProvider(SocialProvider):
         account_id: str,
         start_at: datetime,
         end_at: datetime,
+        channel: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         enriched = dict(payload)
+        if channel:
+            enriched["channel"] = channel
         enriched["_collection"] = {
             "provider": self.name,
             "account_id": account_id,

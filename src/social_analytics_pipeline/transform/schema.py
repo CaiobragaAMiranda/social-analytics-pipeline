@@ -17,3 +17,8 @@ class SocialMetric:
     views: int | None
     followers: int | None
     raw_path: Path
+    title: str | None = None
+    thumbnail_url: str | None = None
+    content_url: str | None = None
+    channel_name: str | None = None
+    channel_image_url: str | None = None

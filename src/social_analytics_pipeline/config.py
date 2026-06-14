@@ -84,6 +84,14 @@ def match_channel_identity(
             }
             if candidates & platform_candidates:
                 return channel
+    provider_matches = [
+        channel
+        for channel in channels
+        for platform in channel.platforms
+        if platform.provider.lower() == provider
+    ]
+    if not candidates and len(provider_matches) == 1:
+        return provider_matches[0]
     return None
 
 

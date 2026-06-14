@@ -3,7 +3,13 @@
     "videoId": "yt-video-001",
     "snippet": {
       "publishedAt": "2026-05-19T09:00:00Z",
-      "title": "Pipeline demo"
+      "title": "Como automatizar analytics sociais",
+      "channelTitle": "Mock YouTube Channel",
+      "thumbnails": {
+        "medium": {
+          "url": "https://example.com/yt-video-001.jpg"
+        }
+      }
     },
     "statistics": {
       "viewCount": "8500",
@@ -12,14 +18,26 @@
     },
     "channel": {
       "id": "yt-channel-1",
-      "subscriberCount": "22000"
+      "subscriberCount": "22000",
+      "title": "Mock YouTube Channel",
+      "thumbnails": {
+        "medium": {
+          "url": "https://example.com/youtube-channel.jpg"
+        }
+      }
     }
   },
   {
     "videoId": "yt-short-002",
     "snippet": {
       "publishedAt": "2026-05-22T12:15:00Z",
-      "title": "Short analytics sample"
+      "title": "Short analytics sample",
+      "channelTitle": "Mock YouTube Channel",
+      "thumbnails": {
+        "medium": {
+          "url": "https://example.com/yt-short-002.jpg"
+        }
+      }
     },
     "statistics": {
       "viewCount": "14300",
@@ -28,7 +46,13 @@
     },
     "channel": {
       "id": "yt-channel-1",
-      "subscriberCount": "22120"
+      "subscriberCount": "22120",
+      "title": "Mock YouTube Channel",
+      "thumbnails": {
+        "medium": {
+          "url": "https://example.com/youtube-channel.jpg"
+        }
+      }
     }
   }
 ]

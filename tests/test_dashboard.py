@@ -82,6 +82,37 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("Data Quality", html)
         self.assertIn("video-1", html)
 
+    def test_build_dashboard_html_prioritizes_human_content_metadata(self) -> None:
+        html = build_dashboard_html(
+            {
+                "source": {"provider": "youtube", "channel_name": "Brand Channel"},
+                "top_content": {
+                    "content_id": "video-1",
+                    "title": "Launch Review",
+                },
+                "top_rows": [
+                    {
+                        "content_id": "video-1",
+                        "title": "Launch Review",
+                        "thumbnail_url": "https://example.test/thumb.jpg",
+                        "content_url": "https://example.test/watch",
+                        "content_type": "video",
+                        "published_at": "2026-05-20T14:30:00+00:00",
+                        "views": 100,
+                        "likes": 10,
+                        "comments": 2,
+                        "shares": 1,
+                    }
+                ],
+            }
+        )
+
+        self.assertIn("Launch Review", html)
+        self.assertIn('src="https://example.test/thumb.jpg"', html)
+        self.assertIn('href="https://example.test/watch"', html)
+        self.assertIn("2026-05-20T14:30:00+00:00", html)
+        self.assertIn("ID: video-1", html)
+
     def test_build_dashboard_html_escapes_text_values(self) -> None:
         html = build_dashboard_html(
             {
@@ -107,6 +138,7 @@ class DashboardTest(unittest.TestCase):
         html = build_dashboard_html({"source": {"provider": "youtube"}})
 
         self.assertIn("Report Metadata", html)
+        self.assertIn("YouTube channel", html)
         self.assertIn("unknown", html)
         self.assertIn("Engagement Breakdown", html)
         self.assertIn("0.00%", html)
@@ -228,6 +260,25 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('<strong>instagram</strong>', html)
         self.assertIn("unavailable", html)
 
+    def test_build_dashboard_html_renders_production_calendar(self) -> None:
+        html = build_dashboard_html(
+            {
+                "source": {"provider": "youtube"},
+                "records": 3,
+                "production_dates": [
+                    "2026-05-20T14:30:00+00:00",
+                    "2026-05-20T16:30:00+00:00",
+                    "2026-05-21T14:30:00+00:00",
+                ],
+            }
+        )
+
+        self.assertIn("Production Calendar", html)
+        self.assertIn("3 productions", html)
+        self.assertIn("3 productions across 2 day(s)", html)
+        self.assertIn("production-day level-", html)
+        self.assertIn('"production_days": [', html)
+
     def test_build_dashboard_html_renders_source_image_url(self) -> None:
         html = build_dashboard_html(
             {
@@ -240,7 +291,7 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn('class="channel-image"', html)
         self.assertIn('src="https://example.test/channel.png"', html)
-        self.assertIn('alt="youtube channel image"', html)
+        self.assertIn('alt="YouTube channel image"', html)
 
     def test_build_dashboard_html_renders_channel_image_url_alias(self) -> None:
         html = build_dashboard_html(
@@ -471,10 +522,12 @@ class DashboardTest(unittest.TestCase):
     def test_find_report_json_files_uses_sorted_reports(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
-            report_dir = project_root / "data" / "reports" / "youtube-json"
-            report_dir.mkdir(parents=True)
-            first = report_dir / "youtube-20260501.json"
-            second = report_dir / "youtube-20260502.json"
+            youtube_dir = project_root / "data" / "reports" / "youtube-json"
+            instagram_dir = project_root / "data" / "reports" / "instagram-json"
+            youtube_dir.mkdir(parents=True)
+            instagram_dir.mkdir(parents=True)
+            first = instagram_dir / "instagram-20260501.json"
+            second = youtube_dir / "youtube-20260502.json"
             second.write_text("{}", encoding="utf-8")
             first.write_text("{}", encoding="utf-8")
 

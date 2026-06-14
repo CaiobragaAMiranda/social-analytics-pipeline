@@ -45,6 +45,11 @@ def _normalize_instagram(payload: dict[str, Any], raw_path: Path) -> SocialMetri
         views=_to_int(payload.get("plays", payload.get("impressions"))),
         followers=_to_int(account.get("followers_count")),
         raw_path=raw_path,
+        title=_optional_text(payload.get("caption")),
+        thumbnail_url=_optional_text(payload.get("thumbnail_url") or payload.get("media_url")),
+        content_url=_optional_text(payload.get("permalink")),
+        channel_name=_optional_text(account.get("username")),
+        channel_image_url=_optional_text(account.get("profile_picture_url")),
     )
 
 
@@ -66,6 +71,11 @@ def _normalize_youtube(payload: dict[str, Any], raw_path: Path) -> SocialMetric:
         views=_to_int(statistics.get("viewCount")),
         followers=_to_int(channel.get("subscriberCount")),
         raw_path=raw_path,
+        title=_optional_text(snippet.get("title")),
+        thumbnail_url=_youtube_thumbnail_url(snippet),
+        content_url=f"https://www.youtube.com/watch?v={_youtube_content_id(payload)}",
+        channel_name=_optional_text(snippet.get("channelTitle") or channel.get("title")),
+        channel_image_url=_youtube_thumbnail_url(channel),
     )
 
 
@@ -110,6 +120,21 @@ def _youtube_content_id(payload: dict[str, Any]) -> str:
     if "videoId" in payload:
         return str(payload["videoId"])
     return str(payload["id"])
+
+
+def _youtube_thumbnail_url(payload: dict[str, Any]) -> str | None:
+    thumbnails = payload.get("thumbnails")
+    if not isinstance(thumbnails, dict):
+        return None
+    for key in ("high", "medium", "default"):
+        item = thumbnails.get(key)
+        if isinstance(item, dict) and item.get("url"):
+            return str(item["url"])
+    return None
+
+
+def _optional_text(value: object) -> str | None:
+    return str(value) if value not in (None, "") else None
 
 
 def _instagram_content_type(media_type: str) -> str:
