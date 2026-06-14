@@ -1,4 +1,6 @@
 import argparse
+import contextlib
+import io
 import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -71,11 +73,12 @@ def run_dashboard_smoke(
         smoke_root / "data" / "reports" / "instagram-json" / "instagram-smoke.json",
         generated_at="2026-06-13T12:00:00Z",
     )
-    build_dashboard(
-        output_path=target_output,
-        project_root=smoke_root,
-        all_reports=True,
-    )
+    with contextlib.redirect_stdout(io.StringIO()):
+        build_dashboard(
+            output_path=target_output,
+            project_root=smoke_root,
+            all_reports=True,
+        )
 
     return DashboardSmokeSummary(
         youtube_processed_path=youtube_processed_path,

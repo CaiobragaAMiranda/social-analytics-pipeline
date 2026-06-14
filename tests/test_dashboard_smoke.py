@@ -79,7 +79,7 @@ class DashboardSmokeTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertTrue(output_exists)
-        self.assertIn("report_json_paths=", stdout.getvalue())
+        self.assertEqual("", stdout.getvalue())
         self.assertNotIn("Dashboard smoke summary", stdout.getvalue())
 
     def _sample_project_root(self) -> tempfile.TemporaryDirectory[str]:
