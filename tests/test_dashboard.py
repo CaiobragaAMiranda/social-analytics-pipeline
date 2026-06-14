@@ -507,6 +507,50 @@ class DashboardTest(unittest.TestCase):
         self.assertEqual(len(payload["channels"][0]["platforms"]), 2)
         self.assertEqual(payload["channels"][1]["records"], 3)
 
+    def test_build_multi_report_dashboard_payload_sorts_combined_top_rows(self) -> None:
+        payload = build_multi_report_dashboard_payload(
+            [
+                {
+                    "source": {"provider": "instagram", "channel_handle": "@brand"},
+                    "records": 1,
+                    "ranking": {"metric": "views", "limit": 5},
+                    "top_rows": [
+                        {"content_id": "ig-1", "title": "Instagram post", "views": 300}
+                    ],
+                },
+                {
+                    "source": {"provider": "youtube", "channel_handle": "@brand"},
+                    "records": 1,
+                    "ranking": {"metric": "views", "limit": 5},
+                    "top_rows": [
+                        {"content_id": "yt-1", "title": "YouTube video", "views": 900}
+                    ],
+                },
+            ]
+        )
+
+        channel = payload["channels"][0]
+        self.assertEqual(channel["top_rows"][0]["content_id"], "yt-1")
+        self.assertEqual(channel["top_rows"][0]["provider"], "youtube")
+        self.assertEqual(channel["top_content"]["content_id"], "yt-1")
+
+    def test_build_dashboard_html_shows_top_content_platform_metadata(self) -> None:
+        html = build_dashboard_html(
+            {
+                "source": {"provider": "multi-platform", "channel_name": "Brand"},
+                "top_rows": [
+                    {
+                        "content_id": "yt-1",
+                        "title": "YouTube video",
+                        "provider": "youtube",
+                        "views": 900,
+                    }
+                ],
+            }
+        )
+
+        self.assertIn("Platform: youtube | ID: yt-1", html)
+
     def test_find_latest_report_json_uses_sorted_latest_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)

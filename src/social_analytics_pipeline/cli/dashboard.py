@@ -656,7 +656,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       }}
       const meta = document.createElement("span");
       meta.className = "content-meta";
-      meta.textContent = row.content_id ? `ID: ${{row.content_id}}` : "";
+      const metaParts = [];
+      if (row.provider) metaParts.push(`Platform: ${{row.provider}}`);
+      if (row.content_id) metaParts.push(`ID: ${{row.content_id}}`);
+      meta.textContent = metaParts.join(" | ");
       text.append(title, meta);
       wrapper.appendChild(text);
       td.appendChild(wrapper);
@@ -993,6 +996,7 @@ def _aggregated_channel_payload(payloads: list[dict[str, Any]]) -> dict[str, Any
     first_payload = payloads[0] if payloads else {}
     source = _source_object(first_payload)
     channel_name = _channel_display_name(first_payload)
+    top_rows = _aggregated_top_rows(payloads)
     return {
         "generated_at": _latest_generated_at(payloads),
         "source": {
@@ -1004,21 +1008,41 @@ def _aggregated_channel_payload(payloads: list[dict[str, Any]]) -> dict[str, Any
         "records": sum(_number(payload.get("records", 0)) for payload in payloads),
         "ranking": _first_dict_value(payloads, "ranking"),
         "data_quality": _aggregated_data_quality(payloads),
-        "top_content": _first_dict_value(payloads, "top_content"),
+        "top_content": top_rows[0] if top_rows else _first_dict_value(payloads, "top_content"),
         "production_dates": [
             date
             for payload in payloads
             for date in payload.get("production_dates", [])
             if date
         ],
-        "top_rows": [
-            row
-            for payload in payloads
-            for row in payload.get("top_rows", [])
-            if isinstance(row, dict)
-        ],
+        "top_rows": top_rows,
         "platforms": [_platform_payload_from_report(payload) for payload in payloads],
     }
+
+
+def _aggregated_top_rows(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = [
+        _top_row_with_provider(row, payload)
+        for payload in payloads
+        for row in payload.get("top_rows", [])
+        if isinstance(row, dict)
+    ]
+    metric = _aggregated_ranking_metric(payloads)
+    return sorted(rows, key=lambda row: _number(row.get(metric, row.get("views", 0))), reverse=True)
+
+
+def _top_row_with_provider(row: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    if row.get("provider"):
+        return row
+    source = _source_object(payload)
+    provider = source.get("provider") or payload.get("provider")
+    return {**row, "provider": provider} if provider else row
+
+
+def _aggregated_ranking_metric(payloads: list[dict[str, Any]]) -> str:
+    ranking = _first_dict_value(payloads, "ranking")
+    metric = ranking.get("metric", "views")
+    return str(metric) if metric else "views"
 
 
 def _platform_payload_from_report(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1220,6 +1244,7 @@ def _row_model(row: object) -> dict[str, str]:
         "thumbnail_url": _optional_text(row.get("thumbnail_url") or row.get("image_url")),
         "content_url": _optional_text(row.get("content_url") or row.get("permalink")),
         "content_type": _optional_text(row.get("content_type") or row.get("type")) or "content",
+        "provider": _optional_text(row.get("provider") or row.get("source_provider")),
         "published_at": str(row.get("published_at", "")),
         "views": str(row.get("views", 0)),
         "likes": str(row.get("likes", 0)),
@@ -1596,6 +1621,7 @@ def _content_cell(row: dict[str, Any]) -> str:
     thumbnail_url = _optional_text(row.get("thumbnail_url") or row.get("image_url"))
     content_type = _optional_text(row.get("content_type") or row.get("type")) or "content"
     content_id = _optional_text(row.get("content_id"))
+    provider = _optional_text(row.get("provider") or row.get("source_provider"))
     thumb = (
         f'<img class="content-thumb" src="{_text(thumbnail_url)}" '
         f'alt="{_text(title)} thumbnail">'
@@ -1608,7 +1634,16 @@ def _content_cell(row: dict[str, Any]) -> str:
         if url
         else f'<span class="content-title">{_text(title)}</span>'
     )
-    meta = f'<span class="content-meta">ID: {_text(content_id)}</span>' if content_id else ""
+    meta_parts = []
+    if provider:
+        meta_parts.append(f"Platform: {provider}")
+    if content_id:
+        meta_parts.append(f"ID: {content_id}")
+    meta = (
+        f'<span class="content-meta">{_text(" | ".join(meta_parts))}</span>'
+        if meta_parts
+        else ""
+    )
     return f'<div class="content-cell">{thumb}<div>{title_markup}{meta}</div></div>'
 
 

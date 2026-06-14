@@ -24,15 +24,23 @@ class DashboardSmokeTest(unittest.TestCase):
             instagram_report = json.loads(
                 summary.instagram_report_path.read_text(encoding="utf-8")
             )
+            channels_config = json.loads(
+                summary.channels_config_path.read_text(encoding="utf-8")
+            )
             youtube_processed_exists = summary.youtube_processed_path.exists()
             instagram_processed_exists = summary.instagram_processed_path.exists()
 
         self.assertTrue(youtube_processed_exists)
         self.assertTrue(instagram_processed_exists)
+        self.assertEqual(
+            channels_config["channels"][0]["display_name"],
+            "Sample Monitored Channel",
+        )
         self.assertEqual(youtube_report["source"]["provider"], "youtube")
         self.assertEqual(instagram_report["source"]["provider"], "instagram")
-        self.assertIn("Mock YouTube Channel", dashboard_html)
-        self.assertIn("example_instagram", dashboard_html)
+        self.assertIn("Sample Monitored Channel", dashboard_html)
+        self.assertIn('<option value="0">Sample Monitored Channel</option>', dashboard_html)
+        self.assertNotIn('<option value="1">', dashboard_html)
         self.assertIn('"provider": "youtube"', dashboard_html)
         self.assertIn('"provider": "instagram"', dashboard_html)
 
@@ -52,6 +60,10 @@ class DashboardSmokeTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertTrue(output_exists)
         self.assertIn("dashboard_path=data/dashboard/custom-smoke.html", stdout.getvalue())
+        self.assertIn(
+            "channels_config_path=data/temp/dashboard-smoke/config/channels.local.json",
+            stdout.getvalue(),
+        )
         self.assertNotIn(str(project_root), stdout.getvalue())
 
     def test_cli_entrypoint_uses_parser_and_main(self) -> None:

@@ -145,7 +145,7 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.dashboard_smoke
 ```
 
-This command uses committed fixture payloads only. It writes ignored smoke artifacts under `data/temp/dashboard-smoke/` and the static HTML output under `data/dashboard/`.
+This command uses committed fixture payloads only. It writes ignored smoke artifacts and a placeholder channel identity config under `data/temp/dashboard-smoke/`, then writes the static HTML output under `data/dashboard/`.
 
 Controlled backfill example:
 

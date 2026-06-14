@@ -1,6 +1,7 @@
 import argparse
 import contextlib
 import io
+import json
 import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -34,6 +35,7 @@ class DashboardSmokeSummary:
     instagram_processed_path: Path
     youtube_report_path: Path
     instagram_report_path: Path
+    channels_config_path: Path
     dashboard_path: Path
 
 
@@ -73,11 +75,13 @@ def run_dashboard_smoke(
         smoke_root / "data" / "reports" / "instagram-json" / "instagram-smoke.json",
         generated_at="2026-06-13T12:00:00Z",
     )
+    channels_config_path = _write_smoke_channels_config(smoke_root)
     with contextlib.redirect_stdout(io.StringIO()):
         build_dashboard(
             output_path=target_output,
             project_root=smoke_root,
             all_reports=True,
+            channels_config_path=channels_config_path,
         )
 
     return DashboardSmokeSummary(
@@ -85,6 +89,7 @@ def run_dashboard_smoke(
         instagram_processed_path=instagram_processed_path,
         youtube_report_path=youtube_report_path,
         instagram_report_path=instagram_report_path,
+        channels_config_path=channels_config_path,
         dashboard_path=target_output,
     )
 
@@ -102,6 +107,7 @@ def main(
         print(f"instagram_processed_path={_display_path(summary.instagram_processed_path, root)}")
         print(f"youtube_report_path={_display_path(summary.youtube_report_path, root)}")
         print(f"instagram_report_path={_display_path(summary.instagram_report_path, root)}")
+        print(f"channels_config_path={_display_path(summary.channels_config_path, root)}")
         print(f"dashboard_path={_display_path(summary.dashboard_path, root)}")
     return 0
 
@@ -156,6 +162,32 @@ def _write_processed_fixture_artifact(
     metrics = normalize_payloads(payloads, Path(f"data/fixtures/{provider_name}_metrics.json"))
     JsonMetricArtifactLoader(output_path).load(metrics)
     return output_path
+
+
+def _write_smoke_channels_config(smoke_root: Path) -> Path:
+    config_path = smoke_root / "config" / "channels.local.json"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "channels": [
+            {
+                "id": "sample-monitored-channel",
+                "display_name": "Sample Monitored Channel",
+                "image_url": "https://example.com/sample-channel.jpg",
+                "platforms": {
+                    "youtube": {
+                        "channel_id": "yt-channel-1",
+                        "handle": "Mock YouTube Channel",
+                    },
+                    "instagram": {
+                        "account_id": "ig-account-1",
+                        "handle": "example_instagram",
+                    },
+                },
+            }
+        ]
+    }
+    config_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return config_path
 
 
 def _display_path(path: Path, project_root: Path) -> str:
