@@ -6,9 +6,9 @@ Date: 2026-06-14
 
 Current phase: Consumption layer
 
-Current task: TASK-116 - PR review for three-task dashboard batch.
+Current task: TASK-121 - PR review for platform source batch.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, and the leading sources for views and engagements.
 
 ## Completed Milestones
 
@@ -124,6 +124,11 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Aggregated channel dashboards now sort combined top-content rows by ranking metric instead of provider file order.
 - Aggregated top-content rows now show their provider platform before the secondary content ID.
 - The current three-task dashboard batch passed local validation and is ready for PR review.
+- PR #34 was squash-merged after GitHub Actions, secret scan and CodeRabbit passed.
+- Platform Sources now shows a coverage pill such as `2/3 available`.
+- Platform cards now show each provider's share of total views and engagements.
+- The dashboard now shows which platform leads in views and engagements for the selected channel.
+- The current platform source batch passed local validation and is ready for PR review.
 
 ## Current Constraints
 
@@ -134,6 +139,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Review GitHub Actions and CodeRabbit feedback for the current three-task PR batch.
+- Review GitHub Actions and CodeRabbit feedback for the current platform source PR batch.
 - Keep technical IDs as secondary metadata or fallbacks, not primary dashboard labels.
 - Keep TikTok mocked until an official analytics path fits this project.

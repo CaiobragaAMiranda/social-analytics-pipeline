@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-116 - PR review for three-task dashboard batch
-- Last completed delivery: TASK-115 - Package three-task dashboard batch
+- Current task: TASK-121 - PR review for platform source batch
+- Last completed delivery: TASK-120 - Package three-task platform source batch
 
 ## Workflow
 
@@ -57,6 +57,12 @@ The local `dashboard-smoke` command can generate safe sample YouTube and Instagr
 When multiple provider reports are grouped into one monitored channel, top content is ranked globally across providers by the configured ranking metric, with `views` as the fallback.
 
 Aggregated top-content rows also show their provider platform before the secondary technical content ID.
+
+The Platform Sources panel shows how many expected sources are available for the selected channel, such as `2/3 available`.
+
+Platform cards also show each provider's share of total views and engagements for the selected channel.
+
+The dashboard highlights which platform leads the selected channel in views and engagements.
 
 ## Useful Commands
 
