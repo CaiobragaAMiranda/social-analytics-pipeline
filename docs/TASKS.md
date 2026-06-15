@@ -2005,11 +2005,122 @@ Evidence:
 
 ### TASK-116 - PR review for three-task dashboard batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
 Goal: review GitHub Actions and CodeRabbit feedback for the current dashboard batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #34 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #34 was squash-merged into `master`.
+- The next three-task batch started from a clean `master`.
+
+### TASK-117 - Platform coverage summary
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show how many expected platform sources are available for the selected monitored channel.
+
+Acceptance criteria:
+
+- The dashboard shows platform coverage near the Platform Sources header.
+- Full YouTube, TikTok and Instagram data renders as `3/3 available`.
+- Partial provider data renders the available count, such as `1/3 available`.
+- The value updates when the selected channel changes.
+- Tests cover full and partial coverage rendering.
+
+Evidence:
+
+- Dashboard channel models now include `platform_coverage`.
+- Platform Sources renders a coverage pill for the active channel.
+- The client-side channel switch updates the coverage pill.
+- Dashboard tests cover full and partial platform coverage.
+
+### TASK-118 - Platform share metrics
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show each available platform source's share of the selected channel totals.
+
+Acceptance criteria:
+
+- Platform cards show view share for each available platform.
+- Platform cards show engagement share for each available platform.
+- Share values are calculated from consolidated channel totals.
+- Zero-total channels render `0.00%` instead of failing.
+- Tests cover platform share values in the dashboard payload.
+
+Evidence:
+
+- Dashboard channel models now calculate `views_share` and `engagements_share` for platform sources.
+- Platform cards render View share and Engagement share rows.
+- Dashboard tests cover expected cross-platform share percentages.
+
+### TASK-119 - Leading platform summary
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show which platform leads the selected channel in views and engagements.
+
+Acceptance criteria:
+
+- Dashboard channel models identify the top views source.
+- Dashboard channel models identify the top engagement source.
+- The summary renders in a compact dashboard panel.
+- The value updates when the selected channel changes.
+- Tests cover the leader labels for mixed platform data.
+
+Evidence:
+
+- Dashboard channel models now include `top_views_source` and `top_engagement_source`.
+- The Data Quality panel shows the leading platform for views and engagements.
+- The client-side channel switch updates both values.
+- Dashboard tests cover the leading platform labels.
+
+### TASK-120 - Package three-task platform source batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-117, TASK-118 and TASK-119 as the current three-task batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no committed secrets, local paths, raw payloads, expanded DSNs, ports or IPs in versionable files.
+- The local smoke dashboard was regenerated from safe fixtures and shows provider coverage, share metrics and leading platform summaries.
+- The batch is ready for commit and PR review.
+
+### TASK-121 - PR review for platform source batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current platform source batch.
 
 Acceptance criteria:
 
@@ -2027,7 +2138,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current three-task PR batch after GitHub Actions and CodeRabbit run.
+- Review the current platform source PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

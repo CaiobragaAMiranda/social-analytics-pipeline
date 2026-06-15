@@ -502,6 +502,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       <section class="section">
         <div class="section-header">
           <h2>Platform Sources</h2>
+          <span class="status-pill" data-platform-coverage>
+            {_text(active["platform_coverage"])}
+          </span>
         </div>
         <div class="platform-grid" data-platform-sources>
           {_platform_cards(active)}
@@ -559,6 +562,16 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           <div class="quality-grid">
             {_metric_item("Has engagements", active["has_engagements"], "data-has-engagements")}
             {_metric_item("Top item", active["top_item"], "data-top-item")}
+            {_metric_item(
+                "Top views source",
+                active["top_views_source"],
+                "data-top-views-source",
+            )}
+            {_metric_item(
+                "Top engagement source",
+                active["top_engagement_source"],
+                "data-top-engagement-source",
+            )}
           </div>
         </div>
       </section>
@@ -674,7 +687,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           status: "unavailable",
           records: "unavailable",
           views: "unavailable",
+          views_share: "unavailable",
           engagements: "unavailable",
+          engagements_share: "unavailable",
           engagement_rate: "unavailable",
         }};
         const card = document.createElement("article");
@@ -692,7 +707,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         [
           ["Productions", platform.records],
           ["Views", platform.views],
+          ["View share", platform.views_share],
           ["Engagements", platform.engagements],
+          ["Engagement share", platform.engagements_share],
           ["Performance", platform.engagement_rate],
         ].forEach(([label, value]) => {{
           const item = document.createElement("div");
@@ -833,6 +850,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-quality-status]", channel.quality_status);
       setText("[data-has-engagements]", channel.has_engagements);
       setText("[data-top-item]", channel.top_item);
+      setText("[data-top-views-source]", channel.top_views_source);
+      setText("[data-top-engagement-source]", channel.top_engagement_source);
+      setText("[data-platform-coverage]", channel.platform_coverage);
       renderViewBars(channel.top_rows);
       renderEngagementDonuts(channel);
       renderPlatforms(channel.platforms);
@@ -1140,6 +1160,7 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         totals = {}
     if platforms:
         totals = _consolidated_platform_totals(platforms, totals)
+        platforms = _platform_share_models(platforms, totals)
     data_quality = payload.get("data_quality", {})
     if not isinstance(data_quality, dict):
         data_quality = {}
@@ -1188,11 +1209,14 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "quality_status": str(data_quality.get("status", "unknown")),
         "has_engagements": _yes_no(data_quality.get("has_engagements", False)),
         "top_item": _top_content_label(top_content, escape=False),
+        "top_views_source": _top_platform_source(platforms, "views"),
+        "top_engagement_source": _top_platform_source(platforms, "engagements"),
         "top_rows": [_row_model(row) for row in rows],
         "production_total": _production_total(production_source),
         "production_summary": _production_summary(production_source),
         "production_months": _production_months(production_source),
         "production_days": _production_days(production_source),
+        "platform_coverage": _platform_coverage(platforms),
         "platforms": platforms,
     }
 
@@ -1201,6 +1225,52 @@ def _platform_models(platforms: object) -> list[dict[str, Any]]:
     if not isinstance(platforms, list):
         return []
     return [_platform_model(platform) for platform in platforms if isinstance(platform, dict)]
+
+
+def _platform_coverage(platforms: list[dict[str, Any]]) -> str:
+    available = sum(
+        1 for platform in platforms if platform.get("status", "available") != "unavailable"
+    )
+    return f"{available}/3 available"
+
+
+def _top_platform_source(platforms: list[dict[str, Any]], metric: str) -> str:
+    available = [
+        platform
+        for platform in platforms
+        if platform.get("status", "available") != "unavailable"
+    ]
+    if not available:
+        return "unavailable"
+    top_platform = max(available, key=lambda platform: _plain_number(platform.get(metric, 0)))
+    provider = str(top_platform.get("provider", "unknown"))
+    value = str(top_platform.get(metric, "0"))
+    return f"{provider} ({value})"
+
+
+def _platform_share_models(
+    platforms: list[dict[str, Any]],
+    totals: dict[str, Any],
+) -> list[dict[str, Any]]:
+    total_views = _number(totals.get("views", 0))
+    total_engagements = _number(totals.get("engagements", 0))
+    return [
+        {
+            **platform,
+            "views_share": _share_percent(platform["views"], total_views),
+            "engagements_share": _share_percent(
+                platform["engagements"],
+                total_engagements,
+            ),
+        }
+        for platform in platforms
+    ]
+
+
+def _share_percent(value: object, total: float) -> str:
+    if total <= 0:
+        return "0.00%"
+    return f"{(_plain_number(value) / total) * 100:.2f}%"
 
 
 def _platform_model(platform: dict[str, Any]) -> dict[str, Any]:
@@ -1212,7 +1282,9 @@ def _platform_model(platform: dict[str, Any]) -> dict[str, Any]:
         "status": str(platform.get("status", "available")),
         "records": _display_number(platform.get("records", 0)),
         "views": _display_number(totals.get("views", 0)),
+        "views_share": "0.00%",
         "engagements": _display_number(totals.get("engagements", 0)),
+        "engagements_share": "0.00%",
         "engagement_rate": f"{_number(totals.get('engagement_rate_percent', 0.0)):.2f}%",
     }
 
