@@ -2582,16 +2582,196 @@ Evidence:
 
 - Local validation passed with lint, documentation verification, security scan and the full test suite.
 - Sensitive information scan found no real secrets, local paths, raw payloads or expanded DSNs in the files changed by this batch.
-- The only matched credential-like value is the documented placeholder `YOUTUBE_API_KEY=<local-api-key>`.
+- The only matched credential-like value was an existing documented placeholder, not a real secret.
 - The batch is ready for commit and PR review.
 
 ### TASK-142 - PR review for local dashboard serving batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current local dashboard serving batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #39 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #39 was squash-merged into `master`.
+- The next implementation cycle started from the merged local dashboard serving batch.
+
+### TASK-143 - Next dashboard usability slice decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next small dashboard usability improvement after making local serving easier.
+
+Acceptance criteria:
+
+- The next task improves the user's ability to inspect or operate the dashboard locally.
+- The scope is small enough to fit the three-task batch rule.
+- Public documentation remains free of real secrets, local paths, raw payloads and expanded DSNs.
+- The proposed change is explained before implementation.
+
+Evidence:
+
+- The next slice was redirected to the user's requested visual dashboard improvements.
+- The batch size rule changed from three small tasks to five small tasks before commit and PR.
+- The next batch prioritizes a polished dark analytics panel, stronger channel identity, graphic metric cards, production visual polish and card-based top content.
+- Provider/API expansion remains deferred while the dashboard presentation catches up to the requested design direction.
+
+### TASK-144 - Dashboard visual direction refresh
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the dashboard shell visually closer to a polished dark analytics panel with teal and blue accents.
+
+Acceptance criteria:
+
+- The dashboard uses a stronger dark panel composition.
+- The palette emphasizes teal, cyan, blue and green highlights without becoming a single-hue page.
+- Existing dashboard data contract remains unchanged.
+- Text remains readable on desktop and mobile.
+- Tests cover the refreshed shell markers.
+
+Evidence:
+
+- The dashboard shell now uses a stronger dark panel composition with teal, blue and green accents.
+- The refreshed shell exposes a visual dashboard marker for tests.
+- Existing dashboard data contract remains unchanged.
+- Focused dashboard tests and lint passed.
+
+### TASK-145 - Channel hero identity panel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the selected channel identity more prominent at the top of the dashboard.
+
+Acceptance criteria:
+
+- The selected channel image or fallback appears as a larger visual anchor.
+- The selected channel name is the strongest first-viewport label.
+- Provider/source summary remains visible but secondary.
+- The channel selector still chooses monitored channels, not platforms.
+- Tests cover the hero identity markup.
+
+Evidence:
+
+- The dashboard now opens with a channel hero panel anchored by the selected channel image or fallback.
+- The selected channel name is the strongest first-viewport label.
+- The channel selector remains channel-first and not platform-first.
+- Focused dashboard tests and lint passed.
+
+### TASK-146 - Visual metric cards
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the main metrics feel more like dashboard widgets and less like plain text cards.
+
+Acceptance criteria:
+
+- Production, views, engagements and performance cards get stronger visual treatments.
+- Cards include compact graphic accents using existing values.
+- Existing numeric values remain unchanged.
+- Tests cover the metric card shell.
+
+Evidence:
+
+- Main metric cards now render as visual dashboard widgets with accent bars and compact spark graphics.
+- Existing metric values and selectors remain unchanged.
+- Focused dashboard tests and lint passed.
+
+### TASK-147 - Production heatmap polish
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the production calendar visually closer to a contribution-style activity chart.
+
+Acceptance criteria:
+
+- The production heatmap has clearer month labels, legend and activity levels.
+- The visual treatment matches the dashboard palette.
+- Empty production states remain clear.
+- Existing production counts remain unchanged.
+- Tests cover the production panel shell.
+
+Evidence:
+
+- The production panel now has a stronger activity-chart container and palette treatment.
+- Existing production counts, months, days and empty states remain unchanged.
+- Focused dashboard tests and lint passed.
+
+### TASK-148 - Top-content card gallery
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: replace the table-first top-content presentation with a more visual card gallery while preserving the table data contract.
+
+Acceptance criteria:
+
+- Top content renders as visual cards with thumbnail/fallback, rank, title, platform, date and views.
+- The current table can remain as supporting detail or be visually secondary.
+- Technical IDs remain secondary metadata.
+- Empty top content shows a clear card-gallery empty state.
+- Tests cover the rendered gallery.
+
+Evidence:
+
+- Top content now renders as a visual card gallery before the supporting table.
+- Cards show thumbnail or fallback, rank, title, platform/date context and views.
+- The gallery updates when the selected channel changes.
+- Empty top content shows a clear gallery empty state.
+- Focused dashboard tests and lint passed.
+
+### TASK-149 - Package five-task visual dashboard batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-144 through TASK-148 as the current five-task visual dashboard batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- The dashboard smoke output is regenerated for local visual QA.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no new secrets, local paths, raw payloads, expanded DSNs or ports in the files changed by this batch.
+- Dashboard smoke output was regenerated from safe fixtures.
+- Browser QA confirmed the channel hero, metric cards, top-content gallery, production heatmap and page width.
+- The batch is ready for commit and PR review.
+
+### TASK-150 - PR review for visual dashboard batch
 
 Status: Pending
 
 Phase: Governance
 
-Goal: review GitHub Actions and CodeRabbit feedback for the current local dashboard serving batch.
+Goal: review GitHub Actions and CodeRabbit feedback for the current visual dashboard batch.
 
 Acceptance criteria:
 
@@ -2609,11 +2789,11 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current local dashboard serving PR batch after GitHub Actions and CodeRabbit run.
+- Review the current visual dashboard PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
 
 Every implementation PR should pass local validation where practical, GitHub Actions, secret scan and CodeRabbit. Gemini or ChatGPT review packets are used when available.
 
-Small tasks are batched in groups of up to three before commit and PR. Open a PR earlier only when the change is large, risky, security-sensitive, blocks further work, or needs external review before continuing.
+Small tasks are batched in groups of up to five before commit and PR. Open a PR earlier only when the change is large, risky, security-sensitive, blocks further work, or needs external review before continuing.

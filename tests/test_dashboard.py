@@ -58,8 +58,12 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn("Social Analytics Dashboard", html)
         self.assertIn('class="dashboard-shell"', html)
-        self.assertIn("Channel Analytics", html)
+        self.assertIn('class="channel-hero"', html)
+        self.assertIn("data-visual-dashboard-shell", html)
+        self.assertIn("Channel-first analytics", html)
         self.assertIn('class="channel-select"', html)
+        self.assertIn('class="card metric-card accent"', html)
+        self.assertIn('class="metric-spark"', html)
         self.assertIn("Semiannual Performance", html)
         self.assertIn("Productions", html)
         self.assertIn("channel-fallback", html)
@@ -85,6 +89,9 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("<th>Rank</th>", html)
         self.assertIn('<tr class="winner-row">', html)
         self.assertIn('<span class="rank-badge">#1</span>', html)
+        self.assertIn('class="section production-section"', html)
+        self.assertIn('class="content-gallery"', html)
+        self.assertIn('class="content-card"', html)
 
     def test_build_dashboard_html_prioritizes_human_content_metadata(self) -> None:
         html = build_dashboard_html(
