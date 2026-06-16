@@ -194,6 +194,8 @@ class DashboardTest(unittest.TestCase):
                                 "provider": "youtube",
                                 "title": "YouTube winner",
                                 "content_url": "https://example.com/youtube-winner",
+                                "thumbnail_url": "https://example.com/youtube-thumb.jpg",
+                                "content_type": "short",
                                 "published_at": "2026-05-20T10:00:00+00:00",
                                 "views": 100,
                             },
@@ -201,6 +203,8 @@ class DashboardTest(unittest.TestCase):
                                 "provider": "tiktok",
                                 "title": "TikTok winner",
                                 "content_url": "https://example.com/tiktok-winner",
+                                "thumbnail_url": "https://example.com/tiktok-thumb.jpg",
+                                "content_type": "video",
                                 "published_at": "2026-05-21T10:00:00+00:00",
                                 "views": 250,
                             },
@@ -208,6 +212,8 @@ class DashboardTest(unittest.TestCase):
                                 "provider": "instagram",
                                 "title": "Instagram winner",
                                 "content_url": "https://example.com/instagram-winner",
+                                "image_url": "https://example.com/instagram-thumb.jpg",
+                                "media_type": "reel",
                                 "published_at": "2026-05-22T10:00:00+00:00",
                                 "views": 150,
                             },
@@ -269,6 +275,29 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('"top_content_url": "https://example.com/tiktok-winner"', html)
         self.assertIn('"top_content_url": "https://example.com/instagram-winner"', html)
         self.assertIn(
+            '"top_content_thumbnail_url": "https://example.com/youtube-thumb.jpg"',
+            html,
+        )
+        self.assertIn(
+            '"top_content_thumbnail_url": "https://example.com/tiktok-thumb.jpg"',
+            html,
+        )
+        self.assertIn(
+            '"top_content_thumbnail_url": "https://example.com/instagram-thumb.jpg"',
+            html,
+        )
+        self.assertIn('"top_content_type": "short"', html)
+        self.assertIn('"top_content_type": "video"', html)
+        self.assertIn('"top_content_type": "reel"', html)
+        self.assertIn('"top_content_views": "100"', html)
+        self.assertIn('"top_content_views": "250"', html)
+        self.assertIn('"top_content_views": "150"', html)
+        self.assertIn(
+            '<img src="https://example.com/youtube-thumb.jpg" '
+            'alt="YouTube winner thumbnail">',
+            html,
+        )
+        self.assertIn(
             '<a href="https://example.com/youtube-winner" target="_blank" '
             'rel="noreferrer">YouTube winner</a>',
             html,
@@ -277,6 +306,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('"top_content_published_at": "2026-05-21T10:00:00+00:00"', html)
         self.assertIn('"top_content_published_at": "2026-05-22T10:00:00+00:00"', html)
         self.assertIn("Top content", html)
+        self.assertIn("Top content type", html)
+        self.assertIn("Top content views", html)
         self.assertIn("Top content date", html)
         self.assertIn('"top_views_source": "tiktok (250)"', html)
         self.assertIn('"top_engagement_source": "tiktok (50)"', html)

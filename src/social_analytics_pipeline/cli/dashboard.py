@@ -369,6 +369,21 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       font-size: 0.7rem;
       font-weight: bold;
     }}
+    .platform-content-preview {{
+      align-items: center;
+      display: flex;
+      gap: 0.65rem;
+      min-width: 0;
+    }}
+    .platform-content-preview img {{
+      background: #20243b;
+      border: 1px solid rgba(30, 234, 216, 0.24);
+      border-radius: 6px;
+      flex: 0 0 auto;
+      height: 2.7rem;
+      object-fit: cover;
+      width: 4rem;
+    }}
     .table-wrap {{ overflow-x: auto; }}
     table {{ border-collapse: collapse; min-width: 680px; width: 100%; }}
     th, td {{
@@ -693,6 +708,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           engagement_rate: "unavailable",
           top_content: "unavailable",
           top_content_url: "",
+          top_content_thumbnail_url: "",
+          top_content_type: "unavailable",
+          top_content_views: "unavailable",
           top_content_published_at: "unavailable",
         }};
         const card = document.createElement("article");
@@ -707,6 +725,15 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         status.textContent = platform.status;
         title.append(name, status);
         card.append(title);
+        if (platform.top_content_thumbnail_url && platform.top_content !== "unavailable") {{
+          const preview = document.createElement("div");
+          preview.className = "platform-content-preview";
+          const image = document.createElement("img");
+          image.src = platform.top_content_thumbnail_url;
+          image.alt = `${{platform.top_content}} thumbnail`;
+          preview.appendChild(image);
+          card.append(preview);
+        }}
         [
           ["Productions", platform.records],
           ["Views", platform.views],
@@ -715,6 +742,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           ["Engagement share", platform.engagements_share],
           ["Performance", platform.engagement_rate],
           ["Top content", platform.top_content],
+          ["Top content type", platform.top_content_type],
+          ["Top content views", platform.top_content_views],
           ["Top content date", platform.top_content_published_at],
         ].forEach(([label, value]) => {{
           const item = document.createElement("div");
@@ -1296,6 +1325,18 @@ def _platforms_with_top_content(
             **platform,
             "top_content": _top_content_for_provider(rows, platform["provider"]),
             "top_content_url": _top_content_url_for_provider(rows, platform["provider"]),
+            "top_content_thumbnail_url": _top_content_thumbnail_for_provider(
+                rows,
+                platform["provider"],
+            ),
+            "top_content_type": _top_content_type_for_provider(
+                rows,
+                platform["provider"],
+            ),
+            "top_content_views": _top_content_views_for_provider(
+                rows,
+                platform["provider"],
+            ),
             "top_content_published_at": _top_content_date_for_provider(
                 rows,
                 platform["provider"],
@@ -1323,6 +1364,31 @@ def _top_content_url_for_provider(rows: list[object], provider: object) -> str:
     if not row:
         return ""
     return _optional_text(row.get("content_url") or row.get("permalink"))
+
+
+def _top_content_thumbnail_for_provider(rows: list[object], provider: object) -> str:
+    row = _top_row_for_provider(rows, provider)
+    if not row:
+        return ""
+    return _optional_text(row.get("thumbnail_url") or row.get("image_url"))
+
+
+def _top_content_views_for_provider(rows: list[object], provider: object) -> str:
+    row = _top_row_for_provider(rows, provider)
+    if not row:
+        return "unavailable"
+    views = row.get("views")
+    if views in (None, "", "<none>"):
+        return "unavailable"
+    return _display_number(views)
+
+
+def _top_content_type_for_provider(rows: list[object], provider: object) -> str:
+    row = _top_row_for_provider(rows, provider)
+    if not row:
+        return "unavailable"
+    content_type = _optional_text(row.get("content_type") or row.get("media_type"))
+    return content_type or "unavailable"
 
 
 def _top_row_for_provider(rows: list[object], provider: object) -> dict[str, Any] | None:
@@ -1564,6 +1630,9 @@ def _platform_cards(channel: dict[str, Any]) -> str:
                     "engagement_rate": "unavailable",
                     "top_content": "unavailable",
                     "top_content_url": "",
+                    "top_content_thumbnail_url": "",
+                    "top_content_type": "unavailable",
+                    "top_content_views": "unavailable",
                     "top_content_published_at": "unavailable",
                 },
             )
@@ -1669,13 +1738,28 @@ def _platform_card(platform: dict[str, Any]) -> str:
   {_metric_item("Engagements", platform.get("engagements", "unavailable"), "")}
   {_metric_item("Engagement share", platform.get("engagements_share", "unavailable"), "")}
   {_metric_item("Performance", platform.get("engagement_rate", "unavailable"), "")}
+  {_platform_top_content_thumbnail(platform)}
   {_platform_top_content_item(platform)}
+  {_metric_item("Top content type", platform.get("top_content_type", "unavailable"), "")}
+  {_metric_item("Top content views", platform.get("top_content_views", "unavailable"), "")}
   {_metric_item(
         "Top content date",
         platform.get("top_content_published_at", "unavailable"),
         "",
     )}
 </article>"""
+
+
+def _platform_top_content_thumbnail(platform: dict[str, Any]) -> str:
+    value = str(platform.get("top_content", "unavailable"))
+    thumbnail_url = _optional_text(platform.get("top_content_thumbnail_url"))
+    if not thumbnail_url or value == "unavailable":
+        return ""
+    return (
+        '<div class="platform-content-preview">'
+        f'<img src="{_text(thumbnail_url)}" alt="{_text(value)} thumbnail">'
+        "</div>"
+    )
 
 
 def _platform_top_content_item(platform: dict[str, Any]) -> str:
