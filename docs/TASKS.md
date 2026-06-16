@@ -2116,11 +2116,120 @@ Evidence:
 
 ### TASK-121 - PR review for platform source batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
 Goal: review GitHub Actions and CodeRabbit feedback for the current platform source batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #35 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #35 was squash-merged into `master`.
+- The next three-task batch started from a clean `master`.
+
+### TASK-122 - Platform top-content summary
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show the leading content item inside each available platform source card.
+
+Acceptance criteria:
+
+- Platform cards show the top content title for that provider when available.
+- Missing platform top content renders as unavailable.
+- The value is derived from the selected channel top rows.
+- The value updates when the selected channel changes.
+- Tests cover provider-specific top content in platform cards.
+
+Evidence:
+
+- Platform source models now include `top_content` derived from channel top rows.
+- Platform cards render a Top content row.
+- Dashboard tests cover provider-specific top content labels.
+
+### TASK-123 - Platform top-content date
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show the publication date for each platform's leading content item.
+
+Acceptance criteria:
+
+- Platform cards show the top content publication date when available.
+- Missing dates render as unavailable.
+- The value is derived from the selected channel top rows.
+- The value updates when the selected channel changes.
+- Tests cover provider-specific top content dates.
+
+Evidence:
+
+- Platform source models now include `top_content_published_at`.
+- Platform cards render a Top content date row.
+- Dashboard tests cover provider-specific top content date labels.
+
+### TASK-124 - Platform top-content links
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make provider-specific top content clickable when a content URL is available.
+
+Acceptance criteria:
+
+- Platform source models preserve the top content URL when available.
+- Platform cards link the top content title when a URL exists.
+- Missing URLs render as plain text without failing.
+- The link uses safe external-link attributes.
+- Tests cover linked provider-specific top content.
+
+Evidence:
+
+- Platform source models now include `top_content_url`.
+- Platform cards render top content as an external link when a URL exists.
+- Dashboard tests cover provider-specific top content URLs and rendered links.
+
+### TASK-125 - Package three-task platform top-content batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-122, TASK-123 and TASK-124 as the current three-task batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no new secrets, local paths, raw payloads, expanded DSNs, ports or IPs in the files changed by this batch.
+- The local smoke dashboard was regenerated from safe fixtures and shows provider-specific top-content titles, dates and links.
+- The batch is ready for commit and PR review.
+
+### TASK-126 - PR review for platform top-content batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current platform top-content batch.
 
 Acceptance criteria:
 
@@ -2138,7 +2247,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current platform source PR batch after GitHub Actions and CodeRabbit run.
+- Review the current platform top-content PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
