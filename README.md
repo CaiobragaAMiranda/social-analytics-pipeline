@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-158 - PR review for platform comparison chart batch
-- Last completed delivery: TASK-157 - Package five-task platform comparison chart batch
+- Current task: TASK-164 - PR review for channel identity polish batch
+- Last completed delivery: TASK-163 - Package channel identity polish batch
 
 ## Workflow
 
@@ -87,6 +87,12 @@ The Top Content section now shows how many ranked items are displayed.
 The next visual dashboard cycle focuses on platform comparison charts for views, engagements and production volume inside the selected channel.
 
 The dashboard now includes platform comparison charts for views, engagements and production counts.
+
+The selected channel now has a visual preview with avatar, human channel name and source coverage next to the channel selector.
+
+Top-content rows no longer show technical content IDs when a human title is already available.
+
+The dashboard now includes visual channel option cards with avatar, human name and source summary while keeping the native selector available.
 
 ## Useful Commands
 

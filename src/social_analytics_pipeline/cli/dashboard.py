@@ -207,6 +207,82 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       min-width: 220px;
       padding: 0.55rem 0.75rem;
     }}
+    .channel-picker {{
+      align-items: end;
+      display: grid;
+      gap: 0.65rem;
+      min-width: 260px;
+    }}
+    .channel-preview {{
+      align-items: center;
+      background: rgba(12, 18, 36, 0.78);
+      border: 1px solid rgba(30, 234, 216, 0.18);
+      border-radius: 8px;
+      display: flex;
+      gap: 0.7rem;
+      min-width: 0;
+      padding: 0.65rem;
+    }}
+    .channel-preview .channel-image {{
+      height: 44px;
+      width: 44px;
+    }}
+    .channel-preview-copy {{
+      display: grid;
+      gap: 0.18rem;
+      min-width: 0;
+    }}
+    .channel-preview-copy strong {{
+      color: #eef8ff;
+      font-size: 0.84rem;
+      overflow-wrap: anywhere;
+    }}
+    .channel-preview-copy span {{
+      color: #9da7bc;
+      font-size: 0.74rem;
+      overflow-wrap: anywhere;
+    }}
+    .channel-option-list {{
+      display: grid;
+      gap: 0.5rem;
+      max-height: 10rem;
+      overflow-y: auto;
+    }}
+    .channel-option-card {{
+      align-items: center;
+      background: rgba(17, 20, 40, 0.88);
+      border: 1px solid #2f3654;
+      border-radius: 8px;
+      color: #eef8ff;
+      cursor: pointer;
+      display: grid;
+      gap: 0.55rem;
+      grid-template-columns: auto minmax(0, 1fr);
+      padding: 0.55rem;
+      text-align: left;
+    }}
+    .channel-option-card.active {{
+      border-color: #1eead8;
+      box-shadow: 0 0 0 1px rgba(30, 234, 216, 0.2);
+    }}
+    .channel-option-card .channel-image {{
+      height: 36px;
+      width: 36px;
+    }}
+    .channel-option-copy {{
+      display: grid;
+      gap: 0.15rem;
+      min-width: 0;
+    }}
+    .channel-option-copy strong {{
+      font-size: 0.78rem;
+      overflow-wrap: anywhere;
+    }}
+    .channel-option-copy span {{
+      color: #9da7bc;
+      font-size: 0.7rem;
+      overflow-wrap: anywhere;
+    }}
     .hero-grid {{ display: grid; gap: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }}
     .card {{
       background: linear-gradient(145deg, #101326 0%, #090b18 100%);
@@ -650,6 +726,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     @media (max-width: 540px) {{
       .content {{ padding: 1rem; }}
       .channel-hero {{ align-items: flex-start; flex-direction: column; }}
+      .channel-picker {{ width: 100%; }}
       .channel-select {{ width: 100%; }}
       .hero-grid, .main-grid, .quality-grid,
       .platform-grid, .analytics-grid,
@@ -676,18 +753,30 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           <div data-channel-image>{source_image}</div>
           <div class="hero-copy">
             <h1 data-channel-name>{_text(active["name"])}</h1>
-            <p class="channel-provider" data-channel-provider>{_text(active["provider"])}</p>
+            <p class="channel-provider" data-channel-provider>{_text(active["source_summary"])}</p>
             <p class="meta">
               Generated: <span data-generated-at>{_text(active["generated_at"])}</span>
             </p>
           </div>
         </div>
-        <label>
-          <span class="label">Channel</span>
-          <select class="channel-select" data-channel-select>
-            {_channel_options(channels)}
-          </select>
-        </label>
+        <div class="channel-picker" data-channel-picker>
+          <label>
+            <span class="label">Channel</span>
+            <select class="channel-select" data-channel-select>
+              {_channel_options(channels)}
+            </select>
+          </label>
+          <div class="channel-preview" data-channel-preview>
+            <div data-channel-preview-image>{source_image}</div>
+            <div class="channel-preview-copy">
+              <strong data-channel-preview-name>{_text(active["name"])}</strong>
+              <span data-channel-preview-meta>{_text(active["source_summary"])}</span>
+            </div>
+          </div>
+          <div class="channel-option-list" data-channel-options>
+            {_channel_option_cards(channels)}
+          </div>
+        </div>
       </section>
       <section class="hero-grid">
         {_metric_card(
@@ -828,8 +917,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     const setText = (selector, value) => {{
       document.querySelector(selector).textContent = value;
     }};
-    const renderImage = (channel) => {{
-      const target = document.querySelector("[data-channel-image]");
+    const renderImage = (channel, selector = "[data-channel-image]") => {{
+      const target = document.querySelector(selector);
       if (channel.image_url) {{
         const img = document.createElement("img");
         img.className = "channel-image";
@@ -954,7 +1043,6 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       meta.className = "content-meta";
       const metaParts = [];
       if (row.provider) metaParts.push(`Platform: ${{row.provider}}`);
-      if (row.content_id) metaParts.push(`ID: ${{row.content_id}}`);
       meta.textContent = metaParts.join(" | ");
       text.append(title, meta);
       wrapper.appendChild(text);
@@ -1195,8 +1283,11 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }};
     const renderChannel = (channel) => {{
       renderImage(channel);
+      renderImage(channel, "[data-channel-preview-image]");
       setText("[data-channel-name]", channel.name);
-      setText("[data-channel-provider]", channel.provider);
+      setText("[data-channel-provider]", channel.source_summary);
+      setText("[data-channel-preview-name]", channel.name);
+      setText("[data-channel-preview-meta]", channel.source_summary);
       setText("[data-generated-at]", channel.generated_at);
       setText("[data-engagement-rate]", channel.engagement_rate);
       setText("[data-records]", channel.records);
@@ -1227,7 +1318,20 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       renderContentGallery(channel.top_rows);
       renderRows(channel.top_rows);
     }};
-    select.addEventListener("change", () => renderChannel(channels[select.selectedIndex]));
+    const setActiveChannelOption = (index) => {{
+      document.querySelectorAll("[data-channel-option]").forEach((button, optionIndex) => {{
+        button.classList.toggle("active", optionIndex === index);
+      }});
+    }};
+    const renderChannelAt = (index) => {{
+      select.selectedIndex = index;
+      setActiveChannelOption(index);
+      renderChannel(channels[index]);
+    }};
+    select.addEventListener("change", () => renderChannelAt(select.selectedIndex));
+    document.querySelectorAll("[data-channel-option]").forEach((button) => {{
+      button.addEventListener("click", () => renderChannelAt(Number(button.dataset.channelIndex)));
+    }});
   </script>
 </body>
 </html>
@@ -1555,6 +1659,7 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": channel_name,
         "provider": str(provider or "unknown"),
+        "source_summary": _channel_source_summary(provider, platforms),
         "initial": channel_name[:1].upper() if channel_name else "?",
         "image_url": str(image_url) if image_url else "",
         "generated_at": _format_generated_at(payload.get("generated_at", "unknown"), escape=False),
@@ -1600,6 +1705,12 @@ def _platform_coverage(platforms: list[dict[str, Any]]) -> str:
         1 for platform in platforms if platform.get("status", "available") != "unavailable"
     )
     return f"{available}/3 available"
+
+
+def _channel_source_summary(provider: object, platforms: list[dict[str, Any]]) -> str:
+    if platforms:
+        return f"{_platform_coverage(platforms)} sources"
+    return str(provider or "unknown")
 
 
 def _top_platform_source(platforms: list[dict[str, Any]], metric: str) -> str:
@@ -1903,6 +2014,25 @@ def _channel_options(channels: list[dict[str, Any]]) -> str:
         f'<option value="{index}">{_text(channel["name"])}</option>'
         for index, channel in enumerate(channels)
     )
+
+
+def _channel_option_cards(channels: list[dict[str, Any]]) -> str:
+    return "\n".join(
+        _channel_option_card(index, channel) for index, channel in enumerate(channels)
+    )
+
+
+def _channel_option_card(index: int, channel: dict[str, Any]) -> str:
+    active_class = " active" if index == 0 else ""
+    return f"""
+<button class="channel-option-card{active_class}" type="button"
+  data-channel-option data-channel-index="{index}">
+  {_channel_image_markup(channel)}
+  <span class="channel-option-copy">
+    <strong>{_text(channel["name"])}</strong>
+    <span>{_text(channel["source_summary"])}</span>
+  </span>
+</button>"""
 
 
 def _metric_card(label: str, value: object, accent: bool, data_attr: str) -> str:
@@ -2310,7 +2440,6 @@ def _content_cell(row: dict[str, Any]) -> str:
     url = _optional_text(row.get("content_url") or row.get("permalink"))
     thumbnail_url = _optional_text(row.get("thumbnail_url") or row.get("image_url"))
     content_type = _optional_text(row.get("content_type") or row.get("type")) or "content"
-    content_id = _optional_text(row.get("content_id"))
     provider = _optional_text(row.get("provider") or row.get("source_provider"))
     thumb = (
         f'<img class="content-thumb" src="{_text(thumbnail_url)}" '
@@ -2327,8 +2456,6 @@ def _content_cell(row: dict[str, Any]) -> str:
     meta_parts = []
     if provider:
         meta_parts.append(f"Platform: {provider}")
-    if content_id:
-        meta_parts.append(f"ID: {content_id}")
     meta = (
         f'<span class="content-meta">{_text(" | ".join(meta_parts))}</span>'
         if meta_parts

@@ -2943,7 +2943,7 @@ Evidence:
 
 ### TASK-158 - PR review for platform comparison chart batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -2952,6 +2952,139 @@ Goal: review GitHub Actions and CodeRabbit feedback for the platform comparison 
 Acceptance criteria:
 
 - The PR is open with the five-task platform comparison chart batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #41 passed GitHub Actions quality checks and secret scan.
+- CodeRabbit returned a passing skipped review status with no blocking feedback.
+- PR #41 was squash-merged into `master`.
+
+### TASK-159 - Channel identity polish batch decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next simplified dashboard polish batch after the platform comparison PR.
+
+Acceptance criteria:
+
+- The next batch directly addresses channel-first dashboard clarity.
+- The scope fits the five-task batch rule.
+- The batch does not add new providers, API calls or credentials.
+- Proposed changes are explained before implementation.
+
+Evidence:
+
+- The next batch focuses on making the selected channel obvious with human name, avatar and source coverage.
+- The next batch also targets reducing visible technical IDs where human titles or names are available.
+- The scope stays inside the static dashboard layer.
+
+### TASK-160 - Selected channel visual preview
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the selected monitored channel obvious beside the channel selector.
+
+Acceptance criteria:
+
+- The channel selector area shows the selected channel avatar or fallback.
+- The selector area shows the human channel name.
+- The selector area shows a source summary instead of looking like a platform selector.
+- The preview updates when a different channel is selected.
+- Tests cover the rendered preview and source summary.
+
+Evidence:
+
+- The dashboard now renders a `data-channel-preview` block beside the channel selector.
+- The preview shows channel avatar/fallback, human channel name and source coverage.
+- The hero subtitle now uses the same source summary for consolidated channel views.
+- Focused dashboard lint and tests passed.
+
+### TASK-161 - Reduce technical IDs in visible dashboard metadata
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: reduce visible technical IDs in dashboard metadata when human-readable content labels are available.
+
+Acceptance criteria:
+
+- Top-content metadata keeps provider context without making content IDs primary.
+- Content IDs remain available only as secondary fallback metadata.
+- Existing title, thumbnail, link and date display behavior remains unchanged.
+- Tests cover rows with and without human-readable titles.
+
+Evidence:
+
+- Top-content row metadata now keeps provider context without adding `ID: ...` beside human titles.
+- Dynamic channel switching uses the same reduced visible metadata rule.
+- Focused dashboard lint and tests passed.
+
+### TASK-162 - Visual channel option cards
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: let users choose monitored channels through visual channel cards instead of relying only on the native select.
+
+Acceptance criteria:
+
+- The dashboard renders visual channel option cards with avatar or fallback, human name and source summary.
+- Selecting a card updates the same selected channel view as the native select.
+- The active channel card is visually distinguishable.
+- The native select remains available for accessibility and simple keyboard use.
+- Tests cover the rendered channel option card shell.
+
+Evidence:
+
+- The dashboard now renders `data-channel-options` visual cards with avatar/fallback, human name and source summary.
+- The first channel card renders active by default.
+- Clicking a visual card updates the same selected channel view as the native select.
+- Focused dashboard lint and tests passed.
+
+### TASK-163 - Package channel identity polish batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-159 through TASK-162 as the current channel identity polish batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- Dashboard smoke output is regenerated for local visual QA.
+- Browser QA confirms channel preview and visual channel option cards.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Full validation passed with ruff, unit tests, documentation verification and Bandit.
+- Sensitive-pattern scan on changed files returned no findings.
+- Dashboard smoke output was regenerated.
+- Browser QA confirmed the channel preview, active visual channel card, reduced visible ID labels, no horizontal overflow and no console errors.
+
+### TASK-164 - PR review for channel identity polish batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the channel identity polish batch.
+
+Acceptance criteria:
+
+- The PR is open with the channel identity polish batch.
 - GitHub Actions checks are reviewed.
 - CodeRabbit feedback is reviewed.
 - Any blocker is fixed before merge.
@@ -2966,7 +3099,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current platform comparison chart PR batch after GitHub Actions and CodeRabbit run.
+- Review the current channel identity polish PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
