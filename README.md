@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-131 - PR review for visual platform content batch
-- Last completed delivery: TASK-130 - Package three-task visual platform content batch
+- Current task: TASK-137 - PR review for top-content table readability batch
+- Last completed delivery: TASK-136 - Package three-task top-content table readability batch
 
 ## Workflow
 
@@ -75,6 +75,12 @@ Platform cards also render the top content thumbnail when the report includes an
 Platform cards also show the view count for each provider's leading content item.
 
 Platform cards also show the content type for each provider's leading content item when available.
+
+The top-content table now shows visual rank labels for easier scanning.
+
+The top-ranked content row is highlighted in the dashboard table.
+
+The Top Content section now shows how many ranked items are displayed.
 
 ## Useful Commands
 

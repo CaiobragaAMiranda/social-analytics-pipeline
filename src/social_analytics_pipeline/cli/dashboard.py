@@ -393,6 +393,12 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }}
     th {{ background: #111428; color: #9da7bc; font-size: 0.78rem; text-transform: uppercase; }}
     tr:last-child td {{ border-bottom: 0; }}
+    tr.winner-row {{
+      background: rgba(30, 234, 216, 0.08);
+    }}
+    tr.winner-row td:first-child {{
+      border-left: 3px solid #1eead8;
+    }}
     .content-cell {{
       align-items: center;
       display: flex;
@@ -432,6 +438,17 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       font-size: 0.74rem;
       margin-top: 0.2rem;
       overflow-wrap: anywhere;
+    }}
+    .rank-badge {{
+      background: linear-gradient(135deg, #1eead8, #1950d1);
+      border-radius: 999px;
+      color: #eef8ff;
+      display: inline-flex;
+      font-size: 0.78rem;
+      font-weight: 800;
+      justify-content: center;
+      min-width: 2.4rem;
+      padding: 0.28rem 0.55rem;
     }}
     .empty-row td {{ color: #a7c1c8; padding: 1.25rem 0.72rem; text-align: center; }}
     @media (max-width: 980px) {{
@@ -593,12 +610,13 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       <section class="section">
         <div class="section-header">
           <h2>Top Content</h2>
+          <span class="status-pill" data-top-row-count>{_top_row_count_label(active)}</span>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Content</th><th>Published</th><th>Views</th><th>Likes</th>
+                <th>Rank</th><th>Content</th><th>Published</th><th>Views</th><th>Likes</th>
                 <th>Comments</th><th>Shares</th>
               </tr>
             </thead>
@@ -638,16 +656,27 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }};
     const renderRows = (rows) => {{
       const target = document.querySelector("[data-top-rows]");
+      const countLabel = `${{rows.length}} ranked item${{rows.length === 1 ? "" : "s"}}`;
+      setText("[data-top-row-count]", countLabel);
       if (!rows.length) {{
         target.innerHTML = (
           '<tr class="empty-row">'
-          + '<td colspan="6">No top content rows available for this report.</td>'
+          + '<td colspan="7">No top content rows available for this report.</td>'
           + '</tr>'
         );
         return;
       }}
-      target.replaceChildren(...rows.map((row) => {{
+      target.replaceChildren(...rows.map((row, index) => {{
         const tr = document.createElement("tr");
+        if (index === 0) {{
+          tr.className = "winner-row";
+        }}
+        const rank = document.createElement("td");
+        const rankBadge = document.createElement("span");
+        rankBadge.className = "rank-badge";
+        rankBadge.textContent = `#${{index + 1}}`;
+        rank.appendChild(rankBadge);
+        tr.appendChild(rank);
         tr.appendChild(renderContentCell(row));
         ["published_at", "views", "likes", "comments", "shares"].forEach((key) => {{
           const td = document.createElement("td");
@@ -1603,7 +1632,14 @@ def _channel_table_rows(channel: dict[str, Any]) -> str:
     rows = channel.get("top_rows", [])
     if not isinstance(rows, list) or not rows:
         return _empty_table_row()
-    return "\n".join(_table_row(row) for row in rows)
+    return "\n".join(_table_row(index, row) for index, row in enumerate(rows, start=1))
+
+
+def _top_row_count_label(channel: dict[str, Any]) -> str:
+    rows = channel.get("top_rows", [])
+    count = len(rows) if isinstance(rows, list) else 0
+    suffix = "" if count == 1 else "s"
+    return f"{count} ranked item{suffix}"
 
 
 def _platform_cards(channel: dict[str, Any]) -> str:
@@ -1808,11 +1844,13 @@ def _card(label: str, value: object) -> str:
     )
 
 
-def _table_row(row: object) -> str:
+def _table_row(rank: int, row: object) -> str:
     if not isinstance(row, dict):
         row = {}
+    row_class = ' class="winner-row"' if rank == 1 else ""
     return (
-        "<tr>"
+        f"<tr{row_class}>"
+        f'<td><span class="rank-badge">#{_text(rank)}</span></td>'
         f"<td>{_content_cell(row)}</td>"
         f"<td>{_text(row.get('published_at', ''))}</td>"
         f"<td>{_text(row.get('views', 0))}</td>"
@@ -1826,7 +1864,7 @@ def _table_row(row: object) -> str:
 def _empty_table_row() -> str:
     return (
         '<tr class="empty-row">'
-        '<td colspan="6">No top content rows available for this report.</td>'
+        '<td colspan="7">No top content rows available for this report.</td>'
         "</tr>"
     )
 

@@ -81,6 +81,10 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("data/processed/youtube/sample.json", html)
         self.assertIn("Data Quality", html)
         self.assertIn("video-1", html)
+        self.assertIn("1 ranked item", html)
+        self.assertIn("<th>Rank</th>", html)
+        self.assertIn('<tr class="winner-row">', html)
+        self.assertIn('<span class="rank-badge">#1</span>', html)
 
     def test_build_dashboard_html_prioritizes_human_content_metadata(self) -> None:
         html = build_dashboard_html(
@@ -403,7 +407,9 @@ class DashboardTest(unittest.TestCase):
         )
 
         self.assertIn("No top content available", html)
+        self.assertIn("0 ranked items", html)
         self.assertIn("No top content rows available for this report.", html)
+        self.assertIn('td colspan="7"', html)
         self.assertIn('class="empty-row"', html)
         self.assertNotIn("<td>&lt;none&gt;</td><td>0</td><td>0</td>", html)
 
