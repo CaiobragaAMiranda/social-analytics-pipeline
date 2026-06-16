@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-142 - PR review for local dashboard serving batch
-- Last completed delivery: TASK-141 - Package three-task local dashboard serving batch
+- Current task: TASK-150 - PR review for visual dashboard batch
+- Last completed delivery: TASK-149 - Package five-task visual dashboard batch
 
 ## Workflow
 
@@ -19,7 +19,7 @@ Before coding a task:
 3. Implement only after the user confirms or asks to continue.
 4. Update documentation and progress.
 5. Run local validation.
-6. Batch up to three small tasks before committing and opening a PR.
+6. Batch up to five small tasks before committing and opening a PR.
 7. Open a PR so GitHub Actions and CodeRabbit can review it.
 
 Exceptions: commit and open a PR earlier when a task is large, risky, security-sensitive, blocks further work, or needs external review before continuing.
@@ -48,7 +48,7 @@ The user-facing dashboard selector should choose monitored channels/accounts, no
 
 After the channel contract is useful, the next provider cycle can start. ADR-0002 selects Instagram as the next real provider, limited to authorized Instagram professional accounts through official Meta APIs. TikTok remains deferred until a better official analytics path fits the monitored-channel use case.
 
-The first dashboard slice exposes a `social-dashboard` command that reads report JSON files and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The command also accepts repeated `--report-json` values or `--all-reports` to aggregate multiple local artifacts by channel identity. A local `--channels-config` JSON file can map platform handles or IDs to a monitored channel display name and image URL; use `config/channels.example.json` as the safe placeholder template and keep `config/channels.local.json` uncommitted. The current static dashboard is a single-page channel analytics view with a channel selector, channel avatar, responsive metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, a top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
+The first dashboard slice exposes a `social-dashboard` command that reads report JSON files and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The command also accepts repeated `--report-json` values or `--all-reports` to aggregate multiple local artifacts by channel identity. A local `--channels-config` JSON file can map platform handles or IDs to a monitored channel display name and image URL; use `config/channels.example.json` as the safe placeholder template and keep `config/channels.local.json` uncommitted. The current static dashboard is a single-page channel analytics view with a channel selector, channel hero, responsive visual metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, an activity-style production panel, a top-content card gallery, a supporting top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
 
 The Instagram provider is available through the explicit `instagram-local-pipeline` command. It requires local `INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_USER_ID` values, writes ignored local artifacts, and prints only compact masked execution summaries. Processed Instagram artifacts can be converted into dashboard-compatible JSON with `instagram-report`.
 

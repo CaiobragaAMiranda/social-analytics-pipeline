@@ -80,18 +80,20 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
   <style>
     * {{ box-sizing: border-box; }}
     body {{
-      background: #080916;
+      background:
+        radial-gradient(circle at top left, rgba(30, 234, 216, 0.16), transparent 28rem),
+        linear-gradient(135deg, #070813 0%, #101326 52%, #08101f 100%);
       color: #eef8ff;
       font-family: Arial, sans-serif;
       margin: 0;
     }}
     .dashboard-shell {{
       display: grid;
-      grid-template-columns: 250px minmax(0, 1fr);
+      grid-template-columns: 220px minmax(0, 1fr);
       min-height: 100vh;
     }}
     .sidebar {{
-      background: linear-gradient(180deg, #12152a 0%, #0b1024 100%);
+      background: linear-gradient(180deg, #13283a 0%, #0b1024 100%);
       border-right: 1px solid rgba(56, 243, 223, 0.25);
       color: #eef8ff;
       display: flex;
@@ -106,6 +108,12 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       margin: 0;
       text-transform: uppercase;
     }}
+    .sidebar-note {{
+      color: #9da7bc;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      margin: 0;
+    }}
     .channel-profile {{
       align-items: center;
       display: flex;
@@ -117,10 +125,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       border: 2px solid rgba(42, 235, 223, 0.8);
       border-radius: 50%;
       flex: 0 0 auto;
-      height: 64px;
+      height: 84px;
       object-fit: cover;
       box-shadow: 0 0 26px rgba(26, 220, 214, 0.28);
-      width: 64px;
+      width: 84px;
     }}
     .channel-fallback {{
       align-items: center;
@@ -149,7 +157,39 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       text-transform: uppercase;
     }}
     .nav-icon {{ font-size: 1rem; width: 1.2rem; }}
-    .content {{ display: grid; gap: 1rem; padding: 1.6rem; }}
+    .content {{ display: grid; gap: 1rem; padding: 1.3rem; }}
+    .channel-hero {{
+      align-items: center;
+      background:
+        linear-gradient(135deg, rgba(30, 234, 216, 0.16), transparent 42%),
+        linear-gradient(145deg, #11172d 0%, #09101f 100%);
+      border: 1px solid rgba(30, 234, 216, 0.32);
+      border-radius: 8px;
+      box-shadow: 0 22px 46px rgba(0, 0, 0, 0.28);
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      min-width: 0;
+      padding: 1.2rem;
+    }}
+    .hero-identity {{
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      min-width: 0;
+    }}
+    .hero-copy {{
+      display: grid;
+      gap: 0.3rem;
+      min-width: 0;
+    }}
+    .hero-copy h1 {{
+      color: #eef8ff;
+      font-size: 1.8rem;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+      text-transform: none;
+    }}
     .topbar {{
       align-items: center;
       display: flex;
@@ -178,6 +218,18 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       position: relative;
       overflow: hidden;
     }}
+    .metric-card {{
+      min-height: 8.6rem;
+    }}
+    .metric-card::before {{
+      background: linear-gradient(90deg, #1eead8, #1950d1, #54ff8a);
+      content: "";
+      height: 0.28rem;
+      left: 1rem;
+      position: absolute;
+      right: 1rem;
+      top: 0;
+    }}
     .card::after {{
       background: radial-gradient(circle, rgba(28, 232, 216, 0.18), transparent 62%);
       content: "";
@@ -202,6 +254,22 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       line-height: 1.2;
       margin-top: 0.45rem;
       overflow-wrap: anywhere;
+    }}
+    .metric-spark {{
+      align-items: end;
+      display: flex;
+      gap: 0.25rem;
+      height: 1.5rem;
+      margin-top: 0.9rem;
+      position: relative;
+      z-index: 1;
+    }}
+    .metric-spark span {{
+      background: linear-gradient(180deg, #54ff8a, #1eead8 62%, #1950d1);
+      border-radius: 999px;
+      display: block;
+      flex: 1;
+      min-width: 0.35rem;
     }}
     .section {{
       background: linear-gradient(145deg, #101326 0%, #090b18 100%);
@@ -313,7 +381,11 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       opacity: 0.58;
     }}
     .production-panel {{
+      background: #0c1224;
+      border: 1px solid rgba(30, 234, 216, 0.16);
+      border-radius: 8px;
       overflow-x: auto;
+      padding: 1rem;
     }}
     .production-heatmap {{
       display: grid;
@@ -339,6 +411,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       border-radius: 3px;
       height: 0.85rem;
       width: 0.85rem;
+    }}
+    .production-section {{
+      border-color: rgba(84, 255, 138, 0.22);
     }}
     .production-day.level-1 {{ background: #1950d1; }}
     .production-day.level-2 {{ background: #168ac7; }}
@@ -450,22 +525,87 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       min-width: 2.4rem;
       padding: 0.28rem 0.55rem;
     }}
+    .content-gallery {{
+      display: grid;
+      gap: 0.9rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 1rem;
+    }}
+    .content-card {{
+      background: linear-gradient(145deg, #111428 0%, #0b1024 100%);
+      border: 1px solid rgba(30, 234, 216, 0.2);
+      border-radius: 8px;
+      display: grid;
+      gap: 0.65rem;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0.8rem;
+    }}
+    .content-card-media {{
+      aspect-ratio: 16 / 9;
+      background: #20243b;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }}
+    .content-card-media img {{
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }}
+    .content-card-fallback {{
+      align-items: center;
+      color: #85fff4;
+      display: flex;
+      font-size: 0.85rem;
+      font-weight: bold;
+      height: 100%;
+      justify-content: center;
+      text-transform: uppercase;
+    }}
+    .content-card-rank {{
+      left: 0.55rem;
+      position: absolute;
+      top: 0.55rem;
+    }}
+    .content-card-title {{
+      color: #eef8ff;
+      font-weight: bold;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }}
+    .content-card-title:hover {{ color: #27ead8; }}
+    .content-card-meta {{
+      color: #9da7bc;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+      gap: 0.45rem;
+    }}
+    .content-card-empty {{
+      color: #a7c1c8;
+      grid-column: 1 / -1;
+      padding: 1rem;
+      text-align: center;
+    }}
     .empty-row td {{ color: #a7c1c8; padding: 1.25rem 0.72rem; text-align: center; }}
     @media (max-width: 980px) {{
       .dashboard-shell {{ grid-template-columns: 1fr; }}
       .sidebar {{ flex-direction: row; flex-wrap: wrap; align-items: center; }}
       .nav-list {{ display: none; }}
-      .hero-grid, .main-grid, .platform-grid, .analytics-grid {{
+      .hero-grid, .main-grid, .platform-grid, .analytics-grid, .content-gallery {{
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }}
     }}
     @media (max-width: 540px) {{
       .content {{ padding: 1rem; }}
-      .topbar {{ align-items: flex-start; flex-direction: column; }}
+      .channel-hero {{ align-items: flex-start; flex-direction: column; }}
       .channel-select {{ width: 100%; }}
       .hero-grid, .main-grid, .quality-grid,
-      .platform-grid, .analytics-grid, .donut-grid {{ grid-template-columns: 1fr; }}
-      .channel-image {{ height: 64px; width: 64px; }}
+      .platform-grid, .analytics-grid,
+      .donut-grid, .content-gallery {{ grid-template-columns: 1fr; }}
+      .channel-image {{ height: 72px; width: 72px; }}
     }}
   </style>
 </head>
@@ -473,13 +613,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
   <main class="dashboard-shell" data-dashboard>
     <aside class="sidebar">
       <h1 class="brand">Social</h1>
-      <div class="channel-profile">
-        <div data-channel-image>{source_image}</div>
-        <div>
-          <p class="channel-name" data-channel-name>{_text(active["name"])}</p>
-          <p class="channel-provider" data-channel-provider>{_text(active["provider"])}</p>
-        </div>
-      </div>
+      <p class="sidebar-note">Channel-first analytics across connected social sources.</p>
       <div class="nav-list">
         <div class="nav-item"><span class="nav-icon">#</span><span>Overview</span></div>
         <div class="nav-item"><span class="nav-icon">%</span><span>Performance</span></div>
@@ -488,12 +622,16 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       </div>
     </aside>
     <section class="content">
-      <div class="topbar">
-        <div>
-          <h1>Channel Analytics</h1>
-          <p class="meta">
-            Generated: <span data-generated-at>{_text(active["generated_at"])}</span>
-          </p>
+      <section class="channel-hero" data-visual-dashboard-shell>
+        <div class="hero-identity">
+          <div data-channel-image>{source_image}</div>
+          <div class="hero-copy">
+            <h1 data-channel-name>{_text(active["name"])}</h1>
+            <p class="channel-provider" data-channel-provider>{_text(active["provider"])}</p>
+            <p class="meta">
+              Generated: <span data-generated-at>{_text(active["generated_at"])}</span>
+            </p>
+          </div>
         </div>
         <label>
           <span class="label">Channel</span>
@@ -501,7 +639,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             {_channel_options(channels)}
           </select>
         </label>
-      </div>
+      </section>
       <section class="hero-grid">
         {_metric_card(
             "Semiannual Performance",
@@ -531,7 +669,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           </div>
         </div>
       </section>
-      <section class="section">
+      <section class="section production-section" data-production-panel>
         <div class="section-header">
           <h2>Platform Sources</h2>
           <span class="status-pill" data-platform-coverage>
@@ -612,6 +750,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           <h2>Top Content</h2>
           <span class="status-pill" data-top-row-count>{_top_row_count_label(active)}</span>
         </div>
+        <div class="content-gallery" data-top-content-gallery>
+          {_top_content_gallery(active)}
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -684,6 +825,52 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           tr.appendChild(td);
         }});
         return tr;
+      }}));
+    }};
+    const renderContentGallery = (rows) => {{
+      const target = document.querySelector("[data-top-content-gallery]");
+      if (!rows.length) {{
+        const empty = document.createElement("p");
+        empty.className = "content-card-empty";
+        empty.textContent = "No top content available for this channel.";
+        target.replaceChildren(empty);
+        return;
+      }}
+      target.replaceChildren(...rows.slice(0, 3).map((row, index) => {{
+        const card = document.createElement("article");
+        card.className = "content-card";
+        const media = document.createElement("div");
+        media.className = "content-card-media";
+        const rank = document.createElement("span");
+        rank.className = "rank-badge content-card-rank";
+        rank.textContent = `#${{index + 1}}`;
+        if (row.thumbnail_url) {{
+          const img = document.createElement("img");
+          img.src = row.thumbnail_url;
+          img.alt = `${{row.display_title}} thumbnail`;
+          media.appendChild(img);
+        }} else {{
+          const fallback = document.createElement("div");
+          fallback.className = "content-card-fallback";
+          fallback.textContent = row.content_type || "content";
+          media.appendChild(fallback);
+        }}
+        media.appendChild(rank);
+        const title = document.createElement(row.content_url ? "a" : "span");
+        title.className = "content-card-title";
+        title.textContent = row.display_title;
+        if (row.content_url) {{
+          title.href = row.content_url;
+          title.target = "_blank";
+          title.rel = "noreferrer";
+        }}
+        const meta = document.createElement("div");
+        meta.className = "content-card-meta";
+        meta.textContent = [row.provider, row.published_at, `${{row.views}} views`]
+          .filter(Boolean)
+          .join(" | ");
+        card.append(media, title, meta);
+        return card;
       }}));
     }};
     const renderContentCell = (row) => {{
@@ -929,6 +1116,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       renderEngagementDonuts(channel);
       renderPlatforms(channel.platforms);
       renderProductionCalendar(channel);
+      renderContentGallery(channel.top_rows);
       renderRows(channel.top_rows);
     }};
     select.addEventListener("change", () => renderChannel(channels[select.selectedIndex]));
@@ -1612,9 +1800,15 @@ def _channel_options(channels: list[dict[str, Any]]) -> str:
 def _metric_card(label: str, value: object, accent: bool, data_attr: str) -> str:
     accent_class = " accent" if accent else ""
     return (
-        f'<article class="card{accent_class}">'
+        f'<article class="card metric-card{accent_class}">'
         f'<div class="label">{_text(label)}</div>'
         f'<div class="value" {data_attr}>{_text(value)}</div>'
+        '<div class="metric-spark" aria-hidden="true">'
+        '<span style="height: 45%"></span>'
+        '<span style="height: 72%"></span>'
+        '<span style="height: 56%"></span>'
+        '<span style="height: 88%"></span>'
+        "</div>"
         "</article>"
     )
 
@@ -1633,6 +1827,48 @@ def _channel_table_rows(channel: dict[str, Any]) -> str:
     if not isinstance(rows, list) or not rows:
         return _empty_table_row()
     return "\n".join(_table_row(index, row) for index, row in enumerate(rows, start=1))
+
+
+def _top_content_gallery(channel: dict[str, Any]) -> str:
+    rows = channel.get("top_rows", [])
+    if not isinstance(rows, list) or not rows:
+        return '<p class="content-card-empty">No top content available for this channel.</p>'
+    return "".join(_top_content_card(index, row) for index, row in enumerate(rows[:3], start=1))
+
+
+def _top_content_card(rank: int, row: object) -> str:
+    if not isinstance(row, dict):
+        row = {}
+    title = _text(row.get("display_title", "<none>"))
+    url = _optional_text(row.get("content_url"))
+    thumbnail_url = _optional_text(row.get("thumbnail_url"))
+    content_type = _text(row.get("content_type", "content"))
+    media = (
+        f'<img src="{_text(thumbnail_url)}" alt="{title} thumbnail">'
+        if thumbnail_url
+        else f'<div class="content-card-fallback">{content_type}</div>'
+    )
+    title_markup = (
+        f'<a class="content-card-title" href="{_text(url)}" target="_blank" '
+        f'rel="noreferrer">{title}</a>'
+        if url
+        else f'<span class="content-card-title">{title}</span>'
+    )
+    meta_parts = [
+        str(value)
+        for value in (row.get("provider"), row.get("published_at"), f'{row.get("views", 0)} views')
+        if value
+    ]
+    return (
+        '<article class="content-card">'
+        '<div class="content-card-media">'
+        f"{media}"
+        f'<span class="rank-badge content-card-rank">#{_text(rank)}</span>'
+        "</div>"
+        f"{title_markup}"
+        f'<div class="content-card-meta">{_text(" | ".join(meta_parts))}</div>'
+        "</article>"
+    )
 
 
 def _top_row_count_label(channel: dict[str, Any]) -> str:
