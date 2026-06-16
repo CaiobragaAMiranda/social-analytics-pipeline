@@ -691,6 +691,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           engagements: "unavailable",
           engagements_share: "unavailable",
           engagement_rate: "unavailable",
+          top_content: "unavailable",
+          top_content_url: "",
+          top_content_published_at: "unavailable",
         }};
         const card = document.createElement("article");
         const stateClass = platform.status === "unavailable" ? "unavailable" : "";
@@ -711,6 +714,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           ["Engagements", platform.engagements],
           ["Engagement share", platform.engagements_share],
           ["Performance", platform.engagement_rate],
+          ["Top content", platform.top_content],
+          ["Top content date", platform.top_content_published_at],
         ].forEach(([label, value]) => {{
           const item = document.createElement("div");
           item.className = "quality-item";
@@ -718,7 +723,16 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           itemLabel.className = "label";
           itemLabel.textContent = label;
           const itemValue = document.createElement("strong");
-          itemValue.textContent = value;
+          if (label === "Top content" && platform.top_content_url && value !== "unavailable") {{
+            const link = document.createElement("a");
+            link.href = platform.top_content_url;
+            link.target = "_blank";
+            link.rel = "noreferrer";
+            link.textContent = value;
+            itemValue.appendChild(link);
+          }} else {{
+            itemValue.textContent = value;
+          }}
           item.append(itemLabel, itemValue);
           card.append(item);
         }});
@@ -1217,7 +1231,7 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "production_months": _production_months(production_source),
         "production_days": _production_days(production_source),
         "platform_coverage": _platform_coverage(platforms),
-        "platforms": platforms,
+        "platforms": _platforms_with_top_content(platforms, rows),
     }
 
 
@@ -1271,6 +1285,55 @@ def _share_percent(value: object, total: float) -> str:
     if total <= 0:
         return "0.00%"
     return f"{(_plain_number(value) / total) * 100:.2f}%"
+
+
+def _platforms_with_top_content(
+    platforms: list[dict[str, Any]],
+    rows: list[object],
+) -> list[dict[str, Any]]:
+    return [
+        {
+            **platform,
+            "top_content": _top_content_for_provider(rows, platform["provider"]),
+            "top_content_url": _top_content_url_for_provider(rows, platform["provider"]),
+            "top_content_published_at": _top_content_date_for_provider(
+                rows,
+                platform["provider"],
+            ),
+        }
+        for platform in platforms
+    ]
+
+
+def _top_content_for_provider(rows: list[object], provider: object) -> str:
+    row = _top_row_for_provider(rows, provider)
+    return _content_display_title(row) if row else "unavailable"
+
+
+def _top_content_date_for_provider(rows: list[object], provider: object) -> str:
+    row = _top_row_for_provider(rows, provider)
+    if not row:
+        return "unavailable"
+    published_at = _optional_text(row.get("published_at"))
+    return published_at or "unavailable"
+
+
+def _top_content_url_for_provider(rows: list[object], provider: object) -> str:
+    row = _top_row_for_provider(rows, provider)
+    if not row:
+        return ""
+    return _optional_text(row.get("content_url") or row.get("permalink"))
+
+
+def _top_row_for_provider(rows: list[object], provider: object) -> dict[str, Any] | None:
+    provider_key = str(provider).strip().lower()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        row_provider = str(row.get("provider", "")).strip().lower()
+        if row_provider == provider_key:
+            return row
+    return None
 
 
 def _platform_model(platform: dict[str, Any]) -> dict[str, Any]:
@@ -1495,8 +1558,13 @@ def _platform_cards(channel: dict[str, Any]) -> str:
                     "status": "unavailable",
                     "records": "unavailable",
                     "views": "unavailable",
+                    "views_share": "unavailable",
                     "engagements": "unavailable",
+                    "engagements_share": "unavailable",
                     "engagement_rate": "unavailable",
+                    "top_content": "unavailable",
+                    "top_content_url": "",
+                    "top_content_published_at": "unavailable",
                 },
             )
         )
@@ -1597,9 +1665,35 @@ def _platform_card(platform: dict[str, Any]) -> str:
   </div>
   {_metric_item("Productions", platform.get("records", "unavailable"), "")}
   {_metric_item("Views", platform.get("views", "unavailable"), "")}
+  {_metric_item("View share", platform.get("views_share", "unavailable"), "")}
   {_metric_item("Engagements", platform.get("engagements", "unavailable"), "")}
+  {_metric_item("Engagement share", platform.get("engagements_share", "unavailable"), "")}
   {_metric_item("Performance", platform.get("engagement_rate", "unavailable"), "")}
+  {_platform_top_content_item(platform)}
+  {_metric_item(
+        "Top content date",
+        platform.get("top_content_published_at", "unavailable"),
+        "",
+    )}
 </article>"""
+
+
+def _platform_top_content_item(platform: dict[str, Any]) -> str:
+    value = str(platform.get("top_content", "unavailable"))
+    url = _optional_text(platform.get("top_content_url"))
+    if url and value != "unavailable":
+        content = (
+            f'<a href="{_text(url)}" target="_blank" rel="noreferrer">'
+            f"{_text(value)}</a>"
+        )
+    else:
+        content = _text(value)
+    return (
+        '<div class="quality-item">'
+        '<span class="label">Top content</span>'
+        f"<strong>{content}</strong>"
+        "</div>"
+    )
 
 
 def _display_number(value: object) -> str:

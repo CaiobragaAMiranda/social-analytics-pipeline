@@ -189,6 +189,29 @@ class DashboardTest(unittest.TestCase):
                             "channel_name": "Brand Channel",
                         },
                         "records": 8,
+                        "top_rows": [
+                            {
+                                "provider": "youtube",
+                                "title": "YouTube winner",
+                                "content_url": "https://example.com/youtube-winner",
+                                "published_at": "2026-05-20T10:00:00+00:00",
+                                "views": 100,
+                            },
+                            {
+                                "provider": "tiktok",
+                                "title": "TikTok winner",
+                                "content_url": "https://example.com/tiktok-winner",
+                                "published_at": "2026-05-21T10:00:00+00:00",
+                                "views": 250,
+                            },
+                            {
+                                "provider": "instagram",
+                                "title": "Instagram winner",
+                                "content_url": "https://example.com/instagram-winner",
+                                "published_at": "2026-05-22T10:00:00+00:00",
+                                "views": 150,
+                            },
+                        ],
                         "platforms": [
                             {
                                 "provider": "youtube",
@@ -239,6 +262,22 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('"engagements_share": "20.00%"', html)
         self.assertIn("View share", html)
         self.assertIn("Engagement share", html)
+        self.assertIn('"top_content": "YouTube winner"', html)
+        self.assertIn('"top_content": "TikTok winner"', html)
+        self.assertIn('"top_content": "Instagram winner"', html)
+        self.assertIn('"top_content_url": "https://example.com/youtube-winner"', html)
+        self.assertIn('"top_content_url": "https://example.com/tiktok-winner"', html)
+        self.assertIn('"top_content_url": "https://example.com/instagram-winner"', html)
+        self.assertIn(
+            '<a href="https://example.com/youtube-winner" target="_blank" '
+            'rel="noreferrer">YouTube winner</a>',
+            html,
+        )
+        self.assertIn('"top_content_published_at": "2026-05-20T10:00:00+00:00"', html)
+        self.assertIn('"top_content_published_at": "2026-05-21T10:00:00+00:00"', html)
+        self.assertIn('"top_content_published_at": "2026-05-22T10:00:00+00:00"', html)
+        self.assertIn("Top content", html)
+        self.assertIn("Top content date", html)
         self.assertIn('"top_views_source": "tiktok (250)"', html)
         self.assertIn('"top_engagement_source": "tiktok (50)"', html)
         self.assertIn("Top views source", html)
