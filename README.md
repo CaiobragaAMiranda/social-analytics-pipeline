@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-150 - PR review for visual dashboard batch
-- Last completed delivery: TASK-149 - Package five-task visual dashboard batch
+- Current task: TASK-158 - PR review for platform comparison chart batch
+- Last completed delivery: TASK-157 - Package five-task platform comparison chart batch
 
 ## Workflow
 
@@ -83,6 +83,10 @@ The top-content table now shows visual rank labels for easier scanning.
 The top-ranked content row is highlighted in the dashboard table.
 
 The Top Content section now shows how many ranked items are displayed.
+
+The next visual dashboard cycle focuses on platform comparison charts for views, engagements and production volume inside the selected channel.
+
+The dashboard now includes platform comparison charts for views, engagements and production counts.
 
 ## Useful Commands
 

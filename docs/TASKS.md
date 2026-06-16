@@ -2767,7 +2767,7 @@ Evidence:
 
 ### TASK-150 - PR review for visual dashboard batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -2780,6 +2780,183 @@ Acceptance criteria:
 - Any blocker is fixed before merge.
 - If checks are green and no blocker exists, the PR can be merged.
 
+Evidence:
+
+- PR #40 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #40 was squash-merged into `master`.
+- The next visual dashboard cycle started from the merged shell, hero, metric card, production and top-content gallery improvements.
+
+### TASK-151 - Next visual chart slice decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next dashboard visual slice after the first visual refresh batch.
+
+Acceptance criteria:
+
+- The next slice directly improves chart readability and visual impact.
+- The scope fits the five-task batch rule.
+- Existing dashboard data contract remains unchanged.
+- The proposed direction is explained before implementation.
+
+Evidence:
+
+- The next slice is platform comparison charts inside the selected channel view.
+- The slice targets visual comparison of YouTube, TikTok and Instagram by views, engagement and production volume.
+- The task stays in the static dashboard layer and does not add providers, API calls or credentials.
+
+### TASK-152 - Platform comparison chart panel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: add a visual chart panel comparing available platform sources inside the selected channel.
+
+Acceptance criteria:
+
+- The selected channel shows a platform comparison chart panel.
+- The chart compares YouTube, TikTok and Instagram when available.
+- Missing platform data renders as unavailable or empty chart state.
+- The chart updates when the selected channel changes.
+- Tests cover the chart panel shell.
+
+Evidence:
+
+- The dashboard now renders a `data-platform-comparison` panel under Platform Sources.
+- The panel contains chart cards for views, engagements and productions.
+- The panel updates when the selected channel changes.
+- Focused dashboard tests and lint passed.
+
+### TASK-153 - Platform views bar chart
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make platform view totals easy to compare with a horizontal bar chart.
+
+Acceptance criteria:
+
+- Platform views render as bars using the existing platform source metrics.
+- Bars use the dashboard teal, blue and green palette.
+- Zero-view or missing values do not break rendering.
+- The chart updates when the selected channel changes.
+- Tests cover rendered platform view bars.
+
+Evidence:
+
+- Platform view totals now render as horizontal bars in provider order.
+- Missing providers render as unavailable without breaking the chart.
+- Focused dashboard tests and lint passed.
+
+### TASK-154 - Platform engagement bar chart
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make platform engagement totals easy to compare with a second visual bar group.
+
+Acceptance criteria:
+
+- Platform engagements render as bars using the existing platform source metrics.
+- Bars align with the same provider order as the platform cards.
+- Zero-engagement or missing values do not break rendering.
+- The chart updates when the selected channel changes.
+- Tests cover rendered platform engagement bars.
+
+Evidence:
+
+- Platform engagement totals now render as a second horizontal bar chart.
+- The chart uses the same provider order as the platform cards.
+- Focused dashboard tests and lint passed.
+
+### TASK-155 - Platform production mini chart
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show production count by platform in a compact visual chart.
+
+Acceptance criteria:
+
+- Platform production counts render as compact visual bars or chips.
+- Missing platform data remains clearly unavailable.
+- The chart uses the same provider order as other platform sections.
+- The chart updates when the selected channel changes.
+- Tests cover rendered production comparison.
+
+Evidence:
+
+- Platform production counts now render as a compact comparison chart.
+- Missing platform data remains explicitly unavailable.
+- Focused dashboard tests and lint passed.
+
+### TASK-156 - Platform chart empty state
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make platform comparison charts clear when no platform metrics are available.
+
+Acceptance criteria:
+
+- Empty platform comparison charts show a clear empty-state message.
+- Partial platform data still renders available providers.
+- Empty state does not remove the platform cards.
+- Tests cover empty and partial platform comparison states.
+
+Evidence:
+
+- Empty platform comparison charts render a clear empty-state message.
+- Partial platform data keeps available providers while missing providers render unavailable.
+- Existing platform cards remain unchanged.
+- Focused dashboard tests and lint passed.
+
+### TASK-157 - Package five-task platform comparison chart batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-152 through TASK-156 as the current five-task platform comparison chart batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- Dashboard smoke output is regenerated for local visual QA.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Full local validation passed with ruff, unit tests, documentation verification and Bandit.
+- Sensitive-pattern scan on changed files returned no findings.
+- Dashboard smoke output was regenerated.
+- Browser QA confirmed the platform comparison panel, three chart cards, rendered chart fills, no horizontal overflow and no console errors.
+
+### TASK-158 - PR review for platform comparison chart batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the platform comparison chart batch.
+
+Acceptance criteria:
+
+- The PR is open with the five-task platform comparison chart batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -2789,7 +2966,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current visual dashboard PR batch after GitHub Actions and CodeRabbit run.
+- Review the current platform comparison chart PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
