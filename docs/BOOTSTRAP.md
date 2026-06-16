@@ -147,6 +147,16 @@ python -m social_analytics_pipeline.cli.dashboard_smoke
 
 This command uses committed fixture payloads only. It writes ignored smoke artifacts and a placeholder channel identity config under `data/temp/dashboard-smoke/`, then writes the static HTML output under `data/dashboard/`.
 
+Serve the safe dashboard locally:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.serve_dashboard
+```
+
+Open `http://127.0.0.1:8000/data/dashboard/smoke.html` while the command is running.
+Use `--no-smoke` to serve an existing `data/dashboard/smoke.html` without regenerating safe sample artifacts.
+
 Controlled backfill example:
 
 ```powershell

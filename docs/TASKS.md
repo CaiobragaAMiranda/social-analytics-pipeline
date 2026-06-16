@@ -2476,11 +2476,122 @@ Evidence:
 
 ### TASK-137 - PR review for top-content table readability batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
 Goal: review GitHub Actions and CodeRabbit feedback for the current top-content table readability batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #38 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #38 was squash-merged into `master`.
+- The next implementation cycle started from the merged top-content table readability batch.
+
+### TASK-138 - Local dashboard serve command
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the static dashboard easier to open locally through one command.
+
+Acceptance criteria:
+
+- A local command can generate the safe dashboard smoke artifact and serve it on localhost.
+- The command prints the dashboard URL.
+- The command can serve an existing dashboard without regenerating smoke data.
+- Tests avoid opening a real blocking server.
+- Public docs avoid real local paths, secrets, raw payloads, expanded DSNs, ports beyond the documented local default and IPs beyond localhost binding.
+
+Evidence:
+
+- `serve-dashboard` is now exposed as a console script.
+- The command generates the safe smoke dashboard by default and prints a localhost URL.
+- `--no-smoke` allows serving an existing dashboard output.
+- Tests cover URL generation, parser behavior and non-blocking main execution.
+- Focused tests and lint passed.
+
+### TASK-139 - Document local dashboard serving
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: document the safest local steps to open the dashboard in a browser.
+
+Acceptance criteria:
+
+- README mentions the local serve command.
+- Bootstrap docs include the command sequence with placeholders only.
+- Documentation explains the static dashboard output path without absolute local paths.
+- Documentation does not introduce secrets, raw payloads or environment-specific values.
+
+Evidence:
+
+- README now mentions `serve-dashboard` and the local smoke dashboard URL.
+- Bootstrap docs now show the local command and the static dashboard path.
+- Docs explain `--no-smoke` for serving an existing generated dashboard.
+- Documentation uses only safe local placeholders and localhost binding.
+
+### TASK-140 - Dashboard server port error message
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make local dashboard serving fail with a clearer message when the selected port is unavailable.
+
+Acceptance criteria:
+
+- The serve command reports when the local port cannot be bound.
+- The error message includes the requested host and port.
+- The command exits non-zero on bind failure.
+- Tests cover the failure path without opening a real server.
+
+Evidence:
+
+- `serve-dashboard` now reports the requested host and port when binding fails.
+- Bind failures return exit code 1.
+- Tests cover the failure path through a mocked server call.
+- Focused tests and lint passed.
+
+### TASK-141 - Package three-task local dashboard serving batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-138, TASK-139 and TASK-140 as the current three-task batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no real secrets, local paths, raw payloads or expanded DSNs in the files changed by this batch.
+- The only matched credential-like value is the documented placeholder `YOUTUBE_API_KEY=<local-api-key>`.
+- The batch is ready for commit and PR review.
+
+### TASK-142 - PR review for local dashboard serving batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current local dashboard serving batch.
 
 Acceptance criteria:
 
@@ -2498,7 +2609,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current top-content table readability PR batch after GitHub Actions and CodeRabbit run.
+- Review the current local dashboard serving PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

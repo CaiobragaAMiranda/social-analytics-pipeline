@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-137 - PR review for top-content table readability batch
-- Last completed delivery: TASK-136 - Package three-task top-content table readability batch
+- Current task: TASK-142 - PR review for local dashboard serving batch
+- Last completed delivery: TASK-141 - Package three-task local dashboard serving batch
 
 ## Workflow
 
@@ -54,6 +54,8 @@ The Instagram provider is available through the explicit `instagram-local-pipeli
 
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 
+The local `serve-dashboard` command can generate that safe smoke dashboard and serve it at `http://127.0.0.1:8000/data/dashboard/smoke.html`.
+
 When multiple provider reports are grouped into one monitored channel, top content is ranked globally across providers by the configured ranking metric, with `views` as the fallback.
 
 Aggregated top-content rows also show their provider platform before the secondary technical content ID.
@@ -90,6 +92,7 @@ The Top Content section now shows how many ranked items are displayed.
 $env:PYTHONPATH = "src"; python -m unittest discover -s tests
 ruff check .
 bandit -c pyproject.toml -r src
+serve-dashboard
 docker compose --env-file .env.example config --quiet
 ```
 
