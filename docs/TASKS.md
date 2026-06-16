@@ -2339,11 +2339,148 @@ Evidence:
 
 ### TASK-131 - PR review for visual platform content batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
 Goal: review GitHub Actions and CodeRabbit feedback for the current visual platform content batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #37 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #37 was squash-merged into `master`.
+- The next implementation cycle started from the merged visual platform content batch.
+
+### TASK-132 - Next dashboard slice decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next small dashboard implementation slice after improving platform top-content cards.
+
+Acceptance criteria:
+
+- The next task improves channel readability or dashboard usefulness.
+- The scope is small enough to fit the three-task batch rule.
+- Public documentation remains free of secrets, local paths, raw payloads, expanded DSNs, ports and IPs.
+- The proposed change is explained before implementation.
+
+Evidence:
+
+- The next slice was selected as a top-content table readability improvement.
+- The slice stays inside the static dashboard and does not add providers, API calls, servers or credentials.
+- The first implementation task adds visual ranking labels to top-content rows.
+- The change keeps technical IDs secondary and improves dashboard scanning.
+
+### TASK-133 - Top-content visual rank labels
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make top-content rows easier to scan by showing a clear visual rank label for each row.
+
+Acceptance criteria:
+
+- Top-content rows include rank labels such as `#1`, `#2` and `#3`.
+- The rank labels render in the static HTML table.
+- Empty top-content state remains unchanged.
+- Existing content title, thumbnail, provider, ID, publish date and link behavior remains unchanged.
+- Tests cover rendered rank labels.
+
+Evidence:
+
+- Top-content table rows now render visual rank badges such as `#1`.
+- Client-side channel switching renders rank badges for the selected channel rows.
+- Empty table state keeps a valid colspan after the new rank column.
+- Dashboard tests cover the rank header, rank badge and empty-state colspan.
+- Focused dashboard tests and lint passed.
+
+### TASK-134 - Top-content winner row highlight
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the leading top-content row visually stand out in the dashboard table.
+
+Acceptance criteria:
+
+- The first top-content row has a distinct winner class.
+- The winner class renders in static HTML and client-side channel switching.
+- Empty top-content state remains unchanged.
+- Existing rank, content title, thumbnail, provider, ID, publish date and link behavior remains unchanged.
+- Tests cover the winner row class.
+
+Evidence:
+
+- The first top-content row now renders with a `winner-row` class.
+- Client-side channel switching applies the same winner class to the first visible row.
+- Empty table state remains unchanged.
+- Dashboard tests cover the rendered winner row class.
+- Focused dashboard tests and lint passed.
+
+### TASK-135 - Top-content table count summary
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the top-content table state clearer by showing how many ranked items are displayed.
+
+Acceptance criteria:
+
+- The Top Content section shows a compact ranked-item count.
+- Populated tables show the number of visible ranked rows.
+- Empty tables show `0 ranked items`.
+- The value updates when the selected channel changes.
+- Tests cover populated and empty count summaries.
+
+Evidence:
+
+- The Top Content section now renders a ranked-item count pill.
+- Client-side channel switching updates the count label.
+- Empty tables show `0 ranked items`.
+- Dashboard tests cover populated and empty count summaries.
+- Focused dashboard tests and lint passed.
+
+### TASK-136 - Package three-task top-content table readability batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-133, TASK-134 and TASK-135 as the current three-task batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no new secrets, local paths, raw payloads, expanded DSNs, ports or IPs in the files changed by this batch.
+- Top-content rows now show rank badges, highlight the first row and expose a ranked-item count.
+- The batch is ready for commit and PR review.
+
+### TASK-137 - PR review for top-content table readability batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current top-content table readability batch.
 
 Acceptance criteria:
 
@@ -2361,7 +2498,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current visual platform content PR batch after GitHub Actions and CodeRabbit run.
+- Review the current top-content table readability PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

@@ -6,9 +6,9 @@ Date: 2026-06-16
 
 Current phase: Consumption layer
 
-Current task: TASK-131 - PR review for visual platform content batch.
+Current task: TASK-136 - Package three-task top-content table readability batch.
 
-Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels.
+Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning.
 
 ## Completed Milestones
 
@@ -139,6 +139,11 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Platform cards now show provider-specific top-content view counts when available.
 - Platform cards now show provider-specific top-content type labels when available.
 - The current visual platform content batch passed local validation and is ready for PR review.
+- PR #37 was squash-merged after GitHub Actions, secret scan and CodeRabbit passed.
+- The next dashboard slice was selected as top-content table readability.
+- Top-content rows now show visual rank labels.
+- The leading top-content row now renders with a distinct winner highlight.
+- The Top Content section now shows how many ranked items are displayed.
 
 ## Current Constraints
 
@@ -149,6 +154,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Review GitHub Actions and CodeRabbit feedback for the current visual platform content PR batch.
+- Commit and open the current three-task top-content table readability PR batch.
 - Keep technical IDs as secondary metadata or fallbacks, not primary dashboard labels.
 - Keep TikTok mocked until an official analytics path fits this project.
