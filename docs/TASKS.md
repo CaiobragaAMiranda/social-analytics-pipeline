@@ -2225,11 +2225,125 @@ Evidence:
 
 ### TASK-126 - PR review for platform top-content batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
 Goal: review GitHub Actions and CodeRabbit feedback for the current platform top-content batch.
+
+Acceptance criteria:
+
+- GitHub Actions status is checked after the PR opens.
+- CodeRabbit review is checked for actionable findings.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #36 passed GitHub Actions, secret scan and CodeRabbit.
+- PR #36 was squash-merged into `master`.
+- The next visual dashboard batch started from a clean `master`.
+
+### TASK-127 - Platform top-content thumbnails
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show a visual thumbnail for each provider's leading content item inside platform source cards.
+
+Acceptance criteria:
+
+- Platform source models preserve the top content thumbnail or image URL when available.
+- Platform cards render the thumbnail when a provider-specific top content image exists.
+- Missing thumbnails keep the existing text-only card behavior.
+- Existing top-content links and dates remain unchanged.
+- Tests cover thumbnail propagation and rendered HTML.
+
+Evidence:
+
+- Platform source models now include `top_content_thumbnail_url`.
+- Platform cards render a compact preview image for provider-specific top content when available.
+- Dashboard tests cover thumbnail propagation from `thumbnail_url` and `image_url`.
+- Focused dashboard tests and lint passed.
+
+### TASK-128 - Platform top-content metric summary
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show the leading content item's main metric inside each platform source card.
+
+Acceptance criteria:
+
+- Platform source models preserve the top content views when available.
+- Platform cards show a compact top-content views row.
+- Missing metric values render as unavailable.
+- The value updates when the selected channel changes.
+- Tests cover provider-specific top-content metrics.
+
+Evidence:
+
+- Platform source models now include `top_content_views`.
+- Platform cards render a Top content views row for each provider when available.
+- Missing views render as unavailable through the existing unavailable card behavior.
+- Dashboard tests cover provider-specific top-content metric propagation and rendering.
+- Focused dashboard tests and lint passed.
+
+### TASK-129 - Platform top-content type label
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show the leading content item's human content type inside each platform source card.
+
+Acceptance criteria:
+
+- Platform source models preserve the top content type when available.
+- Platform cards show a compact top-content type row.
+- Missing content types render as unavailable.
+- Existing top-content title, thumbnail, link, views and date behavior remains unchanged.
+- Tests cover provider-specific top-content type labels.
+
+Evidence:
+
+- Platform source models now include `top_content_type`.
+- Platform cards render a Top content type row when the provider row includes `content_type` or `media_type`.
+- Missing content types render as unavailable through the existing unavailable behavior.
+- Dashboard tests cover provider-specific type labels for short, video and reel examples.
+- Focused dashboard tests and lint passed.
+
+### TASK-130 - Package three-task visual platform content batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-127, TASK-128 and TASK-129 as the current three-task batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- The batch is committed on the current feature branch.
+- A PR is opened for GitHub Actions and CodeRabbit review.
+
+Evidence:
+
+- Local validation passed with lint, documentation verification, security scan and the full test suite.
+- Sensitive information scan found no new secrets, local paths, raw payloads, expanded DSNs, ports or IPs in the files changed by this batch.
+- Platform cards now render provider-specific thumbnails, view counts and type labels for leading content.
+- The batch is ready for commit and PR review.
+
+### TASK-131 - PR review for visual platform content batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the current visual platform content batch.
 
 Acceptance criteria:
 
@@ -2247,7 +2361,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current platform top-content PR batch after GitHub Actions and CodeRabbit run.
+- Review the current visual platform content PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
