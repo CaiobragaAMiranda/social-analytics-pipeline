@@ -459,6 +459,54 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       object-fit: cover;
       width: 4rem;
     }}
+    .platform-chart-grid {{
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 1rem;
+    }}
+    .platform-chart {{
+      background: #0c1224;
+      border: 1px solid rgba(30, 234, 216, 0.16);
+      border-radius: 8px;
+      display: grid;
+      gap: 0.65rem;
+      padding: 0.85rem;
+    }}
+    .platform-chart h3 {{
+      font-size: 0.76rem;
+      margin: 0;
+      text-transform: uppercase;
+    }}
+    .platform-chart-row {{
+      align-items: center;
+      display: grid;
+      gap: 0.55rem;
+      grid-template-columns: 4.5rem minmax(0, 1fr) 4.5rem;
+    }}
+    .platform-chart-label, .platform-chart-value {{
+      color: #c8d2e3;
+      font-size: 0.74rem;
+      overflow-wrap: anywhere;
+    }}
+    .platform-chart-value {{ text-align: right; }}
+    .platform-chart-track {{
+      background: #20243b;
+      border-radius: 999px;
+      height: 0.65rem;
+      overflow: hidden;
+    }}
+    .platform-chart-fill {{
+      background: linear-gradient(90deg, #1950d1, #1eead8 70%, #54ff8a);
+      border-radius: inherit;
+      height: 100%;
+      min-width: 0.2rem;
+    }}
+    .platform-chart-empty {{
+      color: #a7c1c8;
+      font-size: 0.8rem;
+      margin: 0;
+    }}
     .table-wrap {{ overflow-x: auto; }}
     table {{ border-collapse: collapse; min-width: 680px; width: 100%; }}
     th, td {{
@@ -594,7 +642,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .dashboard-shell {{ grid-template-columns: 1fr; }}
       .sidebar {{ flex-direction: row; flex-wrap: wrap; align-items: center; }}
       .nav-list {{ display: none; }}
-      .hero-grid, .main-grid, .platform-grid, .analytics-grid, .content-gallery {{
+      .hero-grid, .main-grid, .platform-grid, .analytics-grid,
+      .content-gallery, .platform-chart-grid {{
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }}
     }}
@@ -604,7 +653,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .channel-select {{ width: 100%; }}
       .hero-grid, .main-grid, .quality-grid,
       .platform-grid, .analytics-grid,
-      .donut-grid, .content-gallery {{ grid-template-columns: 1fr; }}
+      .donut-grid, .content-gallery, .platform-chart-grid {{ grid-template-columns: 1fr; }}
       .channel-image {{ height: 72px; width: 72px; }}
     }}
   </style>
@@ -678,6 +727,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         </div>
         <div class="platform-grid" data-platform-sources>
           {_platform_cards(active)}
+        </div>
+        <div class="platform-chart-grid" data-platform-comparison>
+          {_platform_comparison_charts(active)}
         </div>
       </section>
       <section class="section">
@@ -988,6 +1040,61 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       const parsed = Number(String(value).replace(/[%,$]/g, "").replace(/,/g, ""));
       return Number.isFinite(parsed) ? parsed : 0;
     }};
+    const platformMetricRows = (platforms, metric) => {{
+      const orderedProviders = ["youtube", "tiktok", "instagram"];
+      return orderedProviders.map((provider) => {{
+        const platform = platforms.find((item) => item.provider === provider);
+        return {{
+          provider,
+          value: platform ? numberFromText(platform[metric]) : 0,
+          label: platform ? platform[metric] : "unavailable",
+          available: Boolean(platform) && platform.status !== "unavailable",
+        }};
+      }});
+    }};
+    const renderPlatformMetricChart = (title, rows) => {{
+      const chart = document.createElement("article");
+      chart.className = "platform-chart";
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+      chart.appendChild(heading);
+      const availableRows = rows.filter((row) => row.available);
+      if (!availableRows.length) {{
+        const empty = document.createElement("p");
+        empty.className = "platform-chart-empty";
+        empty.textContent = "No platform metrics available.";
+        chart.appendChild(empty);
+        return chart;
+      }}
+      const maxValue = Math.max(...availableRows.map((row) => row.value), 1);
+      rows.forEach((row) => {{
+        const item = document.createElement("div");
+        item.className = "platform-chart-row";
+        const label = document.createElement("span");
+        label.className = "platform-chart-label";
+        label.textContent = row.provider;
+        const track = document.createElement("div");
+        track.className = "platform-chart-track";
+        const fill = document.createElement("div");
+        fill.className = "platform-chart-fill";
+        fill.style.width = row.available ? `${{Math.max(4, (row.value / maxValue) * 100)}}%` : "0%";
+        track.appendChild(fill);
+        const value = document.createElement("span");
+        value.className = "platform-chart-value";
+        value.textContent = row.label;
+        item.append(label, track, value);
+        chart.appendChild(item);
+      }});
+      return chart;
+    }};
+    const renderPlatformComparison = (platforms) => {{
+      const target = document.querySelector("[data-platform-comparison]");
+      target.replaceChildren(
+        renderPlatformMetricChart("Views", platformMetricRows(platforms, "views")),
+        renderPlatformMetricChart("Engagements", platformMetricRows(platforms, "engagements")),
+        renderPlatformMetricChart("Productions", platformMetricRows(platforms, "records")),
+      );
+    }};
     const renderViewBars = (rows) => {{
       const target = document.querySelector("[data-view-bars]");
       if (!rows.length) {{
@@ -1115,6 +1222,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       renderViewBars(channel.top_rows);
       renderEngagementDonuts(channel);
       renderPlatforms(channel.platforms);
+      renderPlatformComparison(channel.platforms);
       renderProductionCalendar(channel);
       renderContentGallery(channel.top_rows);
       renderRows(channel.top_rows);
@@ -1910,6 +2018,64 @@ def _platform_cards(channel: dict[str, Any]) -> str:
             )
         )
         for provider in ("youtube", "tiktok", "instagram")
+    )
+
+
+def _platform_comparison_charts(channel: dict[str, Any]) -> str:
+    platforms = channel.get("platforms", [])
+    if not isinstance(platforms, list):
+        platforms = []
+    return "".join(
+        [
+            _platform_metric_chart("Views", platforms, "views"),
+            _platform_metric_chart("Engagements", platforms, "engagements"),
+            _platform_metric_chart("Productions", platforms, "records"),
+        ]
+    )
+
+
+def _platform_metric_chart(title: str, platforms: list[object], metric: str) -> str:
+    rows = _platform_metric_rows(platforms, metric)
+    available_rows = [row for row in rows if row["available"]]
+    if not available_rows:
+        body = '<p class="platform-chart-empty">No platform metrics available.</p>'
+    else:
+        max_value = max((row["value"] for row in available_rows), default=1)
+        body = "".join(_platform_metric_row(row, max_value) for row in rows)
+    return f'<article class="platform-chart"><h3>{_text(title)}</h3>{body}</article>'
+
+
+def _platform_metric_rows(platforms: list[object], metric: str) -> list[dict[str, object]]:
+    available = {
+        platform.get("provider"): platform
+        for platform in platforms
+        if isinstance(platform, dict) and platform.get("status", "available") != "unavailable"
+    }
+    rows = []
+    for provider in ("youtube", "tiktok", "instagram"):
+        platform = available.get(provider)
+        value = _plain_number(platform.get(metric, 0)) if platform else 0
+        rows.append(
+            {
+                "provider": provider,
+                "value": value,
+                "label": str(platform.get(metric, "unavailable")) if platform else "unavailable",
+                "available": platform is not None,
+            }
+        )
+    return rows
+
+
+def _platform_metric_row(row: dict[str, object], max_value: float) -> str:
+    width = 0 if not row["available"] else max(4, (_number(row["value"]) / max(max_value, 1)) * 100)
+    return (
+        '<div class="platform-chart-row">'
+        f'<span class="platform-chart-label">{_text(row["provider"])}</span>'
+        '<div class="platform-chart-track">'
+        f'<div class="platform-chart-fill" style="width: {width:.2f}%"></div>'
+        "</div>"
+        f'<span class="platform-chart-value">{_text(row["label"])}</span>'
+        "</div>"
     )
 
 
