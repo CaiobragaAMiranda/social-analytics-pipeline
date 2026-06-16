@@ -3076,7 +3076,7 @@ Evidence:
 
 ### TASK-164 - PR review for channel identity polish batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3085,6 +3085,157 @@ Goal: review GitHub Actions and CodeRabbit feedback for the channel identity pol
 Acceptance criteria:
 
 - The PR is open with the channel identity polish batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #42 passed GitHub Actions quality checks and secret scan.
+- CodeRabbit returned a passing skipped review status with no blocking feedback.
+- PR #42 was squash-merged into `master`.
+
+### TASK-165 - Next dashboard polish decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next dashboard polish slice after the channel identity batch.
+
+Acceptance criteria:
+
+- The next slice is explained before implementation.
+- The scope fits the five-task batch rule.
+- The change improves dashboard clarity for channel analytics.
+- The change does not add new providers, credentials or external API calls.
+
+Evidence:
+
+- The next slice is dashboard metadata readability.
+- The slice starts by replacing technical artifact paths with safe report filenames.
+- The slice continues with user-facing data-quality labels.
+
+### TASK-166 - Safe report file metadata label
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: avoid exposing technical artifact paths in the visible dashboard metadata.
+
+Acceptance criteria:
+
+- The report metadata section shows a user-facing file label.
+- Full artifact paths are reduced to safe filenames in the visible UI.
+- Top-level artifact fallback uses the same safe filename rule.
+- Existing dashboard data binding remains compatible.
+- Tests cover source-level and top-level artifact values.
+
+Evidence:
+
+- The dashboard metadata label now reads `Report file`.
+- Source and top-level artifact values are rendered as safe filenames.
+- Focused dashboard lint and tests passed.
+
+### TASK-167 - Human-readable data quality labels
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the Data Quality section read like dashboard context instead of internal pipeline flags.
+
+Acceptance criteria:
+
+- Data Quality labels use user-facing wording.
+- The section keeps the same underlying values and bindings.
+- Existing tests are updated for the new labels.
+- No new provider, API or credential behavior is introduced.
+
+Evidence:
+
+- Data Quality now shows `Engagement data`, `Top content`, `Views leader` and `Engagement leader`.
+- Underlying data bindings and values remain unchanged.
+- Focused dashboard lint and tests passed.
+
+### TASK-168 - Human-readable report context labels
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the report metadata section read as user-facing report context.
+
+Acceptance criteria:
+
+- The report metadata section title is user-facing.
+- Schema and ranking labels are clearer to non-technical dashboard users.
+- The safe report filename behavior remains unchanged.
+- Tests cover the new labels.
+
+Evidence:
+
+- The section title now reads `Report Context`.
+- Report labels now read `Report schema`, `Ranking by`, `Top items limit` and `Report file`.
+- Focused dashboard lint and tests passed.
+
+### TASK-169 - Human-readable data quality values
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make data-quality values read as user-facing status text instead of internal flags.
+
+Acceptance criteria:
+
+- Quality status values are mapped to readable labels.
+- Engagement availability values are mapped to readable labels.
+- Existing dashboard bindings remain unchanged.
+- Tests cover the readable values.
+
+Evidence:
+
+- Quality status values now render as readable labels such as `Ready`, `No records` and `Unknown`.
+- Engagement availability now renders as `Available` or `Missing`.
+- Focused dashboard lint and tests passed.
+
+### TASK-170 - Package metadata readability polish batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-165 through TASK-169 as the metadata readability polish batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- Dashboard smoke output is regenerated for local visual QA.
+- Browser QA confirms readable report context and data-quality labels.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Full validation passed with ruff, unit tests, documentation verification and Bandit.
+- Sensitive-pattern scan on changed files returned no findings.
+- Dashboard smoke output was regenerated.
+- Browser QA confirmed readable report context labels, readable data-quality values, no artifact path exposure, no horizontal overflow and no console errors.
+
+### TASK-171 - PR review for metadata readability polish batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the metadata readability polish batch.
+
+Acceptance criteria:
+
+- The PR is open with the metadata readability polish batch.
 - GitHub Actions checks are reviewed.
 - CodeRabbit feedback is reviewed.
 - Any blocker is fixed before merge.
@@ -3099,7 +3250,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current channel identity polish PR batch after GitHub Actions and CodeRabbit run.
+- Review the current metadata readability polish PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
