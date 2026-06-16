@@ -122,7 +122,7 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('src="https://example.test/thumb.jpg"', html)
         self.assertIn('href="https://example.test/watch"', html)
         self.assertIn("2026-05-20T14:30:00+00:00", html)
-        self.assertIn("ID: video-1", html)
+        self.assertNotIn("ID: video-1", html)
 
     def test_build_dashboard_html_escapes_text_values(self) -> None:
         html = build_dashboard_html(
@@ -187,6 +187,10 @@ class DashboardTest(unittest.TestCase):
 
         self.assertIn('<option value="0">Channel A</option>', html)
         self.assertIn('<option value="1">Channel B</option>', html)
+        self.assertIn("data-channel-options", html)
+        self.assertIn('data-channel-index="0"', html)
+        self.assertIn('data-channel-index="1"', html)
+        self.assertIn('class="channel-option-card active"', html)
         self.assertIn('"name": "Channel B"', html)
         self.assertIn('"views": "200"', html)
 
@@ -264,6 +268,12 @@ class DashboardTest(unittest.TestCase):
         )
 
         self.assertIn('<option value="0">Brand Channel</option>', html)
+        self.assertIn("data-channel-preview", html)
+        self.assertIn("data-channel-preview-image", html)
+        self.assertIn("data-channel-preview-name", html)
+        self.assertIn("data-channel-preview-meta", html)
+        self.assertIn('"source_summary": "3/3 available sources"', html)
+        self.assertIn("3/3 available sources", html)
         self.assertIn('"platforms": [', html)
         self.assertIn('"provider": "youtube"', html)
         self.assertIn('"provider": "tiktok"', html)
@@ -654,7 +664,8 @@ class DashboardTest(unittest.TestCase):
             }
         )
 
-        self.assertIn("Platform: youtube | ID: yt-1", html)
+        self.assertIn("Platform: youtube", html)
+        self.assertNotIn("ID: yt-1", html)
 
     def test_find_latest_report_json_uses_sorted_latest_report(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
