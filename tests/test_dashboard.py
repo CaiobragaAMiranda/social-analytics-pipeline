@@ -77,13 +77,17 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("Per-Record Averages", html)
         self.assertIn("100.00", html)
         self.assertIn("10.00", html)
-        self.assertIn("Report Metadata", html)
-        self.assertIn("Schema version", html)
-        self.assertIn("Ranking metric", html)
+        self.assertIn("Report Context", html)
+        self.assertIn("Report schema", html)
+        self.assertIn("Ranking by", html)
+        self.assertIn("Top items limit", html)
         self.assertIn("views", html)
-        self.assertIn("Source artifact", html)
-        self.assertIn("data/processed/youtube/sample.json", html)
+        self.assertIn("Report file", html)
+        self.assertIn("sample.json", html)
+        self.assertNotIn("data/processed/youtube/sample.json", html)
         self.assertIn("Data Quality", html)
+        self.assertIn("Ready", html)
+        self.assertIn("Available", html)
         self.assertIn("video-1", html)
         self.assertIn("1 ranked item", html)
         self.assertIn("<th>Rank</th>", html)
@@ -148,9 +152,11 @@ class DashboardTest(unittest.TestCase):
     def test_build_dashboard_html_renders_unknown_report_metadata(self) -> None:
         html = build_dashboard_html({"source": {"provider": "youtube"}})
 
-        self.assertIn("Report Metadata", html)
+        self.assertIn("Report Context", html)
         self.assertIn("YouTube channel", html)
         self.assertIn("unknown", html)
+        self.assertIn("Unknown", html)
+        self.assertIn("Missing", html)
         self.assertIn("Engagement Breakdown", html)
         self.assertIn("0.00%", html)
         self.assertIn("Per-Record Averages", html)
@@ -164,8 +170,9 @@ class DashboardTest(unittest.TestCase):
             }
         )
 
-        self.assertIn("Source artifact", html)
-        self.assertIn("data/processed/youtube/fallback.json", html)
+        self.assertIn("Report file", html)
+        self.assertIn("fallback.json", html)
+        self.assertNotIn("data/processed/youtube/fallback.json", html)
 
     def test_build_dashboard_html_renders_multiple_channel_options(self) -> None:
         html = build_dashboard_html(
@@ -332,8 +339,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("Top content date", html)
         self.assertIn('"top_views_source": "tiktok (250)"', html)
         self.assertIn('"top_engagement_source": "tiktok (50)"', html)
-        self.assertIn("Top views source", html)
-        self.assertIn("Top engagement source", html)
+        self.assertIn("Views leader", html)
+        self.assertIn("Engagement leader", html)
         self.assertIn('"platform_coverage": "3/3 available"', html)
         self.assertIn("data-platform-coverage", html)
         self.assertIn("3/3 available", html)

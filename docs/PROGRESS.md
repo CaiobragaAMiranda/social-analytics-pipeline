@@ -6,7 +6,7 @@ Date: 2026-06-16
 
 Current phase: Consumption layer
 
-Current task: TASK-164 - PR review for channel identity polish batch.
+Current task: TASK-171 - PR review for metadata readability polish batch.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -167,6 +167,13 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Top-content rows no longer show technical content IDs when a human title is already available.
 - Visual channel option cards now let users choose monitored channels by avatar, human name and source summary while preserving the native select.
 - The current channel identity polish batch passed full validation, sensitive-pattern scan, dashboard smoke regeneration and browser QA.
+- PR #42 was squash-merged after GitHub Actions, secret scan and CodeRabbit passed.
+- The next dashboard polish slice targets human-readable metadata and data-quality labels.
+- Report metadata now shows a safe report filename instead of full artifact paths.
+- Data Quality labels now use user-facing analytics wording.
+- Report context labels now use user-facing wording instead of technical metadata labels.
+- Data Quality values now show readable status text such as `Ready`, `Available`, `Unknown` and `Missing`.
+- The current metadata readability polish batch passed full validation, sensitive-pattern scan, dashboard smoke regeneration and browser QA.
 
 ## Current Constraints
 
@@ -177,6 +184,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Review GitHub Actions and CodeRabbit feedback for the current channel identity polish PR batch.
+- Review GitHub Actions and CodeRabbit feedback for the current metadata readability polish PR batch.
 - Keep technical IDs as secondary metadata or fallbacks, not primary dashboard labels.
 - Keep TikTok mocked until an official analytics path fits this project.

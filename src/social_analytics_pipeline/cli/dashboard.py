@@ -856,13 +856,13 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       <section class="main-grid">
         <div class="section">
           <div class="section-header">
-            <h2>Report Metadata</h2>
+            <h2>Report Context</h2>
           </div>
           <div class="quality-grid">
-            {_metric_item("Schema version", active["schema_version"], "data-schema-version")}
-            {_metric_item("Ranking metric", active["ranking_metric"], "data-ranking-metric")}
-            {_metric_item("Ranking limit", active["ranking_limit"], "data-ranking-limit")}
-            {_metric_item("Source artifact", active["source_artifact"], "data-source-artifact")}
+            {_metric_item("Report schema", active["schema_version"], "data-schema-version")}
+            {_metric_item("Ranking by", active["ranking_metric"], "data-ranking-metric")}
+            {_metric_item("Top items limit", active["ranking_limit"], "data-ranking-limit")}
+            {_metric_item("Report file", active["source_artifact"], "data-source-artifact")}
           </div>
         </div>
         <div class="section">
@@ -871,15 +871,15 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             <span class="status-pill" data-quality-status>{_text(active["quality_status"])}</span>
           </div>
           <div class="quality-grid">
-            {_metric_item("Has engagements", active["has_engagements"], "data-has-engagements")}
-            {_metric_item("Top item", active["top_item"], "data-top-item")}
+            {_metric_item("Engagement data", active["has_engagements"], "data-has-engagements")}
+            {_metric_item("Top content", active["top_item"], "data-top-item")}
             {_metric_item(
-                "Top views source",
+                "Views leader",
                 active["top_views_source"],
                 "data-top-views-source",
             )}
             {_metric_item(
-                "Top engagement source",
+                "Engagement leader",
                 active["top_engagement_source"],
                 "data-top-engagement-source",
             )}
@@ -1679,8 +1679,8 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "ranking_metric": _ranking_value(ranking, "metric", escape=False),
         "ranking_limit": _ranking_value(ranking, "limit", escape=False),
         "source_artifact": _source_artifact(payload, source, escape=False),
-        "quality_status": str(data_quality.get("status", "unknown")),
-        "has_engagements": _yes_no(data_quality.get("has_engagements", False)),
+        "quality_status": _quality_status_label(data_quality.get("status", "unknown")),
+        "has_engagements": _availability_label(data_quality.get("has_engagements", False)),
         "top_item": _top_content_label(top_content, escape=False),
         "top_views_source": _top_platform_source(platforms, "views"),
         "top_engagement_source": _top_platform_source(platforms, "engagements"),
@@ -2419,11 +2419,18 @@ def _source_artifact(payload: dict[str, Any], source: object, escape: bool = Tru
     if isinstance(source, dict):
         artifact = source.get("artifact")
         if artifact not in (None, ""):
-            return _text(artifact) if escape else str(artifact)
+            return _safe_artifact_label(artifact, escape=escape)
     artifact = payload.get("artifact")
     if artifact in (None, ""):
         return "unknown"
-    return _text(artifact) if escape else str(artifact)
+    return _safe_artifact_label(artifact, escape=escape)
+
+
+def _safe_artifact_label(value: object, escape: bool = True) -> str:
+    label = str(value).replace("\\", "/").rstrip("/").split("/")[-1]
+    if not label:
+        label = "unknown"
+    return _text(label) if escape else label
 
 
 def _top_content_label(top_content: object, escape: bool = True) -> str:
@@ -2526,8 +2533,17 @@ def _number(value: object) -> float:
     return 0.0
 
 
-def _yes_no(value: object) -> str:
-    return "yes" if value is True else "no"
+def _quality_status_label(value: object) -> str:
+    labels = {
+        "ok": "Ready",
+        "empty": "No records",
+        "unknown": "Unknown",
+    }
+    return labels.get(str(value).lower(), str(value))
+
+
+def _availability_label(value: object) -> str:
+    return "Available" if value is True else "Missing"
 
 
 if __name__ == "__main__":

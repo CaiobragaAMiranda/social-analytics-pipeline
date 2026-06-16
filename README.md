@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-164 - PR review for channel identity polish batch
-- Last completed delivery: TASK-163 - Package channel identity polish batch
+- Current task: TASK-171 - PR review for metadata readability polish batch
+- Last completed delivery: TASK-170 - Package metadata readability polish batch
 
 ## Workflow
 
@@ -93,6 +93,14 @@ The selected channel now has a visual preview with avatar, human channel name an
 Top-content rows no longer show technical content IDs when a human title is already available.
 
 The dashboard now includes visual channel option cards with avatar, human name and source summary while keeping the native selector available.
+
+Report metadata now shows a safe report filename instead of exposing full artifact paths in the dashboard UI.
+
+Data Quality labels now use user-facing analytics wording.
+
+Report context labels now use user-facing wording instead of technical metadata labels.
+
+Data Quality values now show readable status text such as `Ready`, `Available`, `Unknown` and `Missing`.
 
 ## Useful Commands
 
