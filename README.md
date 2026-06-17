@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-178 - PR review for channel insights polish batch
-- Last completed delivery: TASK-177 - Package channel insights polish batch
+- Current task: TASK-185 - PR review for publishing cadence polish batch
+- Last completed delivery: TASK-184 - Package publishing cadence polish batch
 
 ## Workflow
 
@@ -111,6 +111,16 @@ Channel Insights now uses readable empty states when top content or platform lea
 Channel Insights cards now have stronger visual hierarchy with compact markers and per-insight accents.
 
 Channel Insights visual markers are now decorative for assistive text while keeping readable labels.
+
+The next dashboard polish slice summarizes publishing cadence using existing production activity data.
+
+The Production Calendar now includes compact cadence cards for total productions, active days and average productions per active day.
+
+Publishing cadence cards now show `No dates` when publication dates are unavailable.
+
+Publishing cadence cards now have compact markers and per-card visual accents.
+
+Publishing cadence visual markers are decorative for assistive text while keeping readable labels.
 
 ## Useful Commands
 
