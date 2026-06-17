@@ -520,6 +520,62 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       overflow-x: auto;
       padding: 1rem;
     }}
+    .cadence-grid {{
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 1rem;
+    }}
+    .cadence-card {{
+      background:
+        linear-gradient(145deg, rgba(84, 255, 138, 0.08), transparent 55%),
+        #111428;
+      border: 1px solid rgba(84, 255, 138, 0.18);
+      border-radius: 8px;
+      display: grid;
+      gap: 0.35rem;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0.8rem;
+      position: relative;
+    }}
+    .cadence-card::before {{
+      background: linear-gradient(180deg, #54ff8a, #1eead8);
+      bottom: 0.7rem;
+      content: "";
+      left: 0;
+      position: absolute;
+      top: 0.7rem;
+      width: 0.2rem;
+    }}
+    .cadence-card.days::before {{ background: linear-gradient(180deg, #1eead8, #168ac7); }}
+    .cadence-card.average::before {{ background: linear-gradient(180deg, #1950d1, #54ff8a); }}
+    .cadence-label {{
+      align-items: center;
+      color: #9da7bc;
+      display: flex;
+      font-size: 0.72rem;
+      gap: 0.45rem;
+      text-transform: uppercase;
+    }}
+    .cadence-marker {{
+      align-items: center;
+      background: rgba(84, 255, 138, 0.1);
+      border: 1px solid rgba(84, 255, 138, 0.22);
+      border-radius: 999px;
+      color: #b6ffc7;
+      display: inline-flex;
+      font-size: 0.68rem;
+      font-weight: 800;
+      height: 1.35rem;
+      justify-content: center;
+      width: 1.35rem;
+    }}
+    .cadence-card strong {{
+      color: #eef8ff;
+      font-size: 1rem;
+      overflow-wrap: anywhere;
+    }}
     .production-heatmap {{
       display: grid;
       gap: 0.4rem;
@@ -776,6 +832,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .sidebar {{ flex-direction: row; flex-wrap: wrap; align-items: center; }}
       .nav-list {{ display: none; }}
       .hero-grid, .insights-grid, .main-grid, .platform-grid, .analytics-grid,
+      .cadence-grid,
       .content-gallery, .platform-chart-grid {{
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }}
@@ -786,7 +843,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .channel-picker {{ width: 100%; }}
       .channel-select {{ width: 100%; }}
       .hero-grid, .insights-grid, .main-grid, .quality-grid,
-      .platform-grid, .analytics-grid,
+      .platform-grid, .analytics-grid, .cadence-grid,
       .donut-grid, .content-gallery, .platform-chart-grid {{ grid-template-columns: 1fr; }}
       .channel-image {{ height: 72px; width: 72px; }}
     }}
@@ -912,6 +969,29 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         <div class="section-header">
           <h2>Production Calendar</h2>
           <span class="status-pill" data-production-total>{_text(active["production_total"])}</span>
+        </div>
+        <div class="cadence-grid" data-cadence-summary>
+          {_cadence_item(
+              "Productions",
+              active["cadence_total"],
+              "data-cadence-total",
+              "total",
+              "P",
+          )}
+          {_cadence_item(
+              "Active days",
+              active["cadence_active_days"],
+              "data-cadence-active-days",
+              "days",
+              "D",
+          )}
+          {_cadence_item(
+              "Per active day",
+              active["cadence_average_per_active_day"],
+              "data-cadence-average",
+              "average",
+              "A",
+          )}
         </div>
         <div class="production-panel" data-production-calendar>
           {_production_calendar(active)}
@@ -1400,6 +1480,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-insight-views-leader]", channel.insight_top_views_source);
       setText("[data-insight-engagement-leader]", channel.insight_top_engagement_source);
       setText("[data-insight-production-summary]", channel.production_summary);
+      setText("[data-cadence-total]", channel.cadence_total);
+      setText("[data-cadence-active-days]", channel.cadence_active_days);
+      setText("[data-cadence-average]", channel.cadence_average_per_active_day);
       setText("[data-platform-coverage]", channel.platform_coverage);
       renderViewBars(channel.top_rows);
       renderEngagementDonuts(channel);
@@ -1750,6 +1833,7 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
     top_views_source = _top_platform_source(platforms, "views")
     top_engagement_source = _top_platform_source(platforms, "engagements")
     production_summary = _production_summary(production_source)
+    cadence = _production_cadence(production_source)
 
     return {
         "name": channel_name,
@@ -1791,6 +1875,9 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "top_rows": [_row_model(row) for row in rows],
         "production_total": _production_total(production_source),
         "production_summary": production_summary,
+        "cadence_total": cadence["total"],
+        "cadence_active_days": cadence["active_days"],
+        "cadence_average_per_active_day": cadence["average_per_active_day"],
         "production_months": _production_months(production_source),
         "production_days": _production_days(production_source),
         "platform_coverage": _platform_coverage(platforms),
@@ -2016,6 +2103,22 @@ def _production_summary(rows: list[object]) -> str:
     return f"{len(dates)} productions across {unique_days} day(s)"
 
 
+def _production_cadence(rows: list[object]) -> dict[str, str]:
+    dates = _published_dates(rows)
+    if not dates:
+        return {
+            "total": "No dates",
+            "active_days": "No dates",
+            "average_per_active_day": "No dates",
+        }
+    active_days = len(set(dates))
+    return {
+        "total": _display_number(len(dates)),
+        "active_days": _display_number(active_days),
+        "average_per_active_day": f"{len(dates) / active_days:.2f}",
+    }
+
+
 def _production_months(rows: list[object]) -> list[str]:
     dates = _published_dates(rows)
     if not dates:
@@ -2182,6 +2285,24 @@ def _insight_item(
         f'<article class="insight-card {_text(variant)}">'
         '<span class="insight-label">'
         f'<span class="insight-marker" aria-hidden="true">{_text(marker)}</span>'
+        f"{_text(label)}"
+        "</span>"
+        f"<strong {data_attr}>{_text(value)}</strong>"
+        "</article>"
+    )
+
+
+def _cadence_item(
+    label: str,
+    value: object,
+    data_attr: str,
+    variant: str,
+    marker: str,
+) -> str:
+    return (
+        f'<article class="cadence-card {_text(variant)}">'
+        '<span class="cadence-label">'
+        f'<span class="cadence-marker" aria-hidden="true">{_text(marker)}</span>'
         f"{_text(label)}"
         "</span>"
         f"<strong {data_attr}>{_text(value)}</strong>"

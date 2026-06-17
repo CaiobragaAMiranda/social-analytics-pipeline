@@ -3378,7 +3378,7 @@ Evidence:
 
 ### TASK-178 - PR review for channel insights polish batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3387,6 +3387,156 @@ Goal: review GitHub Actions and CodeRabbit feedback for the Channel Insights pol
 Acceptance criteria:
 
 - The PR is open with the Channel Insights polish batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #44 passed GitHub Actions quality checks and secret scan.
+- CodeRabbit returned a passing skipped review status with no blocking feedback.
+- PR #44 was squash-merged into `master`.
+
+### TASK-179 - Publishing cadence polish decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next dashboard polish slice after the Channel Insights batch.
+
+Acceptance criteria:
+
+- The next slice is explained before implementation.
+- The scope fits the five-task batch rule.
+- The change improves dashboard clarity for channel analytics.
+- The change does not add new providers, credentials or external API calls.
+
+Evidence:
+
+- The next slice is publishing cadence summaries.
+- The slice uses existing production activity data.
+- The slice stays inside the static dashboard layer.
+
+### TASK-180 - Publishing cadence summary cards
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: add compact publishing cadence summary cards near the Production Calendar.
+
+Acceptance criteria:
+
+- The dashboard shows a compact cadence summary near the production calendar.
+- The summary includes total productions, active publishing days and average production per active day.
+- The summary updates when the selected channel changes.
+- The summary uses existing production activity data only.
+- Tests cover the rendered cadence values.
+
+Evidence:
+
+- Production Calendar now renders `data-cadence-summary`.
+- Cadence cards show total productions, active publishing days and average productions per active day.
+- Cadence values update through the existing channel switching flow.
+- Focused dashboard lint and tests passed.
+
+### TASK-181 - Publishing cadence empty state labels
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make publishing cadence cards read naturally when publication dates are unavailable.
+
+Acceptance criteria:
+
+- Empty cadence values use user-facing labels instead of only zeros where useful.
+- The production heatmap empty state remains unchanged.
+- Tests cover unavailable publication-date cadence values.
+
+Evidence:
+
+- Cadence cards now show `No dates` when publication dates are unavailable.
+- The production heatmap empty state remains unchanged.
+- Focused dashboard lint and tests passed.
+
+### TASK-182 - Publishing cadence visual polish
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make publishing cadence cards visually scannable while keeping the production section compact.
+
+Acceptance criteria:
+
+- Cadence cards have visual hierarchy distinct from ordinary metadata items.
+- The layout remains responsive across existing breakpoints.
+- Text remains inside each cadence card.
+- Tests or browser QA cover the rendered cadence cards.
+
+Evidence:
+
+- Cadence cards now have compact markers and per-card accent variants.
+- Existing responsive breakpoints remain unchanged.
+- Focused dashboard lint and tests passed.
+
+### TASK-183 - Publishing cadence accessible markers
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: keep publishing cadence markers decorative for assistive text while preserving readable labels.
+
+Acceptance criteria:
+
+- Visual markers are hidden from assistive text.
+- Cadence labels remain visible text.
+- Tests cover the accessible marker treatment.
+
+Evidence:
+
+- Cadence markers render with `aria-hidden="true"`.
+- Cadence labels remain visible text beside the decorative markers.
+- Focused dashboard lint and tests passed.
+
+### TASK-184 - Package publishing cadence polish batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-179 through TASK-183 as the publishing cadence polish batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- Dashboard smoke output is regenerated for local visual QA.
+- Browser QA confirms publishing cadence cards, readable empty states and no layout overflow.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Full validation passed with ruff, unit tests, documentation verification and Bandit.
+- Sensitive-pattern scan on changed files returned no findings.
+- Dashboard smoke output was regenerated.
+- Browser QA confirmed publishing cadence cards, three visual variants, decorative markers, no horizontal overflow and no console errors.
+
+### TASK-185 - PR review for publishing cadence polish batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the publishing cadence polish batch.
+
+Acceptance criteria:
+
+- The PR is open with the publishing cadence polish batch.
 - GitHub Actions checks are reviewed.
 - CodeRabbit feedback is reviewed.
 - Any blocker is fixed before merge.
@@ -3401,7 +3551,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current Channel Insights polish PR batch after GitHub Actions and CodeRabbit run.
+- Review the current publishing cadence polish PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule
