@@ -3227,7 +3227,7 @@ Evidence:
 
 ### TASK-171 - PR review for metadata readability polish batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3236,6 +3236,157 @@ Goal: review GitHub Actions and CodeRabbit feedback for the metadata readability
 Acceptance criteria:
 
 - The PR is open with the metadata readability polish batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #43 passed GitHub Actions quality checks and secret scan.
+- CodeRabbit returned a passing skipped review status with no blocking feedback.
+- PR #43 was squash-merged into `master`.
+
+### TASK-172 - Channel insights polish decision
+
+Status: Done
+
+Phase: Governance
+
+Goal: choose the next dashboard polish slice after the metadata readability batch.
+
+Acceptance criteria:
+
+- The next slice is explained before implementation.
+- The scope fits the five-task batch rule.
+- The change improves dashboard clarity for channel analytics.
+- The change does not add new providers, credentials or external API calls.
+
+Evidence:
+
+- The next slice is a Channel Insights panel.
+- The panel will summarize top content, views leader, engagement leader and production activity.
+- The slice uses only existing dashboard fields.
+
+### TASK-173 - Channel insights summary panel
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: add a short channel insights panel that answers the selected channel's most important questions quickly.
+
+Acceptance criteria:
+
+- The dashboard renders a Channel Insights panel near the top of the page.
+- The panel shows top content, views leader, engagement leader and publishing activity.
+- The panel updates when the selected channel changes.
+- The panel uses existing dashboard fields only.
+- Tests cover the rendered panel and data bindings.
+
+Evidence:
+
+- The dashboard now renders `data-channel-insights` near the top of the page.
+- The panel shows top content, views leader, engagement leader and publishing activity.
+- The panel updates through the existing channel switching flow.
+- Focused dashboard lint and tests passed.
+
+### TASK-174 - Channel insights empty states
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make Channel Insights read naturally when content or platform leader data is unavailable.
+
+Acceptance criteria:
+
+- Missing top-content insight text uses a user-facing empty state.
+- Missing platform leader insight text uses a user-facing empty state.
+- Existing Data Quality values remain unchanged.
+- Tests cover unavailable insight states.
+
+Evidence:
+
+- Channel Insights now shows `No top content yet`, `No views leader yet` and `No engagement leader yet` where appropriate.
+- Data Quality values remain unchanged.
+- Focused dashboard lint and tests passed.
+
+### TASK-175 - Channel insights visual polish
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make Channel Insights more visually scannable while keeping the panel compact.
+
+Acceptance criteria:
+
+- Insight cards have stronger visual hierarchy than ordinary metadata items.
+- The layout remains responsive across existing breakpoints.
+- Text remains inside its card for long values.
+- Tests or browser QA cover the rendered panel.
+
+Evidence:
+
+- Channel Insights cards now have compact markers and per-insight accent variants.
+- Existing responsive breakpoints remain unchanged.
+- Focused dashboard lint and tests passed.
+
+### TASK-176 - Channel insights accessible labels
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: keep Channel Insights markers accessible and understandable without relying only on single-letter visual markers.
+
+Acceptance criteria:
+
+- Visual markers are hidden from assistive text when they are decorative.
+- Insight labels remain readable as text.
+- Tests cover the accessible marker treatment.
+
+Evidence:
+
+- Channel Insights markers now render with `aria-hidden="true"`.
+- Insight labels remain visible text beside the decorative markers.
+- Focused dashboard lint and tests passed.
+
+### TASK-177 - Package channel insights polish batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for TASK-172 through TASK-176 as the Channel Insights polish batch.
+
+Acceptance criteria:
+
+- Full local validation passes.
+- Sensitive information scan is clean for changed files.
+- Dashboard smoke output is regenerated for local visual QA.
+- Browser QA confirms Channel Insights panel, visual cards, readable empty states and no layout overflow.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Full validation passed with ruff, unit tests, documentation verification and Bandit.
+- Sensitive-pattern scan on changed files returned no findings.
+- Dashboard smoke output was regenerated.
+- Browser QA confirmed the Channel Insights panel, four visual cards, decorative markers, no horizontal overflow and no console errors.
+
+### TASK-178 - PR review for channel insights polish batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Channel Insights polish batch.
+
+Acceptance criteria:
+
+- The PR is open with the Channel Insights polish batch.
 - GitHub Actions checks are reviewed.
 - CodeRabbit feedback is reviewed.
 - Any blocker is fixed before merge.
@@ -3250,7 +3401,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current metadata readability polish PR batch after GitHub Actions and CodeRabbit run.
+- Review the current Channel Insights polish PR batch after GitHub Actions and CodeRabbit run.
 - Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
 
 ## Review Rule

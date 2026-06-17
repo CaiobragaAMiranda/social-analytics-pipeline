@@ -284,6 +284,63 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       overflow-wrap: anywhere;
     }}
     .hero-grid {{ display: grid; gap: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }}
+    .insights-grid {{
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }}
+    .insight-card {{
+      background:
+        linear-gradient(145deg, rgba(30, 234, 216, 0.08), transparent 52%),
+        #0c1224;
+      border: 1px solid rgba(30, 234, 216, 0.16);
+      border-radius: 8px;
+      display: grid;
+      gap: 0.35rem;
+      min-width: 0;
+      overflow: hidden;
+      padding: 0.9rem;
+      position: relative;
+    }}
+    .insight-card::before {{
+      background: linear-gradient(180deg, #1eead8, #1950d1);
+      bottom: 0.85rem;
+      content: "";
+      left: 0;
+      position: absolute;
+      top: 0.85rem;
+      width: 0.2rem;
+    }}
+    .insight-card.views::before {{ background: linear-gradient(180deg, #1eead8, #168ac7); }}
+    .insight-card.engagement::before {{ background: linear-gradient(180deg, #54ff8a, #1eead8); }}
+    .insight-card.activity::before {{ background: linear-gradient(180deg, #1950d1, #54ff8a); }}
+    .insight-label {{
+      align-items: center;
+      color: #9da7bc;
+      display: flex;
+      font-size: 0.72rem;
+      gap: 0.45rem;
+      text-transform: uppercase;
+    }}
+    .insight-marker {{
+      align-items: center;
+      background: rgba(30, 234, 216, 0.12);
+      border: 1px solid rgba(30, 234, 216, 0.22);
+      border-radius: 999px;
+      color: #85fff4;
+      display: inline-flex;
+      font-size: 0.68rem;
+      font-weight: 800;
+      height: 1.35rem;
+      justify-content: center;
+      width: 1.35rem;
+    }}
+    .insight-card strong {{
+      color: #eef8ff;
+      font-size: 0.95rem;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }}
     .card {{
       background: linear-gradient(145deg, #101326 0%, #090b18 100%);
       border: 1px solid #2f3654;
@@ -718,7 +775,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .dashboard-shell {{ grid-template-columns: 1fr; }}
       .sidebar {{ flex-direction: row; flex-wrap: wrap; align-items: center; }}
       .nav-list {{ display: none; }}
-      .hero-grid, .main-grid, .platform-grid, .analytics-grid,
+      .hero-grid, .insights-grid, .main-grid, .platform-grid, .analytics-grid,
       .content-gallery, .platform-chart-grid {{
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }}
@@ -728,7 +785,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .channel-hero {{ align-items: flex-start; flex-direction: column; }}
       .channel-picker {{ width: 100%; }}
       .channel-select {{ width: 100%; }}
-      .hero-grid, .main-grid, .quality-grid,
+      .hero-grid, .insights-grid, .main-grid, .quality-grid,
       .platform-grid, .analytics-grid,
       .donut-grid, .content-gallery, .platform-chart-grid {{ grid-template-columns: 1fr; }}
       .channel-image {{ height: 72px; width: 72px; }}
@@ -788,6 +845,36 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         {_metric_card("Productions", active["records"], False, "data-records")}
         {_metric_card("Total Views", active["views"], False, "data-views")}
         {_metric_card("Total Engagements", active["engagements"], False, "data-engagements")}
+      </section>
+      <section class="insights-grid" data-channel-insights>
+        {_insight_item(
+            "Top content",
+            active["insight_top_item"],
+            "data-insight-top-content",
+            "content",
+            "T",
+        )}
+        {_insight_item(
+            "Views leader",
+            active["insight_top_views_source"],
+            "data-insight-views-leader",
+            "views",
+            "V",
+        )}
+        {_insight_item(
+            "Engagement leader",
+            active["insight_top_engagement_source"],
+            "data-insight-engagement-leader",
+            "engagement",
+            "E",
+        )}
+        {_insight_item(
+            "Publishing activity",
+            active["production_summary"],
+            "data-insight-production-summary",
+            "activity",
+            "P",
+        )}
       </section>
       <section class="analytics-grid">
         <div class="section chart-card">
@@ -1309,6 +1396,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-top-item]", channel.top_item);
       setText("[data-top-views-source]", channel.top_views_source);
       setText("[data-top-engagement-source]", channel.top_engagement_source);
+      setText("[data-insight-top-content]", channel.insight_top_item);
+      setText("[data-insight-views-leader]", channel.insight_top_views_source);
+      setText("[data-insight-engagement-leader]", channel.insight_top_engagement_source);
+      setText("[data-insight-production-summary]", channel.production_summary);
       setText("[data-platform-coverage]", channel.platform_coverage);
       renderViewBars(channel.top_rows);
       renderEngagementDonuts(channel);
@@ -1655,6 +1746,10 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
     )
     image_url = source.get("image_url") or source.get("channel_image_url")
     channel_name = str(name or "unknown")
+    top_item = _top_content_label(top_content, escape=False)
+    top_views_source = _top_platform_source(platforms, "views")
+    top_engagement_source = _top_platform_source(platforms, "engagements")
+    production_summary = _production_summary(production_source)
 
     return {
         "name": channel_name,
@@ -1681,12 +1776,21 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "source_artifact": _source_artifact(payload, source, escape=False),
         "quality_status": _quality_status_label(data_quality.get("status", "unknown")),
         "has_engagements": _availability_label(data_quality.get("has_engagements", False)),
-        "top_item": _top_content_label(top_content, escape=False),
-        "top_views_source": _top_platform_source(platforms, "views"),
-        "top_engagement_source": _top_platform_source(platforms, "engagements"),
+        "top_item": top_item,
+        "top_views_source": top_views_source,
+        "top_engagement_source": top_engagement_source,
+        "insight_top_item": _insight_empty_state(top_item, "No top content yet"),
+        "insight_top_views_source": _insight_empty_state(
+            top_views_source,
+            "No views leader yet",
+        ),
+        "insight_top_engagement_source": _insight_empty_state(
+            top_engagement_source,
+            "No engagement leader yet",
+        ),
         "top_rows": [_row_model(row) for row in rows],
         "production_total": _production_total(production_source),
-        "production_summary": _production_summary(production_source),
+        "production_summary": production_summary,
         "production_months": _production_months(production_source),
         "production_days": _production_days(production_source),
         "platform_coverage": _platform_coverage(platforms),
@@ -1725,6 +1829,13 @@ def _top_platform_source(platforms: list[dict[str, Any]], metric: str) -> str:
     provider = str(top_platform.get("provider", "unknown"))
     value = str(top_platform.get(metric, "0"))
     return f"{provider} ({value})"
+
+
+def _insight_empty_state(value: object, empty_label: str) -> str:
+    text = str(value)
+    if text.lower() in {"", "unavailable", "unknown", "no top content available"}:
+        return empty_label
+    return text
 
 
 def _platform_share_models(
@@ -2057,6 +2168,24 @@ def _metric_item(label: str, value: object, data_attr: str) -> str:
         f'<span class="label">{_text(label)}</span>'
         f'<strong {data_attr}>{_text(value)}</strong>'
         "</div>"
+    )
+
+
+def _insight_item(
+    label: str,
+    value: object,
+    data_attr: str,
+    variant: str,
+    marker: str,
+) -> str:
+    return (
+        f'<article class="insight-card {_text(variant)}">'
+        '<span class="insight-label">'
+        f'<span class="insight-marker" aria-hidden="true">{_text(marker)}</span>'
+        f"{_text(label)}"
+        "</span>"
+        f"<strong {data_attr}>{_text(value)}</strong>"
+        "</article>"
     )
 
 
