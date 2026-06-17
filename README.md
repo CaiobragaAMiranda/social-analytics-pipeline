@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-171 - PR review for metadata readability polish batch
-- Last completed delivery: TASK-170 - Package metadata readability polish batch
+- Current task: TASK-178 - PR review for channel insights polish batch
+- Last completed delivery: TASK-177 - Package channel insights polish batch
 
 ## Workflow
 
@@ -101,6 +101,16 @@ Data Quality labels now use user-facing analytics wording.
 Report context labels now use user-facing wording instead of technical metadata labels.
 
 Data Quality values now show readable status text such as `Ready`, `Available`, `Unknown` and `Missing`.
+
+The next dashboard polish slice adds a short channel insights panel using existing metrics.
+
+The dashboard now shows a Channel Insights panel with top content, views leader, engagement leader and publishing activity.
+
+Channel Insights now uses readable empty states when top content or platform leaders are unavailable.
+
+Channel Insights cards now have stronger visual hierarchy with compact markers and per-insight accents.
+
+Channel Insights visual markers are now decorative for assistive text while keeping readable labels.
 
 ## Useful Commands
 
