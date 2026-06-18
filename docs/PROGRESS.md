@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-185 - PR review for publishing cadence polish batch.
+Current task: TASK-192 - CodeRabbit review policy cleanup.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -188,6 +188,18 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Publishing cadence cards now have compact markers and per-card visual accents.
 - Publishing cadence visual markers are decorative for assistive text while keeping readable labels.
 - The current publishing cadence polish batch passed full validation, sensitive-pattern scan, dashboard smoke regeneration and browser QA.
+- PR #45 was squash-merged after GitHub Actions, secret scan and CodeRabbit passed.
+- Dashboard v1 gap review inspected the local smoke dashboard as a product surface: it has the channel-first structure, metrics, platform sources, production calendar and top-content names, but it still needs multiple monitored sample channels, offline-safe imagery, simpler primary flow, readable dates and a final acceptance checklist before the dashboard v1 cycle is closed.
+- `dashboard-smoke` now renders three monitored channel options from safe fixture variants: Growth Lab, Creator Studio and Launch Room.
+- The smoke workspace is cleared before regeneration so stale local report artifacts cannot create extra dashboard channels.
+- Dashboard image rendering now falls back for placeholder image URLs instead of loading broken external images.
+- Browser QA confirmed the local smoke dashboard has no broken images, no placeholder image loads, no console errors and no horizontal overflow.
+- The dashboard now keeps Report Context, Data Quality and the detailed top-content table inside collapsed supporting panels.
+- Browser QA confirmed the simplified flow keeps channel switching, top-content counters and detailed rows synchronized.
+- The dashboard now renders top-content dates as readable labels, shows provider labels as YouTube, TikTok and Instagram, and uses compact no-data messaging for missing platform sources.
+- Browser QA confirmed readable dates, no raw ISO timestamps in visible text, no visible `unavailable` text, no console errors and no horizontal overflow.
+- Dashboard v1 closure is now defined by a concise acceptance checklist covering smoke generation, local serving, channel-first selection, channel identity, production cadence, core metrics, safe output and explicit v1 exclusions.
+- README and bootstrap docs now avoid publishing a fixed local IP and port for dashboard review instructions.
 
 ## Current Constraints
 
@@ -198,6 +210,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Review GitHub Actions and CodeRabbit feedback for the current publishing cadence polish PR batch.
-- Keep technical IDs as secondary metadata or fallbacks, not primary dashboard labels.
+- Record the CodeRabbit review policy before the closure PR.
+- The current five-task implementation batch is ready for packaging after final local validation and user confirmation.
 - Keep TikTok mocked until an official analytics path fits this project.

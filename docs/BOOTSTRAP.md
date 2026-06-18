@@ -154,7 +154,7 @@ $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.serve_dashboard
 ```
 
-Open `http://127.0.0.1:8000/data/dashboard/smoke.html` while the command is running.
+Open the local dashboard URL printed by the command while it is running.
 Use `--no-smoke` to serve an existing `data/dashboard/smoke.html` without regenerating safe sample artifacts.
 
 Controlled backfill example:

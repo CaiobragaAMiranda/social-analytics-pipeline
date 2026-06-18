@@ -92,6 +92,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("100.00", html)
         self.assertIn("10.00", html)
         self.assertIn("Report Context", html)
+        self.assertIn("Supporting Details", html)
+        self.assertIn('data-supporting-details', html)
         self.assertIn("Report schema", html)
         self.assertIn("Ranking by", html)
         self.assertIn("Top items limit", html)
@@ -104,6 +106,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("Available", html)
         self.assertIn("video-1", html)
         self.assertIn("1 ranked item", html)
+        self.assertIn("Detailed ranking table", html)
+        self.assertIn('class="supporting-details"', html)
         self.assertIn("<th>Rank</th>", html)
         self.assertIn('<tr class="winner-row">', html)
         self.assertIn('<span class="rank-badge">#1</span>', html)
@@ -137,9 +141,11 @@ class DashboardTest(unittest.TestCase):
         )
 
         self.assertIn("Launch Review", html)
-        self.assertIn('src="https://example.test/thumb.jpg"', html)
+        self.assertIn('class="content-card-fallback"', html)
+        self.assertIn('class="content-thumb fallback"', html)
+        self.assertNotIn('src="https://example.test/thumb.jpg"', html)
         self.assertIn('href="https://example.test/watch"', html)
-        self.assertIn("2026-05-20T14:30:00+00:00", html)
+        self.assertIn("May 20, 2026", html)
         self.assertNotIn("ID: video-1", html)
 
     def test_build_dashboard_html_escapes_text_values(self) -> None:
@@ -339,7 +345,9 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('"top_content_views": "100"', html)
         self.assertIn('"top_content_views": "250"', html)
         self.assertIn('"top_content_views": "150"', html)
-        self.assertIn(
+        self.assertIn('<div class="content-card-fallback">short</div>', html)
+        self.assertIn('<div class="content-thumb fallback">short</div>', html)
+        self.assertNotIn(
             '<img src="https://example.com/youtube-thumb.jpg" '
             'alt="YouTube winner thumbnail">',
             html,
@@ -349,17 +357,17 @@ class DashboardTest(unittest.TestCase):
             'rel="noreferrer">YouTube winner</a>',
             html,
         )
-        self.assertIn('"top_content_published_at": "2026-05-20T10:00:00+00:00"', html)
-        self.assertIn('"top_content_published_at": "2026-05-21T10:00:00+00:00"', html)
-        self.assertIn('"top_content_published_at": "2026-05-22T10:00:00+00:00"', html)
+        self.assertIn('"top_content_published_at": "May 20, 2026"', html)
+        self.assertIn('"top_content_published_at": "May 21, 2026"', html)
+        self.assertIn('"top_content_published_at": "May 22, 2026"', html)
         self.assertIn("Top content", html)
         self.assertIn("Top content type", html)
         self.assertIn("Top content views", html)
         self.assertIn("Top content date", html)
-        self.assertIn('"top_views_source": "tiktok (250)"', html)
-        self.assertIn('"top_engagement_source": "tiktok (50)"', html)
-        self.assertIn("tiktok (250)", html)
-        self.assertIn("tiktok (50)", html)
+        self.assertIn('"top_views_source": "TikTok (250)"', html)
+        self.assertIn('"top_engagement_source": "TikTok (50)"', html)
+        self.assertIn("TikTok (250)", html)
+        self.assertIn("TikTok (50)", html)
         self.assertIn("Views leader", html)
         self.assertIn("Engagement leader", html)
         self.assertIn('"platform_coverage": "3/3 available"', html)
@@ -370,9 +378,9 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('class="platform-chart"', html)
         self.assertIn("Productions</h3>", html)
         self.assertIn('class="platform-chart-fill"', html)
-        self.assertIn('<strong>youtube</strong>', html)
-        self.assertIn('<strong>tiktok</strong>', html)
-        self.assertIn('<strong>instagram</strong>', html)
+        self.assertIn('<strong>YouTube</strong>', html)
+        self.assertIn('<strong>TikTok</strong>', html)
+        self.assertIn('<strong>Instagram</strong>', html)
 
     def test_build_dashboard_html_marks_missing_platform_sources_unavailable(self) -> None:
         html = build_dashboard_html(
@@ -393,13 +401,14 @@ class DashboardTest(unittest.TestCase):
         )
 
         self.assertIn("Platform Sources", html)
-        self.assertIn('<strong>youtube</strong>', html)
-        self.assertIn('<strong>tiktok</strong>', html)
-        self.assertIn('<strong>instagram</strong>', html)
+        self.assertIn('<strong>YouTube</strong>', html)
+        self.assertIn('<strong>TikTok</strong>', html)
+        self.assertIn('<strong>Instagram</strong>', html)
         self.assertIn('"platform_coverage": "1/3 available"', html)
         self.assertIn("data-platform-coverage", html)
         self.assertIn("1/3 available", html)
-        self.assertIn("unavailable", html)
+        self.assertIn("No source data for this channel yet.", html)
+        self.assertIn("No data", html)
 
     def test_build_dashboard_html_renders_production_calendar(self) -> None:
         html = build_dashboard_html(
@@ -436,13 +445,13 @@ class DashboardTest(unittest.TestCase):
             {
                 "source": {
                     "provider": "youtube",
-                    "image_url": "https://example.test/channel.png",
+                    "image_url": "https://images.local/channel.png",
                 }
             }
         )
 
         self.assertIn('class="channel-image"', html)
-        self.assertIn('src="https://example.test/channel.png"', html)
+        self.assertIn('src="https://images.local/channel.png"', html)
         self.assertIn('alt="YouTube channel image"', html)
 
     def test_build_dashboard_html_renders_channel_image_url_alias(self) -> None:
@@ -450,12 +459,35 @@ class DashboardTest(unittest.TestCase):
             {
                 "source": {
                     "provider": "youtube",
-                    "channel_image_url": "https://example.test/channel-alias.png",
+                    "channel_image_url": "https://images.local/channel-alias.png",
                 }
             }
         )
 
-        self.assertIn('src="https://example.test/channel-alias.png"', html)
+        self.assertIn('src="https://images.local/channel-alias.png"', html)
+
+    def test_build_dashboard_html_uses_fallback_for_placeholder_image_urls(self) -> None:
+        html = build_dashboard_html(
+            {
+                "source": {
+                    "provider": "youtube",
+                    "image_url": "https://example.com/channel.png",
+                },
+                "top_rows": [
+                    {
+                        "title": "Placeholder Thumbnail",
+                        "thumbnail_url": "https://example.test/thumb.jpg",
+                        "content_type": "short",
+                    }
+                ],
+            }
+        )
+
+        self.assertIn("channel-fallback", html)
+        self.assertIn('<div class="content-card-fallback">short</div>', html)
+        self.assertIn('<div class="content-thumb fallback">short</div>', html)
+        self.assertNotIn('src="https://example.com/channel.png"', html)
+        self.assertNotIn('src="https://example.test/thumb.jpg"', html)
 
     def test_build_dashboard_html_renders_empty_top_content_state(self) -> None:
         html = build_dashboard_html(
@@ -572,7 +604,7 @@ class DashboardTest(unittest.TestCase):
                             {
                                 "id": "brand",
                                 "display_name": "Configured Brand",
-                                "image_url": "https://example.com/brand.png",
+                                "image_url": "https://images.local/brand.png",
                                 "platforms": {"youtube": {"handle": "@brand"}},
                             }
                         ]
@@ -586,7 +618,7 @@ class DashboardTest(unittest.TestCase):
             html = output_path.read_text(encoding="utf-8")
             self.assertEqual(exit_code, 0)
             self.assertIn('<option value="0">Configured Brand</option>', html)
-            self.assertIn('src="https://example.com/brand.png"', html)
+            self.assertIn('src="https://images.local/brand.png"', html)
 
     def test_multi_report_dashboard_payload_applies_channel_identity_config(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -703,7 +735,7 @@ class DashboardTest(unittest.TestCase):
             }
         )
 
-        self.assertIn("Platform: youtube", html)
+        self.assertIn("Platform: YouTube", html)
         self.assertNotIn("ID: yt-1", html)
 
     def test_find_latest_report_json_uses_sorted_latest_report(self) -> None:

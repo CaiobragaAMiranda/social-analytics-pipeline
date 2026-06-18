@@ -354,6 +354,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     .metric-card {{
       min-height: 8.6rem;
     }}
+    .metric-card::after {{
+      display: none;
+    }}
     .metric-card::before {{
       background: linear-gradient(90deg, #1eead8, #1950d1, #54ff8a);
       content: "";
@@ -368,8 +371,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       content: "";
       height: 7rem;
       position: absolute;
-      right: -2.5rem;
-      top: -2.5rem;
+      right: 0;
+      top: 0;
+      transform: translate(45%, -35%);
       width: 7rem;
     }}
     .card.accent {{
@@ -512,6 +516,12 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }}
     .platform-card.unavailable {{
       opacity: 0.58;
+    }}
+    .platform-empty-note {{
+      color: #c8d2e3;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin: 0;
     }}
     .production-panel {{
       background: #0c1224;
@@ -697,6 +707,34 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       margin: 0;
     }}
     .table-wrap {{ overflow-x: auto; }}
+    .supporting-details {{
+      background: linear-gradient(145deg, #0c1224 0%, #090b18 100%);
+      border-color: rgba(157, 167, 188, 0.2);
+    }}
+    .supporting-details summary {{
+      align-items: center;
+      color: #eef8ff;
+      cursor: pointer;
+      display: flex;
+      font-size: 0.86rem;
+      font-weight: bold;
+      gap: 0.8rem;
+      justify-content: space-between;
+      list-style: none;
+      text-transform: uppercase;
+    }}
+    .supporting-details summary::-webkit-details-marker {{ display: none; }}
+    .supporting-details summary::after {{
+      color: #1eead8;
+      content: "+";
+      font-size: 1.15rem;
+      line-height: 1;
+    }}
+    .supporting-details[open] summary::after {{ content: "-"; }}
+    .supporting-details .main-grid,
+    .supporting-details .table-wrap {{
+      margin-top: 1rem;
+    }}
     table {{ border-collapse: collapse; min-width: 680px; width: 100%; }}
     th, td {{
       border-bottom: 1px solid rgba(217, 222, 231, 0.18);
@@ -1020,39 +1058,6 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           </div>
         </div>
       </section>
-      <section class="main-grid">
-        <div class="section">
-          <div class="section-header">
-            <h2>Report Context</h2>
-          </div>
-          <div class="quality-grid">
-            {_metric_item("Report schema", active["schema_version"], "data-schema-version")}
-            {_metric_item("Ranking by", active["ranking_metric"], "data-ranking-metric")}
-            {_metric_item("Top items limit", active["ranking_limit"], "data-ranking-limit")}
-            {_metric_item("Report file", active["source_artifact"], "data-source-artifact")}
-          </div>
-        </div>
-        <div class="section">
-          <div class="section-header">
-            <h2>Data Quality</h2>
-            <span class="status-pill" data-quality-status>{_text(active["quality_status"])}</span>
-          </div>
-          <div class="quality-grid">
-            {_metric_item("Engagement data", active["has_engagements"], "data-has-engagements")}
-            {_metric_item("Top content", active["top_item"], "data-top-item")}
-            {_metric_item(
-                "Views leader",
-                active["top_views_source"],
-                "data-top-views-source",
-            )}
-            {_metric_item(
-                "Engagement leader",
-                active["top_engagement_source"],
-                "data-top-engagement-source",
-            )}
-          </div>
-        </div>
-      </section>
       <section class="section">
         <div class="section-header">
           <h2>Top Content</h2>
@@ -1061,7 +1066,12 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         <div class="content-gallery" data-top-content-gallery>
           {_top_content_gallery(active)}
         </div>
-        <div class="table-wrap">
+        <details class="supporting-details">
+          <summary>
+            <span>Detailed ranking table</span>
+            <span class="status-pill" data-top-row-count>{_top_row_count_label(active)}</span>
+          </summary>
+          <div class="table-wrap">
           <table>
             <thead>
               <tr>
@@ -1073,8 +1083,47 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
               {_channel_table_rows(active)}
             </tbody>
           </table>
-        </div>
+          </div>
+        </details>
       </section>
+      <details class="section supporting-details" data-supporting-details>
+        <summary>
+          <span>Supporting Details</span>
+          <span class="status-pill" data-quality-status>{_text(active["quality_status"])}</span>
+        </summary>
+        <section class="main-grid">
+          <div class="section">
+            <div class="section-header">
+              <h2>Report Context</h2>
+            </div>
+            <div class="quality-grid">
+              {_metric_item("Report schema", active["schema_version"], "data-schema-version")}
+              {_metric_item("Ranking by", active["ranking_metric"], "data-ranking-metric")}
+              {_metric_item("Top items limit", active["ranking_limit"], "data-ranking-limit")}
+              {_metric_item("Report file", active["source_artifact"], "data-source-artifact")}
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-header">
+              <h2>Data Quality</h2>
+            </div>
+            <div class="quality-grid">
+              {_metric_item("Engagement data", active["has_engagements"], "data-has-engagements")}
+              {_metric_item("Top content", active["top_item"], "data-top-item")}
+              {_metric_item(
+                  "Views leader",
+                  active["top_views_source"],
+                  "data-top-views-source",
+              )}
+              {_metric_item(
+                  "Engagement leader",
+                  active["top_engagement_source"],
+                  "data-top-engagement-source",
+              )}
+            </div>
+          </div>
+        </section>
+      </details>
     </section>
   </main>
   <script type="application/json" id="dashboard-data">{channels_json}</script>
@@ -1082,11 +1131,33 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     const channels = JSON.parse(document.getElementById("dashboard-data").textContent);
     const select = document.querySelector("[data-channel-select]");
     const setText = (selector, value) => {{
-      document.querySelector(selector).textContent = value;
+      document.querySelectorAll(selector).forEach((target) => {{
+        target.textContent = value;
+      }});
     }};
+    const isRenderableImageUrl = (value) => {{
+      if (!value) return false;
+      try {{
+        const url = new URL(value, window.location.href);
+        return !["example.com", "example.test"].includes(url.hostname.toLowerCase());
+      }} catch {{
+        return false;
+      }}
+    }};
+    const contentFallback = (label, className) => {{
+      const fallback = document.createElement("div");
+      fallback.className = className;
+      fallback.textContent = label || "content";
+      return fallback;
+    }};
+    const providerLabel = (provider) => ({{
+      youtube: "YouTube",
+      tiktok: "TikTok",
+      instagram: "Instagram",
+    }}[String(provider || "").toLowerCase()] || provider || "Unknown");
     const renderImage = (channel, selector = "[data-channel-image]") => {{
       const target = document.querySelector(selector);
-      if (channel.image_url) {{
+      if (isRenderableImageUrl(channel.image_url)) {{
         const img = document.createElement("img");
         img.className = "channel-image";
         img.src = channel.image_url;
@@ -1152,16 +1223,13 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         const rank = document.createElement("span");
         rank.className = "rank-badge content-card-rank";
         rank.textContent = `#${{index + 1}}`;
-        if (row.thumbnail_url) {{
+        if (isRenderableImageUrl(row.thumbnail_url)) {{
           const img = document.createElement("img");
           img.src = row.thumbnail_url;
           img.alt = `${{row.display_title}} thumbnail`;
           media.appendChild(img);
         }} else {{
-          const fallback = document.createElement("div");
-          fallback.className = "content-card-fallback";
-          fallback.textContent = row.content_type || "content";
-          media.appendChild(fallback);
+          media.appendChild(contentFallback(row.content_type, "content-card-fallback"));
         }}
         media.appendChild(rank);
         const title = document.createElement(row.content_url ? "a" : "span");
@@ -1174,7 +1242,11 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         }}
         const meta = document.createElement("div");
         meta.className = "content-card-meta";
-        meta.textContent = [row.provider, row.published_at, `${{row.views}} views`]
+        meta.textContent = [
+          row.provider_label || providerLabel(row.provider),
+          row.published_at,
+          `${{row.views}} views`,
+        ]
           .filter(Boolean)
           .join(" | ");
         card.append(media, title, meta);
@@ -1185,17 +1257,14 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       const td = document.createElement("td");
       const wrapper = document.createElement("div");
       wrapper.className = "content-cell";
-      if (row.thumbnail_url) {{
+      if (isRenderableImageUrl(row.thumbnail_url)) {{
         const img = document.createElement("img");
         img.className = "content-thumb";
         img.src = row.thumbnail_url;
         img.alt = `${{row.display_title}} thumbnail`;
         wrapper.appendChild(img);
       }} else {{
-        const fallback = document.createElement("div");
-        fallback.className = "content-thumb fallback";
-        fallback.textContent = row.content_type || "content";
-        wrapper.appendChild(fallback);
+        wrapper.appendChild(contentFallback(row.content_type, "content-thumb fallback"));
       }}
       const text = document.createElement("div");
       const title = document.createElement(row.content_url ? "a" : "span");
@@ -1209,7 +1278,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       const meta = document.createElement("span");
       meta.className = "content-meta";
       const metaParts = [];
-      if (row.provider) metaParts.push(`Platform: ${{row.provider}}`);
+      if (row.provider) {{
+        metaParts.push(`Platform: ${{row.provider_label || providerLabel(row.provider)}}`);
+      }}
       meta.textContent = metaParts.join(" | ");
       text.append(title, meta);
       wrapper.appendChild(text);
@@ -1222,19 +1293,20 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       target.replaceChildren(...orderedProviders.map((provider) => {{
         const platform = platforms.find((item) => item.provider === provider) || {{
           provider,
+          provider_label: providerLabel(provider),
           status: "unavailable",
-          records: "unavailable",
-          views: "unavailable",
-          views_share: "unavailable",
-          engagements: "unavailable",
-          engagements_share: "unavailable",
-          engagement_rate: "unavailable",
-          top_content: "unavailable",
+          records: "No data",
+          views: "No data",
+          views_share: "No data",
+          engagements: "No data",
+          engagements_share: "No data",
+          engagement_rate: "No data",
+          top_content: "No data",
           top_content_url: "",
           top_content_thumbnail_url: "",
-          top_content_type: "unavailable",
-          top_content_views: "unavailable",
-          top_content_published_at: "unavailable",
+          top_content_type: "No data",
+          top_content_views: "No data",
+          top_content_published_at: "No date",
         }};
         const card = document.createElement("article");
         const stateClass = platform.status === "unavailable" ? "unavailable" : "";
@@ -1242,13 +1314,23 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         const title = document.createElement("div");
         title.className = "platform-title";
         const name = document.createElement("strong");
-        name.textContent = platform.provider;
+        name.textContent = platform.provider_label || providerLabel(platform.provider);
         const status = document.createElement("span");
         status.className = "platform-status";
-        status.textContent = platform.status;
+        status.textContent = platform.status === "unavailable" ? "No data" : platform.status;
         title.append(name, status);
         card.append(title);
-        if (platform.top_content_thumbnail_url && platform.top_content !== "unavailable") {{
+        if (platform.status === "unavailable") {{
+          const note = document.createElement("p");
+          note.className = "platform-empty-note";
+          note.textContent = "No source data for this channel yet.";
+          card.append(note);
+          return card;
+        }}
+        if (
+          isRenderableImageUrl(platform.top_content_thumbnail_url)
+          && platform.top_content !== "unavailable"
+        ) {{
           const preview = document.createElement("div");
           preview.className = "platform-content-preview";
           const image = document.createElement("img");
@@ -1301,8 +1383,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         const platform = platforms.find((item) => item.provider === provider);
         return {{
           provider,
+          provider_label: providerLabel(provider),
           value: platform ? numberFromText(platform[metric]) : 0,
-          label: platform ? platform[metric] : "unavailable",
+          label: platform ? platform[metric] : "No data",
           available: Boolean(platform) && platform.status !== "unavailable",
         }};
       }});
@@ -1327,7 +1410,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         item.className = "platform-chart-row";
         const label = document.createElement("span");
         label.className = "platform-chart-label";
-        label.textContent = row.provider;
+        label.textContent = row.provider_label || providerLabel(row.provider);
         const track = document.createElement("div");
         track.className = "platform-chart-track";
         const fill = document.createElement("div");
@@ -1913,7 +1996,7 @@ def _top_platform_source(platforms: list[dict[str, Any]], metric: str) -> str:
     if not available:
         return "unavailable"
     top_platform = max(available, key=lambda platform: _plain_number(platform.get(metric, 0)))
-    provider = str(top_platform.get("provider", "unknown"))
+    provider = _provider_label(top_platform.get("provider", "unknown"))
     value = str(top_platform.get(metric, "0"))
     return f"{provider} ({value})"
 
@@ -1988,9 +2071,9 @@ def _top_content_for_provider(rows: list[object], provider: object) -> str:
 def _top_content_date_for_provider(rows: list[object], provider: object) -> str:
     row = _top_row_for_provider(rows, provider)
     if not row:
-        return "unavailable"
+        return "No date"
     published_at = _optional_text(row.get("published_at"))
-    return published_at or "unavailable"
+    return _format_content_date(published_at) or "No date"
 
 
 def _top_content_url_for_provider(rows: list[object], provider: object) -> str:
@@ -2040,8 +2123,10 @@ def _platform_model(platform: dict[str, Any]) -> dict[str, Any]:
     totals = platform.get("totals", {})
     if not isinstance(totals, dict):
         totals = {}
+    provider = str(platform.get("provider", "unknown"))
     return {
-        "provider": str(platform.get("provider", "unknown")),
+        "provider": provider,
+        "provider_label": _provider_label(provider),
         "status": str(platform.get("status", "available")),
         "records": _display_number(platform.get("records", 0)),
         "views": _display_number(totals.get("views", 0)),
@@ -2073,14 +2158,16 @@ def _row_model(row: object) -> dict[str, str]:
     if not isinstance(row, dict):
         row = {}
     display_title = _content_display_title(row)
+    provider = _optional_text(row.get("provider") or row.get("source_provider"))
     return {
         "content_id": str(row.get("content_id", "<none>")),
         "display_title": display_title,
         "thumbnail_url": _optional_text(row.get("thumbnail_url") or row.get("image_url")),
         "content_url": _optional_text(row.get("content_url") or row.get("permalink")),
         "content_type": _optional_text(row.get("content_type") or row.get("type")) or "content",
-        "provider": _optional_text(row.get("provider") or row.get("source_provider")),
-        "published_at": str(row.get("published_at", "")),
+        "provider": provider,
+        "provider_label": _provider_label(provider) if provider else "",
+        "published_at": _format_content_date(row.get("published_at")),
         "views": str(row.get("views", 0)),
         "likes": str(row.get("likes", 0)),
         "comments": str(row.get("comments", 0)),
@@ -2209,7 +2296,7 @@ def _json_script_payload(channels: list[dict[str, Any]]) -> str:
 
 
 def _channel_image_markup(channel: dict[str, Any]) -> str:
-    image_url = channel.get("image_url")
+    image_url = _renderable_image_url(channel.get("image_url"))
     name = channel.get("name", "unknown")
     if image_url:
         alt_name = str(name)
@@ -2329,7 +2416,7 @@ def _top_content_card(rank: int, row: object) -> str:
         row = {}
     title = _text(row.get("display_title", "<none>"))
     url = _optional_text(row.get("content_url"))
-    thumbnail_url = _optional_text(row.get("thumbnail_url"))
+    thumbnail_url = _renderable_image_url(row.get("thumbnail_url"))
     content_type = _text(row.get("content_type", "content"))
     media = (
         f'<img src="{_text(thumbnail_url)}" alt="{title} thumbnail">'
@@ -2344,7 +2431,11 @@ def _top_content_card(rank: int, row: object) -> str:
     )
     meta_parts = [
         str(value)
-        for value in (row.get("provider"), row.get("published_at"), f'{row.get("views", 0)} views')
+        for value in (
+            row.get("provider_label") or _provider_label(row.get("provider")),
+            row.get("published_at"),
+            f'{row.get("views", 0)} views',
+        )
         if value
     ]
     return (
@@ -2381,19 +2472,20 @@ def _platform_cards(channel: dict[str, Any]) -> str:
                 provider,
                 {
                     "provider": provider,
+                    "provider_label": _provider_label(provider),
                     "status": "unavailable",
-                    "records": "unavailable",
-                    "views": "unavailable",
-                    "views_share": "unavailable",
-                    "engagements": "unavailable",
-                    "engagements_share": "unavailable",
-                    "engagement_rate": "unavailable",
-                    "top_content": "unavailable",
+                    "records": "No data",
+                    "views": "No data",
+                    "views_share": "No data",
+                    "engagements": "No data",
+                    "engagements_share": "No data",
+                    "engagement_rate": "No data",
+                    "top_content": "No data",
                     "top_content_url": "",
                     "top_content_thumbnail_url": "",
-                    "top_content_type": "unavailable",
-                    "top_content_views": "unavailable",
-                    "top_content_published_at": "unavailable",
+                    "top_content_type": "No data",
+                    "top_content_views": "No data",
+                    "top_content_published_at": "No date",
                 },
             )
         )
@@ -2438,8 +2530,9 @@ def _platform_metric_rows(platforms: list[object], metric: str) -> list[dict[str
         rows.append(
             {
                 "provider": provider,
+                "provider_label": _provider_label(provider),
                 "value": value,
-                "label": str(platform.get(metric, "unavailable")) if platform else "unavailable",
+                "label": str(platform.get(metric, "No data")) if platform else "No data",
                 "available": platform is not None,
             }
         )
@@ -2450,7 +2543,7 @@ def _platform_metric_row(row: dict[str, object], max_value: float) -> str:
     width = 0 if not row["available"] else max(4, (_number(row["value"]) / max(max_value, 1)) * 100)
     return (
         '<div class="platform-chart-row">'
-        f'<span class="platform-chart-label">{_text(row["provider"])}</span>'
+        f'<span class="platform-chart-label">{_text(row["provider_label"])}</span>'
         '<div class="platform-chart-track">'
         f'<div class="platform-chart-fill" style="width: {width:.2f}%"></div>'
         "</div>"
@@ -2545,10 +2638,23 @@ def _production_calendar(channel: dict[str, Any]) -> str:
 
 def _platform_card(platform: dict[str, Any]) -> str:
     unavailable = " unavailable" if platform.get("status") == "unavailable" else ""
+    provider_label = _provider_label(platform.get("provider", "unknown"))
+    status_label = "No data" if platform.get("status") == "unavailable" else platform.get(
+        "status",
+        "unknown",
+    )
+    if platform.get("status") == "unavailable":
+        return f"""<article class="platform-card{unavailable}">
+  <div class="platform-title">
+    <strong>{_text(provider_label)}</strong>
+    <span class="platform-status">{_text(status_label)}</span>
+  </div>
+  <p class="platform-empty-note">No source data for this channel yet.</p>
+</article>"""
     return f"""<article class="platform-card{unavailable}">
   <div class="platform-title">
-    <strong>{_text(platform.get("provider", "unknown"))}</strong>
-    <span class="platform-status">{_text(platform.get("status", "unknown"))}</span>
+    <strong>{_text(provider_label)}</strong>
+    <span class="platform-status">{_text(status_label)}</span>
   </div>
   {_metric_item("Productions", platform.get("records", "unavailable"), "")}
   {_metric_item("Views", platform.get("views", "unavailable"), "")}
@@ -2570,7 +2676,7 @@ def _platform_card(platform: dict[str, Any]) -> str:
 
 def _platform_top_content_thumbnail(platform: dict[str, Any]) -> str:
     value = str(platform.get("top_content", "unavailable"))
-    thumbnail_url = _optional_text(platform.get("top_content_thumbnail_url"))
+    thumbnail_url = _renderable_image_url(platform.get("top_content_thumbnail_url"))
     if not thumbnail_url or value == "unavailable":
         return ""
     return (
@@ -2654,7 +2760,7 @@ def _empty_table_row() -> str:
 def _source_image(source: object) -> str:
     if not isinstance(source, dict):
         source = {}
-    image_url = source.get("image_url") or source.get("channel_image_url")
+    image_url = _renderable_image_url(source.get("image_url") or source.get("channel_image_url"))
     provider = str(source.get("provider", "?"))
     if image_url:
         return (
@@ -2695,7 +2801,7 @@ def _top_content_label(top_content: object, escape: bool = True) -> str:
 def _content_cell(row: dict[str, Any]) -> str:
     title = _content_display_title(row)
     url = _optional_text(row.get("content_url") or row.get("permalink"))
-    thumbnail_url = _optional_text(row.get("thumbnail_url") or row.get("image_url"))
+    thumbnail_url = _renderable_image_url(row.get("thumbnail_url") or row.get("image_url"))
     content_type = _optional_text(row.get("content_type") or row.get("type")) or "content"
     provider = _optional_text(row.get("provider") or row.get("source_provider"))
     thumb = (
@@ -2712,13 +2818,23 @@ def _content_cell(row: dict[str, Any]) -> str:
     )
     meta_parts = []
     if provider:
-        meta_parts.append(f"Platform: {provider}")
+        meta_parts.append(f"Platform: {_provider_label(provider)}")
     meta = (
         f'<span class="content-meta">{_text(" | ".join(meta_parts))}</span>'
         if meta_parts
         else ""
     )
     return f'<div class="content-cell">{thumb}<div>{title_markup}{meta}</div></div>'
+
+
+def _renderable_image_url(value: object) -> str:
+    image_url = _optional_text(value)
+    if not image_url:
+        return ""
+    lowered = image_url.lower()
+    if "://example.com/" in lowered or "://example.test/" in lowered:
+        return ""
+    return image_url
 
 
 def _content_display_title(row: dict[str, Any]) -> str:
@@ -2753,6 +2869,31 @@ def _average_value(totals: object, key: str) -> str:
     if not isinstance(totals, dict):
         return "0.00"
     return f"{_number(totals.get(key, 0.0)):.2f}"
+
+
+def _provider_label(provider: object) -> str:
+    provider_name = str(provider or "").strip()
+    if not provider_name:
+        return ""
+    labels = {
+        "youtube": "YouTube",
+        "tiktok": "TikTok",
+        "instagram": "Instagram",
+        "multi-platform": "Multi-platform",
+    }
+    return labels.get(provider_name.lower(), provider_name.title())
+
+
+def _format_content_date(value: object) -> str:
+    raw_value = _optional_text(value)
+    if not raw_value:
+        return ""
+    normalized = raw_value[:-1] + "+00:00" if raw_value.endswith("Z") else raw_value
+    try:
+        published_at = dt.datetime.fromisoformat(normalized)
+    except ValueError:
+        return raw_value
+    return f"{published_at:%b} {published_at.day}, {published_at:%Y}"
 
 
 def _format_generated_at(value: object, escape: bool = True) -> str:

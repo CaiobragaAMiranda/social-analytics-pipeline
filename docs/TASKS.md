@@ -18,30 +18,20 @@
 
 ## Current Task
 
-### TASK-106 - Human channel and content display metadata
+### TASK-192 - CodeRabbit review policy cleanup
 
-Status: Done
+Status: Pending
 
-Phase: Consumption layer
+Phase: Governance
 
-Goal: make the dashboard identify monitored channels and content with human-readable names, images and links instead of technical IDs.
+Goal: align the project documentation with how CodeRabbit should review PRs before dashboard v1 is closed.
 
 Acceptance criteria:
 
-- The channel selector uses the monitored channel display name and channel image when configured or available from provider metadata.
-- Provider names such as YouTube, TikTok and Instagram appear as data sources, not as selectable channel labels.
-- Top content rows/cards prioritize title, thumbnail/image, content type, publish date and link when available.
-- Technical IDs remain available only as secondary metadata or fallback text.
-- Tests cover channel name/image resolution and content display fallbacks.
-
-Evidence:
-
-- YouTube report JSON now preserves optional content title, thumbnail URL, content URL, content type and publish date.
-- The normalized metric schema now preserves optional channel name, channel image, content title, thumbnail and link metadata.
-- The real YouTube provider now fetches channel snippet/statistics metadata and attaches it to collected video payloads.
-- The dashboard top-content table now prioritizes title, thumbnail/fallback, publish date and link.
-- Technical content IDs now render as secondary metadata when available.
-- Tests cover provider enrichment, normalization, artifact serialization, report JSON propagation and dashboard rendering for human metadata.
+- The repository documents whether CodeRabbit should run automatically or be triggered manually for implementation PRs.
+- If repository configuration skips automatic review, the manual trigger command is documented.
+- The policy keeps GitHub Actions and secret scan as required checks.
+- No secrets, local paths or private operational details are added to public documentation.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -3528,7 +3518,7 @@ Evidence:
 
 ### TASK-185 - PR review for publishing cadence polish batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3542,6 +3532,218 @@ Acceptance criteria:
 - Any blocker is fixed before merge.
 - If checks are green and no blocker exists, the PR can be merged.
 
+Evidence:
+
+- PR #45 passed GitHub Actions quality checks and secret scan.
+- CodeRabbit returned a passing skipped review status with no blocking feedback.
+- PR #45 was squash-merged into `master`.
+
+### TASK-186 - Dashboard v1 gap review
+
+Status: Done
+
+Phase: Governance
+
+Goal: inspect the current local dashboard against the requested channel-first product goals and define the shortest closure path.
+
+Acceptance criteria:
+
+- The local dashboard smoke page is opened and inspected as a user-facing product.
+- The review checks whether the dashboard is channel-first, not platform-first.
+- The review checks whether visible labels avoid technical IDs, local paths, ports, tokens and raw secrets.
+- The review checks whether channel images, content names, production dates, production volume, views and engagement metrics are understandable.
+- The review produces the remaining tasks needed to close the dashboard v1 cycle.
+
+Evidence:
+
+- The dashboard smoke page returned `200` at the local smoke URL.
+- Browser QA found no console errors and no horizontal overflow at the inspected desktop viewport.
+- Visible text did not expose local paths, API key labels, token labels, channel IDs or video IDs.
+- The dashboard already shows a channel selector, channel hero, consolidated metrics, platform source cards, platform comparison charts, production calendar, cadence cards and top-content names.
+- Remaining product gaps are broken placeholder images, only one sample monitored channel in the smoke data, too many unavailable platform values in the main flow, ISO timestamps visible to users and secondary technical sections competing with primary dashboard content.
+
+### TASK-187 - Dashboard sample channel set
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the smoke dashboard demonstrate multiple monitored channels so the channel selector can be evaluated like the final product.
+
+Acceptance criteria:
+
+- The smoke dashboard renders at least three monitored channel options.
+- Each monitored channel has a human display name and channel image or generated fallback avatar.
+- YouTube, Instagram and TikTok remain data sources inside each selected channel instead of becoming selectable platforms.
+- At least one channel has mixed provider availability and one channel has fuller sample coverage.
+- Tests cover multi-channel smoke rendering without requiring real API credentials.
+
+Evidence:
+
+- `dashboard-smoke` now generates safe report variants for three monitored channels: Growth Lab, Creator Studio and Launch Room.
+- Growth Lab renders YouTube and Instagram as available sources, while Creator Studio and Launch Room demonstrate mixed provider availability.
+- TikTok remains an expected source inside each monitored channel config without adding real TikTok API work.
+- The smoke workspace is cleared before regeneration so stale report artifacts cannot create extra channel options.
+- Focused dashboard smoke, serve-dashboard and dashboard tests passed.
+
+### TASK-188 - Dashboard local image fallbacks
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: avoid broken external placeholder images in the dashboard and keep channel/content imagery useful offline.
+
+Acceptance criteria:
+
+- Smoke dashboard images render without depending on `example.com` or external network access.
+- Broken or missing channel images fall back to a polished local/avatar treatment.
+- Broken or missing content thumbnails fall back to a content-card visual that still shows title, platform and content type.
+- The UI never exposes raw image URLs as a primary label.
+- Tests cover image fallback behavior for channels and top-content cards.
+
+Evidence:
+
+- Dashboard image rendering now treats `example.com` and `example.test` image URLs as placeholders and renders visual fallbacks instead of broken `<img>` tags.
+- Channel hero, channel preview and channel option cards use fallback avatars when placeholder images are present.
+- Top-content cards and top-content table rows use content-type fallback media when placeholder thumbnails are present.
+- Dynamic channel switching uses the same image fallback rule in browser-side rendering.
+- Browser QA on the local smoke dashboard found zero image tags, zero broken images, zero placeholder image loads, no console errors and no horizontal overflow.
+- Focused dashboard, dashboard-smoke and serve-dashboard tests passed.
+
+### TASK-189 - Dashboard primary flow simplification
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the first dashboard reading path simpler by pushing secondary diagnostics below the primary analytics flow.
+
+Acceptance criteria:
+
+- The first screen prioritizes selected channel identity, source coverage, semestral performance, productions, total views, total engagements and top insights.
+- Report Context, Data Quality and supporting table details are visually secondary or collapsible.
+- Unavailable provider values do not dominate the main reading path.
+- No existing report data is removed from the HTML output.
+- Tests cover the presence of primary sections and secondary diagnostic sections.
+
+Evidence:
+
+- Report Context and Data Quality now live inside a collapsed Supporting Details panel.
+- The detailed top-content table now lives inside a collapsed Detailed ranking table panel while the visual top-content gallery remains primary.
+- Existing data bindings remain in the HTML and update when the selected channel changes.
+- Browser QA confirmed the details are collapsed by default, channel switching updates both top-content counters, no console errors occur and no horizontal overflow is present.
+- Focused dashboard, dashboard-smoke and serve-dashboard tests passed.
+
+### TASK-190 - Dashboard user-facing dates and labels
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make publication dates and source labels easier to understand for dashboard users.
+
+Acceptance criteria:
+
+- Top-content and platform top-content dates render as readable dates instead of raw ISO timestamps.
+- Provider names keep clear source context such as YouTube, Instagram and TikTok.
+- Unavailable values use short user-facing labels and avoid repeating `unavailable` across every metric in a card.
+- Existing safe escaping behavior remains unchanged.
+- Tests cover readable dates and unavailable source labels.
+
+Evidence:
+
+- Top-content and platform top-content dates now render as readable dates such as `May 21, 2026`.
+- Provider labels now render as user-facing source names such as YouTube, TikTok and Instagram while preserving source context.
+- Missing provider cards now show a compact `No data` status and one short explanatory note instead of repeating `unavailable` across every metric.
+- Browser QA confirmed readable dates, no raw ISO timestamps in visible text, no visible `unavailable` text, no console errors and no horizontal overflow.
+- Focused dashboard, dashboard-smoke and serve-dashboard tests passed.
+
+### TASK-191 - Dashboard v1 acceptance checklist
+
+Status: Done
+
+Phase: Governance
+
+Goal: document the exact criteria for closing the dashboard v1 cycle without adding more scope.
+
+Acceptance criteria:
+
+- Documentation lists the dashboard v1 acceptance checks in concise English.
+- The checklist covers local smoke generation, local serving, channel-first selection, multiple monitored channels, channel images, content names, production cadence, views, engagements and safe public output.
+- The checklist explicitly excludes new real TikTok work, cloud deployment and advanced observability from v1 closure.
+- Public documentation avoids secrets, local paths, raw payloads, local ports, IPs and expanded DSNs.
+
+Evidence:
+
+- `docs/DASHBOARD_V1_ACCEPTANCE.md` now defines the concise dashboard v1 closure checklist.
+- The checklist covers smoke generation, local serving, channel-first selection, multiple monitored channels, channel images, content names, production cadence, core metrics and safe public output.
+- The checklist explicitly excludes real TikTok integration, cloud deployment, advanced observability, new Airflow changes and new credential-management features from v1.
+- README and bootstrap docs now avoid a fixed local IP and port for dashboard review instructions.
+
+### TASK-192 - CodeRabbit review policy cleanup
+
+Status: Pending
+
+Phase: Governance
+
+Goal: align the project documentation with how CodeRabbit should review PRs before dashboard v1 is closed.
+
+Acceptance criteria:
+
+- The repository documents whether CodeRabbit should run automatically or be triggered manually for implementation PRs.
+- If repository configuration skips automatic review, the manual trigger command is documented.
+- The policy keeps GitHub Actions and secret scan as required checks.
+- No secrets, local paths or private operational details are added to public documentation.
+
+### TASK-193 - Dashboard v1 browser QA pass
+
+Status: Pending
+
+Phase: Governance
+
+Goal: run a final browser QA pass over the dashboard after the closure fixes.
+
+Acceptance criteria:
+
+- Desktop QA confirms no console errors and no horizontal overflow.
+- Mobile or narrow viewport QA confirms the dashboard remains readable.
+- QA confirms channel selection updates the hero, metric cards, insights, platform sources, production calendar and top content.
+- QA confirms no visible local paths, token labels, API key labels, raw channel IDs or raw video IDs appear in the dashboard.
+- The QA result is recorded in progress documentation.
+
+### TASK-194 - Package dashboard v1 closure batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: commit and open a PR for the dashboard v1 closure tasks.
+
+Acceptance criteria:
+
+- The closure batch passes local validation.
+- Sensitive-pattern scan is clean for changed files.
+- Dashboard smoke output is regenerated for local visual QA.
+- Browser QA evidence is recorded.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+### TASK-195 - PR review for dashboard v1 closure batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the dashboard v1 closure batch.
+
+Acceptance criteria:
+
+- The PR is open with the dashboard v1 closure batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -3551,8 +3753,8 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Review the current publishing cadence polish PR batch after GitHub Actions and CodeRabbit run.
-- Keep extra architecture refinement deferred unless it directly unlocks the next delivery.
+- Implement the dashboard v1 closure tasks: multi-channel smoke data, local image fallbacks, primary flow simplification, readable dates and a final acceptance checklist.
+- Keep extra architecture refinement deferred unless it directly unlocks the dashboard v1 closure.
 
 ## Review Rule
 

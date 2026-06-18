@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-185 - PR review for publishing cadence polish batch
-- Last completed delivery: TASK-184 - Package publishing cadence polish batch
+- Current task: TASK-192 - CodeRabbit review policy cleanup
+- Last completed delivery: TASK-191 - Dashboard v1 acceptance checklist
 
 ## Workflow
 
@@ -54,7 +54,7 @@ The Instagram provider is available through the explicit `instagram-local-pipeli
 
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 
-The local `serve-dashboard` command can generate that safe smoke dashboard and serve it at `http://127.0.0.1:8000/data/dashboard/smoke.html`.
+The local `serve-dashboard` command can generate that safe smoke dashboard and print a local URL for browser review.
 
 When multiple provider reports are grouped into one monitored channel, top content is ranked globally across providers by the configured ranking metric, with `views` as the fallback.
 
@@ -121,6 +121,18 @@ Publishing cadence cards now show `No dates` when publication dates are unavaila
 Publishing cadence cards now have compact markers and per-card visual accents.
 
 Publishing cadence visual markers are decorative for assistive text while keeping readable labels.
+
+A dashboard v1 gap review found that the remaining closure work is product-focused: demonstrate multiple monitored channels, stop relying on broken external placeholder images, simplify secondary diagnostics, render publication dates in a user-facing format and document the final v1 acceptance checklist.
+
+The dashboard smoke now demonstrates three monitored channels with YouTube, Instagram and TikTok kept as internal source coverage, not as user-facing channel selector options.
+
+The dashboard now treats placeholder image URLs as unavailable media and renders channel/content fallbacks instead of broken external images.
+
+The dashboard now keeps secondary diagnostics and the detailed ranking table in collapsed supporting panels so the primary reading path stays focused on channel performance.
+
+The dashboard now renders publication dates as readable labels, shows provider names as YouTube, TikTok and Instagram, and uses compact no-data messaging for missing platform sources.
+
+Dashboard v1 closure is defined by the concise checklist in `docs/DASHBOARD_V1_ACCEPTANCE.md`.
 
 ## Useful Commands
 
