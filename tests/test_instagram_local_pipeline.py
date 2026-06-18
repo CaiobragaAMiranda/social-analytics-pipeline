@@ -11,6 +11,7 @@ from social_analytics_pipeline.cli.instagram_local_pipeline import (
     InstagramLocalPipelineSummary,
     build_instagram_local_loader,
     enforce_instagram_loaded_records,
+    find_instagram_run_summary_artifacts,
     main,
     parse_args,
     resolve_instagram_interval,
@@ -245,6 +246,7 @@ class InstagramLocalPipelineTest(unittest.TestCase):
                 "--lookback-days",
                 "7",
                 "--fail-if-empty",
+                "--fail-if-missing",
             ]
         )
 
@@ -253,6 +255,11 @@ class InstagramLocalPipelineTest(unittest.TestCase):
         self.assertEqual(args.end_at, "2026-05-27T00:00:00Z")
         self.assertEqual(args.lookback_days, 7)
         self.assertTrue(args.fail_if_empty)
+        self.assertTrue(args.fail_if_missing)
+
+    def test_parse_args_rejects_conflicting_summary_modes(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--latest-run-summary", "--show-latest-run-summary"])
 
     def test_main_dry_run_ignores_fail_if_empty_without_credentials(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -270,6 +277,100 @@ class InstagramLocalPipelineTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertIn("Instagram local pipeline dry run", output)
         self.assertIn("credentials_configured=no", output)
+
+    def test_main_prints_latest_run_summary_path_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            older = run_dir / "instagram-run-20260501T000000-20260515T000000.json"
+            latest = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            older.write_text("{}", encoding="utf-8")
+            latest.write_text("{}", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--latest-run-summary"],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            output.strip(),
+            "data/runs/instagram/instagram-run-20260516T000000-20260531T000000.json",
+        )
+
+    def test_main_prints_latest_run_summary_counts_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            (run_dir / "instagram-run-20260516T000000-20260531T000000.json").write_text(
+                json.dumps(
+                    {
+                        "provider": "instagram",
+                        "status": "ok",
+                        "interval": {
+                            "start_at": "2026-05-16T00:00:00+00:00",
+                            "end_at": "2026-05-31T00:00:00+00:00",
+                        },
+                        "counts": {
+                            "raw_records": 3,
+                            "valid_records": 2,
+                            "invalid_records": 1,
+                            "loaded_records": 2,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--show-latest-run-summary"],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Latest Instagram run summary", output)
+        self.assertIn("status=ok", output)
+        self.assertIn("raw_records=3", output)
+        self.assertIn("valid_records=2", output)
+        self.assertIn("invalid_records=1", output)
+        self.assertIn("loaded_records=2", output)
+
+    def test_main_latest_run_summary_missing_can_fail(self) -> None:
+        with TemporaryDirectory() as tmpdir, self.assertRaisesRegex(
+            RuntimeError,
+            "No Instagram run summaries found",
+        ):
+            main(
+                env={},
+                project_root=Path(tmpdir),
+                argv=["--latest-run-summary", "--fail-if-missing"],
+            )
+
+    def test_find_instagram_run_summary_artifacts_sorts_paths(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            second = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            first = run_dir / "instagram-run-20260501T000000-20260515T000000.json"
+            second.write_text("{}", encoding="utf-8")
+            first.write_text("{}", encoding="utf-8")
+
+            artifacts = find_instagram_run_summary_artifacts(project_root)
+
+        self.assertEqual([artifact.name for artifact in artifacts], [first.name, second.name])
 
     def test_enforce_instagram_loaded_records_rejects_empty_run_when_enabled(self) -> None:
         summary = InstagramLocalPipelineSummary(

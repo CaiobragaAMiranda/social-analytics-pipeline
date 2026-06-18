@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -183,6 +184,11 @@ def main(
 ) -> int:
     root = project_root or Path.cwd()
     args = parse_args(argv or [])
+    if args.latest_run_summary:
+        return print_latest_instagram_run_summary_path(root, fail_if_missing=args.fail_if_missing)
+    if args.show_latest_run_summary:
+        return print_latest_instagram_run_summary(root, fail_if_missing=args.fail_if_missing)
+
     runtime_env = build_runtime_env(env, root / ".env")
     start_at, end_at = resolve_instagram_interval(
         runtime_env,
@@ -233,6 +239,59 @@ def main(
     print(f"processed_path={processed_path.relative_to(root).as_posix()}")
     print(f"raw_root={summary.raw_root.relative_to(root).as_posix()}")
     print(f"run_summary_path={summary.run_summary_path.relative_to(root).as_posix()}")
+    return 0
+
+
+def find_instagram_run_summary_artifacts(project_root: Path) -> list[Path]:
+    return sorted((project_root / "data" / "runs" / "instagram").glob("instagram-run-*.json"))
+
+
+def find_latest_instagram_run_summary_artifact(project_root: Path) -> Path | None:
+    artifacts = find_instagram_run_summary_artifacts(project_root)
+    if not artifacts:
+        return None
+    return artifacts[-1]
+
+
+def print_latest_instagram_run_summary_path(
+    project_root: Path,
+    fail_if_missing: bool = False,
+) -> int:
+    artifact_path = find_latest_instagram_run_summary_artifact(project_root)
+    if not artifact_path:
+        print("No Instagram run summaries found.")
+        if fail_if_missing:
+            raise RuntimeError("No Instagram run summaries found.")
+        return 0
+
+    print(artifact_path.relative_to(project_root).as_posix())
+    return 0
+
+
+def print_latest_instagram_run_summary(
+    project_root: Path,
+    fail_if_missing: bool = False,
+) -> int:
+    artifact_path = find_latest_instagram_run_summary_artifact(project_root)
+    if not artifact_path:
+        print("No Instagram run summaries found.")
+        if fail_if_missing:
+            raise RuntimeError("No Instagram run summaries found.")
+        return 0
+
+    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    counts = payload.get("counts", {})
+    interval = payload.get("interval", {})
+    print("Latest Instagram run summary")
+    print(f"run_summary_path={artifact_path.relative_to(project_root).as_posix()}")
+    print(f"provider={payload.get('provider', 'instagram')}")
+    print(f"status={payload.get('status', 'unknown')}")
+    print(f"interval_start_at={interval.get('start_at', '')}")
+    print(f"interval_end_at={interval.get('end_at', '')}")
+    print(f"raw_records={counts.get('raw_records', 0)}")
+    print(f"valid_records={counts.get('valid_records', 0)}")
+    print(f"invalid_records={counts.get('invalid_records', 0)}")
+    print(f"loaded_records={counts.get('loaded_records', 0)}")
     return 0
 
 
@@ -324,6 +383,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run the local Instagram provider pipeline into ignored JSON artifacts."
     )
+    summary_modes = parser.add_mutually_exclusive_group()
+    summary_modes.add_argument(
+        "--latest-run-summary",
+        action="store_true",
+        help="Print the latest local Instagram run-summary artifact path without API calls.",
+    )
+    summary_modes.add_argument(
+        "--show-latest-run-summary",
+        action="store_true",
+        help="Print compact status and counts from the latest local Instagram run summary.",
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -349,6 +419,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--fail-if-empty",
         action="store_true",
         help="Fail after a real local run when no records are loaded.",
+    )
+    parser.add_argument(
+        "--fail-if-missing",
+        action="store_true",
+        help="Fail list-style local inspection modes when no matching artifact exists.",
     )
     return parser.parse_args(argv)
 
