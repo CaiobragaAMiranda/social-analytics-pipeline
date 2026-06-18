@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-192 - CodeRabbit review policy cleanup
-- Last completed delivery: TASK-191 - Dashboard v1 acceptance checklist
+- Current task: TASK-195 - PR review for dashboard v1 closure batch
+- Last completed delivery: TASK-194 - Package dashboard v1 closure batch
 
 ## Workflow
 
@@ -23,6 +23,8 @@ Before coding a task:
 7. Open a PR so GitHub Actions and CodeRabbit can review it.
 
 Exceptions: commit and open a PR earlier when a task is large, risky, security-sensitive, blocks further work, or needs external review before continuing.
+
+The detailed PR review rules are documented in `docs/REVIEW_POLICY.md`.
 
 ## YouTube v1 Closure
 
@@ -133,6 +135,8 @@ The dashboard now keeps secondary diagnostics and the detailed ranking table in 
 The dashboard now renders publication dates as readable labels, shows provider names as YouTube, TikTok and Instagram, and uses compact no-data messaging for missing platform sources.
 
 Dashboard v1 closure is defined by the concise checklist in `docs/DASHBOARD_V1_ACCEPTANCE.md`.
+
+The latest dashboard QA pass confirms desktop and narrow viewport rendering, channel switching, readable dates, safe visible text and no horizontal overflow.
 
 ## Useful Commands
 

@@ -12,7 +12,7 @@ Build a local-first social analytics pipeline that can collect public social dat
 - Real API calls are manual or locally configured; automated tests use mocks/fakes.
 - Keep documentation compact enough to be useful.
 - Prefer closing a working delivery slice before adding more engineering sophistication.
-- Batch up to three small tasks per commit/PR cycle unless risk or review needs justify an earlier PR.
+- Batch up to five small tasks per commit/PR cycle unless risk or review needs justify an earlier PR.
 
 ## Phases
 

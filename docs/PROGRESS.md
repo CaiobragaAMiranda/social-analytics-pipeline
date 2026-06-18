@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-192 - CodeRabbit review policy cleanup.
+Current task: TASK-195 - PR review for dashboard v1 closure batch.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -200,6 +200,12 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Browser QA confirmed readable dates, no raw ISO timestamps in visible text, no visible `unavailable` text, no console errors and no horizontal overflow.
 - Dashboard v1 closure is now defined by a concise acceptance checklist covering smoke generation, local serving, channel-first selection, channel identity, production cadence, core metrics, safe output and explicit v1 exclusions.
 - README and bootstrap docs now avoid publishing a fixed local IP and port for dashboard review instructions.
+- CodeRabbit review policy is now explicit: automatic review is disabled, manual review uses `@coderabbitai review`, and GitHub Actions plus secret scan remain required PR checks.
+- The work plan now matches the current five-task batch rule.
+- Final dashboard browser QA passed on desktop and narrow viewport.
+- Desktop QA confirmed three monitored channel options, readable dates, no visible raw ISO timestamps, no sensitive visible text, no console errors and no horizontal overflow.
+- Narrow viewport QA confirmed channel switching updates primary dashboard sections and no page or element overflow remains after compacting the production heatmap.
+- The dashboard v1 closure batch is prepared for PR packaging with review policy documentation, final browser QA evidence and responsive dashboard fixes.
 
 ## Current Constraints
 
@@ -210,6 +216,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Record the CodeRabbit review policy before the closure PR.
-- The current five-task implementation batch is ready for packaging after final local validation and user confirmation.
+- Open and review the dashboard v1 closure PR.
+- Merge when GitHub Actions, secret scan and CodeRabbit are green with no blockers.
 - Keep TikTok mocked until an official analytics path fits this project.

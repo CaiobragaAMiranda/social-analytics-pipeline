@@ -157,7 +157,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       text-transform: uppercase;
     }}
     .nav-icon {{ font-size: 1rem; width: 1.2rem; }}
-    .content {{ display: grid; gap: 1rem; padding: 1.3rem; }}
+    .content {{ display: grid; gap: 1rem; min-width: 0; padding: 1.3rem; }}
     .channel-hero {{
       align-items: center;
       background:
@@ -413,6 +413,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       border: 1px solid #2f3654;
       border-radius: 8px;
       box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+      min-width: 0;
       padding: 1rem;
     }}
     .section-header {{
@@ -706,7 +707,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       font-size: 0.8rem;
       margin: 0;
     }}
-    .table-wrap {{ overflow-x: auto; }}
+    .table-wrap {{ max-width: 100%; overflow-x: auto; }}
     .supporting-details {{
       background: linear-gradient(145deg, #0c1224 0%, #090b18 100%);
       border-color: rgba(157, 167, 188, 0.2);
@@ -884,6 +885,24 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       .platform-grid, .analytics-grid, .cadence-grid,
       .donut-grid, .content-gallery, .platform-chart-grid {{ grid-template-columns: 1fr; }}
       .channel-image {{ height: 72px; width: 72px; }}
+      .production-heatmap {{ min-width: 0; }}
+      .production-months {{
+        font-size: 0.72rem;
+        padding-left: 0.5rem;
+      }}
+      .production-grid {{
+        gap: 0.1rem;
+        grid-template-rows: repeat(7, 0.5rem);
+      }}
+      .production-day {{
+        height: 0.5rem;
+        width: 0.5rem;
+      }}
+      .production-footer {{
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.55rem;
+      }}
     }}
   </style>
 </head>
