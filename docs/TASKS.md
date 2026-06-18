@@ -18,20 +18,21 @@
 
 ## Current Task
 
-### TASK-192 - CodeRabbit review policy cleanup
+### TASK-195 - PR review for dashboard v1 closure batch
 
 Status: Pending
 
 Phase: Governance
 
-Goal: align the project documentation with how CodeRabbit should review PRs before dashboard v1 is closed.
+Goal: review GitHub Actions and CodeRabbit feedback for the dashboard v1 closure batch.
 
 Acceptance criteria:
 
-- The repository documents whether CodeRabbit should run automatically or be triggered manually for implementation PRs.
-- If repository configuration skips automatic review, the manual trigger command is documented.
-- The policy keeps GitHub Actions and secret scan as required checks.
-- No secrets, local paths or private operational details are added to public documentation.
+- The PR is open with the dashboard v1 closure batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -3683,7 +3684,7 @@ Evidence:
 
 ### TASK-192 - CodeRabbit review policy cleanup
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3696,9 +3697,16 @@ Acceptance criteria:
 - The policy keeps GitHub Actions and secret scan as required checks.
 - No secrets, local paths or private operational details are added to public documentation.
 
+Evidence:
+
+- `docs/REVIEW_POLICY.md` now documents that CodeRabbit automatic review is disabled in repository configuration.
+- The policy documents `@coderabbitai review` as the manual review trigger for PRs that need CodeRabbit.
+- The policy keeps GitHub Actions, Python quality/security and secret scan as required checks.
+- README, agent contracts and the work plan now point to the review policy or match the five-task batch rule.
+
 ### TASK-193 - Dashboard v1 browser QA pass
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3712,9 +3720,17 @@ Acceptance criteria:
 - QA confirms no visible local paths, token labels, API key labels, raw channel IDs or raw video IDs appear in the dashboard.
 - The QA result is recorded in progress documentation.
 
+Evidence:
+
+- Desktop browser QA confirmed three monitored channel options, readable dates, no visible raw ISO timestamps, no sensitive visible text, no console errors and no horizontal overflow.
+- Desktop channel switching to Launch Room updated the hero, metric cards, insights, platform sources, production calendar and top-content gallery.
+- Narrow viewport QA confirmed Creator Studio selection updates the same primary dashboard sections.
+- Narrow viewport QA confirmed no page overflow, no problematic element overflow, no console errors, readable dates and no sensitive visible text.
+- Mobile production heatmap CSS now compacts cells and month labels so it fits the narrow dashboard layout.
+
 ### TASK-194 - Package dashboard v1 closure batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3727,6 +3743,13 @@ Acceptance criteria:
 - Dashboard smoke output is regenerated for local visual QA.
 - Browser QA evidence is recorded.
 - The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Local validation for documentation, lint, focused dashboard tests and dashboard smoke regeneration passed before packaging.
+- Sensitive-pattern scan for changed files returned no findings.
+- Browser QA evidence from TASK-193 is recorded in this document and progress notes.
+- The branch is prepared for commit and PR review through GitHub Actions and CodeRabbit.
 
 ### TASK-195 - PR review for dashboard v1 closure batch
 

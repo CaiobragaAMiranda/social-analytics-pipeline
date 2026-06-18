@@ -9,6 +9,7 @@ When Codex implements:
 - Developer: Codex/ChatGPT.
 - Contract reviewer: Gemini when available.
 - Fallback reviewers: GitHub Actions, CodeRabbit and user review.
+- CodeRabbit usage follows `docs/REVIEW_POLICY.md`.
 
 When Gemini implements:
 
