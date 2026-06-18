@@ -137,6 +137,9 @@ python -m social_analytics_pipeline.cli.instagram_report
 Use `--artifact data/processed/instagram/<artifact>.json` to report a specific processed Instagram artifact.
 Use `--json-output data/reports/instagram-json/<report>.json` to choose the report path.
 Use `--top <n>`, `--sort-by views|likes|comments|shares`, `--print-json`, `--quiet` and `--fail-if-empty` the same way as the YouTube report flow.
+Use `--dry-run` to validate the selected artifact and show the planned JSON output path without writing files.
+Use `--list-artifacts`, `--latest-artifact`, `--count-artifacts` and `--fail-if-missing` for list-only Instagram artifact checks.
+Use `INSTAGRAM_HTTP_MAX_ATTEMPTS` and `INSTAGRAM_HTTP_BACKOFF_SECONDS` locally to tune transient API retry behavior.
 
 Safe multi-provider dashboard smoke:
 

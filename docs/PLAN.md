@@ -24,7 +24,7 @@ Build a local-first social analytics pipeline that can collect public social dat
 | Phase 3 - Resilience | Retries, rate limits, alerts and DLQ. | Baseline done for YouTube |
 | Phase 4 - Quality and Scale | Data validation, metrics, profiling and scaling choices. | Deferred until after v1 closure |
 | Phase 5 - Consumption Layer | Build a channel-first dashboard from generated report artifacts. | Current |
-| Phase 6 - Second Real Provider | Add one more real provider after the dashboard identity layer is useful. | Next |
+| Phase 6 - Second Real Provider | Add one more real provider after the dashboard identity layer is useful. | Current |
 
 ## Near-Term Direction
 
@@ -33,8 +33,8 @@ Build a local-first social analytics pipeline that can collect public social dat
 3. Make the user-facing selector choose monitored channels/accounts, not platforms.
 4. Treat YouTube, TikTok and Instagram as platform sources inside the selected channel.
 5. Use human channel names, channel images, content titles, thumbnails, dates and links before showing technical IDs.
-6. Add Instagram as the second real provider only for authorized professional accounts.
-7. Prefer static/local artifacts before adding a web server or cloud deployment.
+6. Add Instagram depth as the post-v1 provider slice for authorized professional accounts.
+7. Prefer static/local artifacts before adding cloud deployment or broader orchestration.
 
 ## Next Delivery Sequence
 
@@ -46,6 +46,7 @@ Build a local-first social analytics pipeline that can collect public social dat
 6. Second provider decision: Instagram is selected for authorized professional accounts.
 7. Instagram provider skeleton: add the smallest official-API provider shape before real local calls.
 8. Multi-provider smoke: prove safe sample YouTube and Instagram reports can render in one dashboard.
+9. Post-v1 Instagram depth: review and strengthen the real Instagram provider/report/dashboard path.
 
 ## Out of Scope for Now
 

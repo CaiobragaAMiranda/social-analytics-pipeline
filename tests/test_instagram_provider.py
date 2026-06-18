@@ -69,6 +69,28 @@ class FakeInstagramHttpErrorResponse:
         raise requests.HTTPError("403 Client Error with access_token=secret", response=self)
 
 
+class FakeInstagramHttpStatusResponse:
+    def __init__(self, status_code: int, payload: dict[str, Any] | None = None) -> None:
+        self.status_code = status_code
+        self.payload = payload or {"ok": True}
+
+    def raise_for_status(self) -> None:
+        if self.status_code < 400:
+            return
+        try:
+            import requests
+        except ImportError as exc:  # pragma: no cover
+            raise AssertionError("requests is required for this test") from exc
+
+        raise requests.HTTPError(
+            f"{self.status_code} Client Error with access_token=secret",
+            response=self,
+        )
+
+    def json(self) -> dict[str, Any]:
+        return self.payload
+
+
 class InstagramProviderTest(unittest.TestCase):
     def test_config_from_env_requires_access_token(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "INSTAGRAM_ACCESS_TOKEN"):
@@ -84,11 +106,15 @@ class InstagramProviderTest(unittest.TestCase):
                 "INSTAGRAM_ACCESS_TOKEN": "test-token",
                 "INSTAGRAM_USER_ID": "ig-account-1",
                 "INSTAGRAM_MAX_PAGES": "2",
+                "INSTAGRAM_HTTP_MAX_ATTEMPTS": "4",
+                "INSTAGRAM_HTTP_BACKOFF_SECONDS": "0.25",
             }
         )
 
         self.assertEqual(config.max_pages, 2)
         self.assertEqual(config.account_id, "ig-account-1")
+        self.assertEqual(config.http_max_attempts, 4)
+        self.assertEqual(config.http_backoff_seconds, 0.25)
 
     def test_config_from_env_rejects_invalid_max_pages(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "INSTAGRAM_MAX_PAGES"):
@@ -97,6 +123,25 @@ class InstagramProviderTest(unittest.TestCase):
                     "INSTAGRAM_ACCESS_TOKEN": "test-token",
                     "INSTAGRAM_USER_ID": "ig-account-1",
                     "INSTAGRAM_MAX_PAGES": "0",
+                }
+            )
+
+    def test_config_from_env_rejects_invalid_http_settings(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "INSTAGRAM_HTTP_MAX_ATTEMPTS"):
+            InstagramApiConfig.from_env(
+                {
+                    "INSTAGRAM_ACCESS_TOKEN": "test-token",
+                    "INSTAGRAM_USER_ID": "ig-account-1",
+                    "INSTAGRAM_HTTP_MAX_ATTEMPTS": "0",
+                }
+            )
+
+        with self.assertRaisesRegex(RuntimeError, "INSTAGRAM_HTTP_BACKOFF_SECONDS"):
+            InstagramApiConfig.from_env(
+                {
+                    "INSTAGRAM_ACCESS_TOKEN": "test-token",
+                    "INSTAGRAM_USER_ID": "ig-account-1",
+                    "INSTAGRAM_HTTP_BACKOFF_SECONDS": "-1",
                 }
             )
 
@@ -112,6 +157,62 @@ class InstagramProviderTest(unittest.TestCase):
 
         self.assertNotIn("secret", str(context.exception))
         self.assertNotIn("graph.facebook", str(context.exception))
+
+    def test_http_json_client_retries_transient_errors(self) -> None:
+        sleep_calls: list[float] = []
+
+        with patch(
+            "requests.get",
+            side_effect=[
+                FakeInstagramHttpStatusResponse(500),
+                FakeInstagramHttpStatusResponse(200, {"data": [{"id": "ok"}]}),
+            ],
+        ) as get_mock:
+            payload = InstagramHttpJsonClient(
+                max_attempts=2,
+                backoff_seconds=0.5,
+                sleeper=sleep_calls.append,
+            ).get_json(
+                "https://graph.facebook.com/ig-account-1/media",
+                {"access_token": "secret"},
+            )
+
+        self.assertEqual(payload, {"data": [{"id": "ok"}]})
+        self.assertEqual(get_mock.call_count, 2)
+        self.assertEqual(sleep_calls, [0.5])
+
+    def test_http_json_client_reports_retry_exhaustion_without_secrets(self) -> None:
+        with (
+            patch(
+                "requests.get",
+                return_value=FakeInstagramHttpStatusResponse(429),
+            ) as get_mock,
+            self.assertRaisesRegex(RuntimeError, "after 2 attempts") as context,
+        ):
+            InstagramHttpJsonClient(max_attempts=2, sleeper=lambda _: None).get_json(
+                "https://graph.facebook.com/ig-account-1/media",
+                {"access_token": "secret"},
+            )
+
+        self.assertEqual(get_mock.call_count, 2)
+        self.assertNotIn("secret", str(context.exception))
+        self.assertNotIn("graph.facebook", str(context.exception))
+
+    def test_http_json_client_does_not_retry_credential_errors(self) -> None:
+        with (
+            patch(
+                "requests.get",
+                return_value=FakeInstagramHttpStatusResponse(401),
+            ) as get_mock,
+            self.assertRaisesRegex(RuntimeError, "status 401") as context,
+        ):
+            InstagramHttpJsonClient(max_attempts=3, sleeper=lambda _: None).get_json(
+                "https://graph.facebook.com/ig-account-1/media",
+                {"access_token": "secret"},
+            )
+
+        self.assertEqual(get_mock.call_count, 1)
+        self.assertNotIn("secret", str(context.exception))
 
     def test_collect_metrics_uses_account_media_and_pagination(self) -> None:
         http_client = FakeInstagramHttpJsonClient()

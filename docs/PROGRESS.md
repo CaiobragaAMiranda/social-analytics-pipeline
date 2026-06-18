@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-196 - Post-v1 delivery decision.
+Current task: TASK-202 - PR review for Instagram provider depth batch.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -208,6 +208,15 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The dashboard v1 closure batch is prepared for PR packaging with review policy documentation, final browser QA evidence and responsive dashboard fixes.
 - PR #47 passed GitHub Actions quality/security, secret scan and CodeRabbit, then was squash-merged into `master`.
 - The dashboard v1 closure path is now complete in repository history.
+- ADR-0003 selects Instagram provider depth as the post-v1 delivery direction after comparing provider expansion, dashboard product polish and operational quality.
+- TikTok, cloud deployment, advanced observability, large-scale async fetching and broad dashboard redesign remain deferred.
+- The Instagram provider gap review records that provider collection, local JSON pipeline, report JSON and dashboard smoke compatibility already exist.
+- The next useful Instagram depth slice is retry/backoff for transient HTTP failures while keeping credential failures fail-fast.
+- Instagram HTTP requests now retry transient failures with configurable attempts and backoff.
+- Instagram credential failures still fail fast with sanitized error messages.
+- `instagram-report` now supports list-only artifact checks: list, latest and count, with optional fail-if-missing behavior.
+- `instagram-report` now supports dry-run planning without writing report files.
+- The Instagram provider depth batch is prepared for PR packaging with local validation complete.
 
 ## Current Constraints
 
@@ -218,6 +227,6 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Next Actions
 
-- Choose the post-v1 delivery path before implementing more work.
-- Compare second real provider depth, dashboard product polish and operational quality before starting the next slice.
+- Open and review the Instagram provider depth PR.
+- Keep TikTok, PostgreSQL loading, Airflow DAGs and dashboard redesign deferred for this slice.
 - Keep TikTok mocked until an official analytics path fits this project.
