@@ -18,21 +18,20 @@
 
 ## Current Task
 
-### TASK-195 - PR review for dashboard v1 closure batch
+### TASK-196 - Post-v1 delivery decision
 
 Status: Pending
 
 Phase: Governance
 
-Goal: review GitHub Actions and CodeRabbit feedback for the dashboard v1 closure batch.
+Goal: choose the next delivery direction after the dashboard v1 closure.
 
 Acceptance criteria:
 
-- The PR is open with the dashboard v1 closure batch.
-- GitHub Actions checks are reviewed.
-- CodeRabbit feedback is reviewed according to the documented policy.
-- Any blocker is fixed before merge.
-- If checks are green and no blocker exists, the PR can be merged.
+- The next slice is chosen before implementation starts.
+- The decision compares at least provider expansion, dashboard product polish and operational quality.
+- The decision states what is included and explicitly deferred.
+- The decision keeps public documentation free of secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -3753,7 +3752,7 @@ Evidence:
 
 ### TASK-195 - PR review for dashboard v1 closure batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3767,6 +3766,29 @@ Acceptance criteria:
 - Any blocker is fixed before merge.
 - If checks are green and no blocker exists, the PR can be merged.
 
+Evidence:
+
+- PR #47 was opened for the dashboard v1 closure review policy and QA batch.
+- GitHub Actions `Python quality and security` completed successfully.
+- GitHub Actions `Secret scan` completed successfully.
+- CodeRabbit status completed successfully.
+- PR #47 was squash-merged into `master` with no blocking findings.
+
+### TASK-196 - Post-v1 delivery decision
+
+Status: Pending
+
+Phase: Governance
+
+Goal: choose the next delivery direction after the dashboard v1 closure.
+
+Acceptance criteria:
+
+- The next slice is chosen before implementation starts.
+- The decision compares at least provider expansion, dashboard product polish and operational quality.
+- The decision states what is included and explicitly deferred.
+- The decision keeps public documentation free of secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -3776,8 +3798,8 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Implement the dashboard v1 closure tasks: multi-channel smoke data, local image fallbacks, primary flow simplification, readable dates and a final acceptance checklist.
-- Keep extra architecture refinement deferred unless it directly unlocks the dashboard v1 closure.
+- Choose the post-v1 delivery path: second real provider depth, dashboard product polish or operational quality.
+- Keep extra architecture refinement deferred unless it directly unlocks the selected post-v1 delivery.
 
 ## Review Rule
 
