@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-195 - PR review for dashboard v1 closure batch
-- Last completed delivery: TASK-194 - Package dashboard v1 closure batch
+- Current task: TASK-196 - Post-v1 delivery decision
+- Last completed delivery: TASK-195 - PR review for dashboard v1 closure batch
 
 ## Workflow
 
