@@ -123,6 +123,21 @@ def build_instagram_report_json_output_path(project_root: Path, artifact_path: P
     return project_root / "data" / "reports" / "instagram-json" / f"{artifact_path.stem}.json"
 
 
+def resolve_instagram_report_json_output_path(
+    project_root: Path,
+    artifact_path: Path,
+    output_path: Path | None,
+    output_dir: Path | None,
+) -> Path:
+    if output_path and output_dir:
+        raise RuntimeError("--json-output and --json-output-dir cannot be used together.")
+    if output_path:
+        return output_path
+    if output_dir:
+        return output_dir / f"{artifact_path.stem}.json"
+    return build_instagram_report_json_output_path(project_root, artifact_path)
+
+
 def build_instagram_report_json_payload(
     summary: InstagramReportSummary,
     project_root: Path,
@@ -233,6 +248,7 @@ def main(
     project_root: Path | None = None,
     artifact_path: Path | None = None,
     json_output_path: Path | None = None,
+    json_output_dir: Path | None = None,
     json_indent: int = DEFAULT_JSON_INDENT,
     quiet: bool = False,
     print_json: bool = False,
@@ -273,7 +289,12 @@ def main(
             print("Selected Instagram artifact has 0 records; required at least 1.")
         return 1
 
-    planned_report_path = json_output_path or build_instagram_report_json_output_path(root, target)
+    planned_report_path = resolve_instagram_report_json_output_path(
+        root,
+        target,
+        json_output_path,
+        json_output_dir,
+    )
     if dry_run:
         if not quiet:
             print("Instagram report dry run")
@@ -317,6 +338,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--json-output",
         type=Path,
         help="JSON summary output path. Defaults to data/reports/instagram-json/<artifact>.json.",
+    )
+    parser.add_argument(
+        "--json-output-dir",
+        type=Path,
+        help="JSON summary output directory while preserving the selected artifact file name.",
     )
     parser.add_argument(
         "--json-indent",
@@ -381,6 +407,7 @@ def cli_entrypoint() -> int:
         return main(
             artifact_path=args.artifact,
             json_output_path=args.json_output,
+            json_output_dir=args.json_output_dir,
             json_indent=args.json_indent,
             quiet=args.quiet,
             print_json=args.print_json,

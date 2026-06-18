@@ -18,20 +18,20 @@
 
 ## Current Task
 
-### TASK-203 - Instagram provider next slice decision
+### TASK-207 - PR review for Instagram runbook parity batch
 
 Status: Pending
 
 Phase: Governance
 
-Goal: choose the next small Instagram provider-depth task after retry and report operator parity.
+Goal: open and review the Instagram runbook parity batch PR.
 
 Acceptance criteria:
 
-- The next Instagram slice is chosen before implementation.
-- The decision considers report parity, local runbook clarity and real-run readiness.
-- TikTok, PostgreSQL loading, Airflow DAGs and broad dashboard redesign remain explicitly deferred unless selected.
-- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+- The PR is opened against `master`.
+- GitHub Actions and CodeRabbit are reviewed.
+- Any blocking review feedback is addressed.
+- The PR is merged when checks are green and the branch is mergeable.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -3937,7 +3937,7 @@ Evidence:
 
 ### TASK-203 - Instagram provider next slice decision
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3950,6 +3950,98 @@ Acceptance criteria:
 - TikTok, PostgreSQL loading, Airflow DAGs and broad dashboard redesign remain explicitly deferred unless selected.
 - Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
+Evidence:
+
+- The next slice is Instagram local runbook clarity.
+- Report parity was improved in the prior batch with list-only and dry-run modes.
+- Real-run readiness now needs a compact operator flow that connects local pipeline, report and dashboard review.
+- TikTok, PostgreSQL loading, Airflow DAGs and broad dashboard redesign remain deferred.
+
+### TASK-204 - Instagram local runbook
+
+Status: Done
+
+Phase: Governance
+
+Goal: document the compact end-to-end local Instagram operator flow.
+
+Acceptance criteria:
+
+- The runbook starts from local environment placeholders and does not include real credentials.
+- The runbook covers local pipeline execution, report generation, dry-run/list-only checks and dashboard review.
+- The runbook explains what success looks like without printing raw payloads or sensitive identifiers.
+- TikTok, PostgreSQL loading, Airflow DAGs and broad dashboard redesign remain deferred.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- `docs/INSTAGRAM_LOCAL_RUNBOOK.md` now documents the compact end-to-end local Instagram operator flow.
+- The runbook covers local settings, local collection, artifact checks, dry-run report planning, report generation and dashboard review.
+- Success and failure expectations are described without real credentials, raw payloads, fixed local ports, IPs or local machine paths.
+- README and bootstrap docs link to the runbook.
+
+### TASK-205 - Instagram report JSON output directory
+
+Status: Done
+
+Phase: Provider depth
+
+Goal: let operators choose an Instagram report JSON output directory while preserving artifact-based names.
+
+Acceptance criteria:
+
+- `instagram-report` accepts `--json-output-dir`.
+- The option writes the report with the selected artifact stem inside the chosen directory.
+- `--json-output` and `--json-output-dir` cannot be used together.
+- Dry-run shows the resolved directory-based output path.
+- Tests cover the new option and conflict behavior.
+
+Evidence:
+
+- `instagram-report` now accepts `--json-output-dir`.
+- Directory-based output preserves the selected artifact stem.
+- `--json-output` and `--json-output-dir` conflict with a clear error.
+- Dry-run shows the resolved directory-based output path without writing files.
+- Bootstrap documents the supported option.
+- Focused `instagram-report` lint and tests passed.
+
+### TASK-206 - Package Instagram runbook parity batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Instagram runbook and report parity batch.
+
+Acceptance criteria:
+
+- The batch passes local validation.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the runbook and report output directory option.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Local documentation verification passed.
+- Ruff, unit tests and Bandit passed.
+- Sensitive-pattern scan found only documented placeholder values, not real secrets.
+- The batch is ready to commit and open as a PR.
+
+### TASK-207 - PR review for Instagram runbook parity batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: open and review the Instagram runbook parity batch PR.
+
+Acceptance criteria:
+
+- The PR is opened against `master`.
+- GitHub Actions and CodeRabbit are reviewed.
+- Any blocking review feedback is addressed.
+- The PR is merged when checks are green and the branch is mergeable.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -3959,7 +4051,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Package the Instagram provider depth batch for review.
+- Package the Instagram runbook and report parity batch for review.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule
