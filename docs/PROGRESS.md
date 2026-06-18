@@ -241,7 +241,7 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
 - Instagram real-provider work must use official Meta APIs and authorized professional accounts only.
 - PR #52 merged the Instagram local operator batch with GitHub quality gates and secret scan passing.
-- Local Airflow UI authentication now uses `AIRFLOW_ADMIN_USERNAME` and `AIRFLOW_ADMIN_PASSWORD` through Airflow 3.2.1 SimpleAuthManager without printing credential values.
+- Local Airflow UI authentication now uses `AIRFLOW_ADMIN_USERNAME` and `AIRFLOW_ADMIN_PASSWORD` through Airflow's local FAB auth manager without printing credential values.
 - Local DLQ and run-summary artifact directories are ignored by Git.
 - The Airflow local auth alignment passed documentation verification, Compose validation and login validation without printing credentials.
 

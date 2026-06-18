@@ -5,8 +5,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
-    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: ${AIRFLOW_ADMIN_USERNAME:?Set AIRFLOW_ADMIN_USERNAME in local .env}:admin
-    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/logs/simple_auth_manager_passwords.json
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
     AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET:?Set AIRFLOW_API_AUTH_JWT_SECRET in local .env}
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_POSTGRES_USER}:${AIRFLOW_POSTGRES_PASSWORD}@airflow-postgres/${AIRFLOW_POSTGRES_DB}
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${AIRFLOW_POSTGRES_USER}:${AIRFLOW_POSTGRES_PASSWORD}@airflow-postgres/${AIRFLOW_POSTGRES_DB}
@@ -96,8 +95,18 @@ services:
     command:
       - -c
       - |
-        python -c "import json, os, pathlib; path = pathlib.Path(os.environ['AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE']); path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps({os.environ['AIRFLOW_ADMIN_USERNAME']: os.environ['AIRFLOW_ADMIN_PASSWORD']}) + '\n', encoding='utf-8')"
+        set -e
         airflow db migrate
+        airflow users create \
+          --username "$AIRFLOW_ADMIN_USERNAME" \
+          --password "$AIRFLOW_ADMIN_PASSWORD" \
+          --firstname "$AIRFLOW_ADMIN_FIRSTNAME" \
+          --lastname "$AIRFLOW_ADMIN_LASTNAME" \
+          --role Admin \
+          --email "$AIRFLOW_ADMIN_EMAIL" \
+        || airflow users reset-password \
+          --username "$AIRFLOW_ADMIN_USERNAME" \
+          --password "$AIRFLOW_ADMIN_PASSWORD"
     restart: "no"
 
   airflow-api-server:

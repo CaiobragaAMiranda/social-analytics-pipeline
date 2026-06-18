@@ -4185,7 +4185,7 @@ Evidence:
 - GitHub Secret scan passed.
 - CodeRabbit status was successful; detailed automatic review remained disabled by repository settings.
 
-### TASK-214 - Airflow local SimpleAuthManager alignment
+### TASK-214 - Airflow local UI auth alignment
 
 Status: Done
 
@@ -4195,16 +4195,16 @@ Goal: make Airflow 3.2.1 local UI login use the configured local admin variables
 
 Acceptance criteria:
 
-- Airflow SimpleAuthManager uses `AIRFLOW_ADMIN_USERNAME` as the local admin user.
-- Airflow SimpleAuthManager reads the password from an ignored local file generated from `AIRFLOW_ADMIN_PASSWORD`.
+- Airflow uses the local FAB auth manager for the UI.
+- Airflow init creates or updates the local admin user from `AIRFLOW_ADMIN_USERNAME` and `AIRFLOW_ADMIN_PASSWORD`.
 - The password is not printed during init or validation.
 - Local docs explain the login flow without showing credential values.
 - Local generated DLQ and run-summary artifacts are ignored by Git.
 
 Evidence:
 
-- Compose now maps `AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS` from `AIRFLOW_ADMIN_USERNAME`.
-- Compose now writes SimpleAuthManager passwords under ignored `logs/`.
+- Compose now sets the local Airflow auth manager to FAB.
+- Compose init creates the configured admin user or resets its password through Airflow's user commands.
 - Login validation returned `auth_status=ok` using environment variables without printing the token or password.
 - `.env.example` no longer contains a concrete Airflow password value.
 - `.gitignore` now excludes `data/dlq/` and `data/runs/`.
