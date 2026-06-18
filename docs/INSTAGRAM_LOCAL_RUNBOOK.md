@@ -91,6 +91,31 @@ Success looks like:
 - Raw, processed and run-summary paths are printed as project-relative artifact paths.
 - Counts are printed for raw, valid, invalid and loaded records.
 
+## Inspect Run Summaries
+
+Print the latest run-summary path:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --latest-run-summary
+```
+
+Print compact status and counts from the latest run summary:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --show-latest-run-summary
+```
+
+Use `--fail-if-missing` when automation should fail if no local run summary exists.
+
+Success looks like:
+
+- The command does not require credentials.
+- The command does not call the Instagram API.
+- Paths are project-relative.
+- Status and counts come from the ignored local run-summary artifact.
+
 Failure handling:
 
 - Missing credentials fail before any API call.

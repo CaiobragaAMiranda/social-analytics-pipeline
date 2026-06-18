@@ -18,17 +18,17 @@
 
 ## Current Task
 
-### TASK-216 - PR review for Airflow local auth alignment
+### TASK-220 - PR review for Instagram run summary inspection
 
 Status: Pending
 
 Phase: Governance
 
-Goal: review GitHub Actions and CodeRabbit feedback for the Airflow local authentication alignment.
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram run summary inspection batch.
 
 Acceptance criteria:
 
-- The PR is opened with the Airflow local auth alignment.
+- The PR is opened with the Instagram run summary inspection batch.
 - GitHub Actions and CodeRabbit are reviewed.
 - Any blocking feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
@@ -4234,7 +4234,7 @@ Evidence:
 
 ### TASK-216 - PR review for Airflow local auth alignment
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -4243,6 +4243,95 @@ Goal: review GitHub Actions and CodeRabbit feedback for the Airflow local authen
 Acceptance criteria:
 
 - The PR is opened with the Airflow local auth alignment.
+- GitHub Actions and CodeRabbit are reviewed.
+- Any blocking feedback is addressed.
+- The PR is merged when checks are green and the branch is mergeable.
+
+Evidence:
+
+- PR #53 was opened and merged.
+- GitHub Quality Gates passed.
+- GitHub Secret scan passed.
+- CodeRabbit passed after the auth setup was changed from manual SimpleAuthManager JSON generation to Airflow's FAB auth manager and user commands.
+
+### TASK-217 - Select next delivery after Airflow auth closure
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose the next small delivery slice after closing the Airflow auth fix.
+
+Acceptance criteria:
+
+- The next slice is chosen from the current plan and recent project state.
+- The decision keeps the dashboard/provider goals ahead of broad infrastructure work.
+- The chosen slice has clear acceptance criteria.
+- Deferred work remains explicit.
+
+Evidence:
+
+- The next slice returns to Instagram provider operations instead of adding more Airflow infrastructure.
+- The selected slice is latest run-summary inspection for local Instagram operations.
+- TikTok, PostgreSQL loading, Instagram Airflow DAGs and broad dashboard redesign remain deferred.
+
+### TASK-218 - Instagram latest run summary inspection
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators inspect the latest local Instagram run summary without opening JSON manually.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` can print the latest run-summary path.
+- `instagram-local-pipeline` can print a compact latest run-summary status and counts.
+- Missing run summaries produce a clear no-data message.
+- The inspection mode does not require credentials or API calls.
+- Tests cover latest run-summary inspection behavior.
+
+Evidence:
+
+- `instagram-local-pipeline --latest-run-summary` prints the latest local run-summary path.
+- `instagram-local-pipeline --show-latest-run-summary` prints compact status and counts.
+- `--fail-if-missing` makes missing run summaries fail for automation.
+- Focused lint and Instagram local pipeline tests passed.
+
+### TASK-219 - Package Instagram run summary inspection
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Instagram run summary inspection batch.
+
+Acceptance criteria:
+
+- The batch passes local validation.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the run-summary inspection modes.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Documentation verification passed.
+- Focused ruff check passed.
+- Focused Instagram local pipeline tests passed.
+- Local `--show-latest-run-summary` command returned the expected no-data message without credentials or API calls.
+- Sensitive-pattern scan found only documented placeholder values, not real secrets.
+
+### TASK-220 - PR review for Instagram run summary inspection
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram run summary inspection batch.
+
+Acceptance criteria:
+
+- The PR is opened with the Instagram run summary inspection batch.
 - GitHub Actions and CodeRabbit are reviewed.
 - Any blocking feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
@@ -4256,7 +4345,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Package the Airflow local auth alignment for review.
+- Package the Instagram run summary inspection batch for review.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule

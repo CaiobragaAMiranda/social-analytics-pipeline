@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-216 - PR review for Airflow local auth alignment
-- Last completed delivery: TASK-215 - Package Airflow local auth alignment
+- Current task: TASK-220 - PR review for Instagram run summary inspection
+- Last completed delivery: TASK-219 - Package Instagram run summary inspection
 
 ## Workflow
 
@@ -73,6 +73,8 @@ The compact local Instagram operator flow is documented in `docs/INSTAGRAM_LOCAL
 The same command accepts one-off interval overrides through `--start-at`, `--end-at` and `--lookback-days`.
 
 Use `--fail-if-empty` when local automation should treat a zero-record Instagram run as a failure.
+
+Use `--latest-run-summary` or `--show-latest-run-summary` to inspect the latest local Instagram run summary without credentials or API calls.
 
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 
