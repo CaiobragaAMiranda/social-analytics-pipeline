@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-213 - PR review for Instagram local operator batch
-- Last completed delivery: TASK-212 - Package Instagram local operator batch
+- Current task: TASK-216 - PR review for Airflow local auth alignment
+- Last completed delivery: TASK-215 - Package Airflow local auth alignment
 
 ## Workflow
 

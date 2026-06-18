@@ -18,17 +18,17 @@
 
 ## Current Task
 
-### TASK-213 - PR review for Instagram local operator batch
+### TASK-216 - PR review for Airflow local auth alignment
 
 Status: Pending
 
 Phase: Governance
 
-Goal: review GitHub Actions and CodeRabbit feedback for the Instagram local operator batch.
+Goal: review GitHub Actions and CodeRabbit feedback for the Airflow local authentication alignment.
 
 Acceptance criteria:
 
-- The PR is opened with the Instagram local operator batch.
+- The PR is opened with the Airflow local auth alignment.
 - GitHub Actions and CodeRabbit are reviewed.
 - Any blocking feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
@@ -4165,7 +4165,7 @@ Evidence:
 
 ### TASK-213 - PR review for Instagram local operator batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -4174,6 +4174,75 @@ Goal: review GitHub Actions and CodeRabbit feedback for the Instagram local oper
 Acceptance criteria:
 
 - The PR is opened with the Instagram local operator batch.
+- GitHub Actions and CodeRabbit are reviewed.
+- Any blocking feedback is addressed.
+- The PR is merged when checks are green and the branch is mergeable.
+
+Evidence:
+
+- PR #52 was opened and merged.
+- GitHub Quality Gates passed.
+- GitHub Secret scan passed.
+- CodeRabbit status was successful; detailed automatic review remained disabled by repository settings.
+
+### TASK-214 - Airflow local UI auth alignment
+
+Status: Done
+
+Phase: Local operations
+
+Goal: make Airflow 3.2.1 local UI login use the configured local admin variables without exposing their contents.
+
+Acceptance criteria:
+
+- Airflow uses the local FAB auth manager for the UI.
+- Airflow init creates or updates the local admin user from `AIRFLOW_ADMIN_USERNAME` and `AIRFLOW_ADMIN_PASSWORD`.
+- The password is not printed during init or validation.
+- Local docs explain the login flow without showing credential values.
+- Local generated DLQ and run-summary artifacts are ignored by Git.
+
+Evidence:
+
+- Compose now sets the local Airflow auth manager to FAB.
+- Compose init creates the configured admin user or resets its password through Airflow's user commands.
+- Login validation returned `auth_status=ok` using environment variables without printing the token or password.
+- `.env.example` no longer contains a concrete Airflow password value.
+- `.gitignore` now excludes `data/dlq/` and `data/runs/`.
+
+### TASK-215 - Package Airflow local auth alignment
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Airflow local authentication alignment.
+
+Acceptance criteria:
+
+- The batch passes local validation.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the local Airflow UI credential flow.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Documentation verification passed.
+- `docker compose config --quiet` passed.
+- Airflow API server is healthy.
+- Login validation returned `auth_status=ok` using environment variables without printing credentials or tokens.
+- Sensitive-pattern scan found placeholders and templated Compose variables only, not real secrets.
+
+### TASK-216 - PR review for Airflow local auth alignment
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Airflow local authentication alignment.
+
+Acceptance criteria:
+
+- The PR is opened with the Airflow local auth alignment.
 - GitHub Actions and CodeRabbit are reviewed.
 - Any blocking feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
@@ -4187,7 +4256,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Package the Instagram local operator batch for review.
+- Package the Airflow local auth alignment for review.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule
