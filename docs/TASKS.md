@@ -18,21 +18,20 @@
 
 ## Current Task
 
-### TASK-202 - PR review for Instagram provider depth batch
+### TASK-203 - Instagram provider next slice decision
 
 Status: Pending
 
 Phase: Governance
 
-Goal: review GitHub Actions and CodeRabbit feedback for the Instagram provider depth batch.
+Goal: choose the next small Instagram provider-depth task after retry and report operator parity.
 
 Acceptance criteria:
 
-- The PR is open with the Instagram provider depth batch.
-- GitHub Actions checks are reviewed.
-- CodeRabbit feedback is reviewed according to the documented policy.
-- Any blocker is fixed before merge.
-- If checks are green and no blocker exists, the PR can be merged.
+- The next Instagram slice is chosen before implementation.
+- The decision considers report parity, local runbook clarity and real-run readiness.
+- TikTok, PostgreSQL loading, Airflow DAGs and broad dashboard redesign remain explicitly deferred unless selected.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -3914,7 +3913,7 @@ Evidence:
 
 ### TASK-202 - PR review for Instagram provider depth batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3927,6 +3926,29 @@ Acceptance criteria:
 - CodeRabbit feedback is reviewed according to the documented policy.
 - Any blocker is fixed before merge.
 - If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #49 was opened for the Instagram provider depth batch.
+- GitHub Actions `Python quality and security` completed successfully.
+- GitHub Actions `Secret scan` completed successfully.
+- CodeRabbit status completed successfully.
+- PR #49 was squash-merged into `master` with no blocking findings.
+
+### TASK-203 - Instagram provider next slice decision
+
+Status: Pending
+
+Phase: Governance
+
+Goal: choose the next small Instagram provider-depth task after retry and report operator parity.
+
+Acceptance criteria:
+
+- The next Instagram slice is chosen before implementation.
+- The decision considers report parity, local runbook clarity and real-run readiness.
+- TikTok, PostgreSQL loading, Airflow DAGs and broad dashboard redesign remain explicitly deferred unless selected.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
 ## Deferred Until After v1 Closure
 

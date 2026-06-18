@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-202 - PR review for Instagram provider depth batch
-- Last completed delivery: TASK-201 - Package Instagram provider depth batch
+- Current task: TASK-203 - Instagram provider next slice decision
+- Last completed delivery: TASK-202 - PR review for Instagram provider depth batch
 
 ## Workflow
 
