@@ -1,4 +1,5 @@
 import os
+import time
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
@@ -7,6 +8,9 @@ from typing import Any
 from social_analytics_pipeline.providers.base import SocialProvider
 
 INSTAGRAM_GRAPH_API_BASE_URL = "https://graph.facebook.com"
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+DEFAULT_HTTP_MAX_ATTEMPTS = 3
+DEFAULT_HTTP_BACKOFF_SECONDS = 1.0
 DEFAULT_INSTAGRAM_MEDIA_FIELDS = (
     "id,media_type,timestamp,like_count,comments_count,caption,permalink,"
     "media_url,thumbnail_url,plays,impressions,shares"
@@ -14,39 +18,70 @@ DEFAULT_INSTAGRAM_MEDIA_FIELDS = (
 
 
 class InstagramHttpJsonClient:
+    def __init__(
+        self,
+        max_attempts: int = DEFAULT_HTTP_MAX_ATTEMPTS,
+        backoff_seconds: float = DEFAULT_HTTP_BACKOFF_SECONDS,
+        sleeper: Any | None = None,
+    ) -> None:
+        self.max_attempts = max_attempts
+        self.backoff_seconds = backoff_seconds
+        self.sleeper = sleeper or time.sleep
+
     def get_json(self, url: str, params: Mapping[str, str | int]) -> dict[str, Any]:
         try:
             import requests
         except ImportError as exc:
             raise RuntimeError("Install requests to use InstagramGraphApiProvider.") from exc
 
-        try:
-            response = requests.get(
-                url,
-                params=params,
-                headers={"Accept": "application/json"},
-                timeout=30,
-            )
-            response.raise_for_status()
-            payload = response.json()
-        except requests.RequestException as exc:
-            status_code = getattr(getattr(exc, "response", None), "status_code", None)
-            if status_code in {401, 403}:
-                raise RuntimeError(
-                    f"Instagram API request failed with status {status_code}. "
-                    "Check local credentials and account permissions before retrying."
-                ) from None
-            if status_code:
-                raise RuntimeError(
-                    f"Instagram API request failed with status {status_code}."
-                ) from None
-            raise RuntimeError(
-                "Instagram API request failed before a response was returned."
-            ) from None
+        for attempt in range(1, self.max_attempts + 1):
+            try:
+                response = requests.get(
+                    url,
+                    params=params,
+                    headers={"Accept": "application/json"},
+                    timeout=30,
+                )
+                response.raise_for_status()
+                payload = response.json()
+            except requests.RequestException as exc:
+                if not self._should_retry(exc, requests) or attempt == self.max_attempts:
+                    raise RuntimeError(self._build_error_message(exc, attempt)) from None
 
-        if not isinstance(payload, dict):
-            raise RuntimeError("Instagram API response must contain an object.")
-        return payload
+                self.sleeper(self.backoff_seconds * attempt)
+                continue
+
+            if not isinstance(payload, dict):
+                raise RuntimeError("Instagram API response must contain an object.")
+            return payload
+
+        raise RuntimeError("Instagram API request failed before a response was returned.")
+
+    def _should_retry(self, exc: Exception, requests_module: Any) -> bool:
+        if isinstance(exc, requests_module.Timeout | requests_module.ConnectionError):
+            return True
+
+        status_code = getattr(getattr(exc, "response", None), "status_code", None)
+        return status_code in RETRYABLE_STATUS_CODES
+
+    def _build_error_message(self, exc: Exception, attempt: int) -> str:
+        status_code = getattr(getattr(exc, "response", None), "status_code", None)
+        if status_code in {401, 403}:
+            return (
+                f"Instagram API request failed with status {status_code}. "
+                "Check local credentials and account permissions before retrying."
+            )
+        if status_code:
+            if status_code in RETRYABLE_STATUS_CODES and attempt > 1:
+                return (
+                    f"Instagram API request failed with status {status_code} "
+                    f"after {attempt} attempts."
+                )
+            return f"Instagram API request failed with status {status_code}."
+
+        if attempt > 1:
+            return f"Instagram API request failed after {attempt} attempts due to a network error."
+        return "Instagram API request failed before a response was returned."
 
 
 @dataclass(frozen=True)
@@ -56,6 +91,8 @@ class InstagramApiConfig:
     base_url: str = INSTAGRAM_GRAPH_API_BASE_URL
     max_pages: int = 1
     media_fields: str = DEFAULT_INSTAGRAM_MEDIA_FIELDS
+    http_max_attempts: int = DEFAULT_HTTP_MAX_ATTEMPTS
+    http_backoff_seconds: float = DEFAULT_HTTP_BACKOFF_SECONDS
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "InstagramApiConfig":
@@ -73,11 +110,31 @@ class InstagramApiConfig:
         if max_pages < 1:
             raise RuntimeError("INSTAGRAM_MAX_PAGES must be greater than or equal to 1.")
 
+        http_max_attempts = _parse_positive_int(
+            runtime_env,
+            "INSTAGRAM_HTTP_MAX_ATTEMPTS",
+            default=DEFAULT_HTTP_MAX_ATTEMPTS,
+        )
+        if http_max_attempts < 1:
+            raise RuntimeError("INSTAGRAM_HTTP_MAX_ATTEMPTS must be greater than or equal to 1.")
+
+        http_backoff_seconds = _parse_positive_float(
+            runtime_env,
+            "INSTAGRAM_HTTP_BACKOFF_SECONDS",
+            default=DEFAULT_HTTP_BACKOFF_SECONDS,
+        )
+        if http_backoff_seconds < 0:
+            raise RuntimeError(
+                "INSTAGRAM_HTTP_BACKOFF_SECONDS must be greater than or equal to 0."
+            )
+
         return cls(
             access_token=access_token,
             account_id=account_id,
             base_url=runtime_env.get("INSTAGRAM_GRAPH_API_BASE_URL", INSTAGRAM_GRAPH_API_BASE_URL),
             max_pages=max_pages,
+            http_max_attempts=http_max_attempts,
+            http_backoff_seconds=http_backoff_seconds,
         )
 
 
@@ -90,7 +147,10 @@ class InstagramGraphApiProvider(SocialProvider):
         http_client: InstagramHttpJsonClient | None = None,
     ) -> None:
         self.config = config
-        self.http_client = http_client or InstagramHttpJsonClient()
+        self.http_client = http_client or InstagramHttpJsonClient(
+            max_attempts=config.http_max_attempts,
+            backoff_seconds=config.http_backoff_seconds,
+        )
 
     def collect_metrics(
         self,
@@ -179,3 +239,17 @@ def _parse_positive_int(
         return int(raw_value)
     except ValueError as exc:
         raise RuntimeError(f"{key} must be an integer.") from exc
+
+
+def _parse_positive_float(
+    env: Mapping[str, str],
+    key: str,
+    default: float,
+) -> float:
+    raw_value = env.get(key)
+    if raw_value is None:
+        return default
+    try:
+        return float(raw_value)
+    except ValueError as exc:
+        raise RuntimeError(f"{key} must be a number.") from exc

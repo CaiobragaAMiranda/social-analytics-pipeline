@@ -42,6 +42,21 @@ def list_instagram_processed_artifacts(project_root: Path) -> list[Path]:
     return sorted(artifact_dir.glob("instagram-*.json"))
 
 
+def build_instagram_artifact_listing(project_root: Path) -> list[str]:
+    return [
+        _display_path(path, project_root)
+        for path in list_instagram_processed_artifacts(project_root)
+    ]
+
+
+def build_latest_instagram_artifact_listing(project_root: Path) -> str:
+    return _display_path(find_latest_instagram_processed_artifact(project_root), project_root)
+
+
+def count_instagram_processed_artifacts(project_root: Path) -> int:
+    return len(list_instagram_processed_artifacts(project_root))
+
+
 def find_latest_instagram_processed_artifact(project_root: Path) -> Path:
     artifacts = list_instagram_processed_artifacts(project_root)
     if not artifacts:
@@ -224,8 +239,33 @@ def main(
     top_limit: int = DEFAULT_TOP_LIMIT,
     sort_by: str = DEFAULT_SORT_BY,
     fail_if_empty: bool = False,
+    dry_run: bool = False,
+    list_artifacts: bool = False,
+    latest_artifact: bool = False,
+    count_artifacts: bool = False,
+    fail_if_missing: bool = False,
 ) -> int:
     root = project_root or Path.cwd()
+
+    if count_artifacts:
+        artifact_count = count_instagram_processed_artifacts(root)
+        print(artifact_count)
+        return 1 if fail_if_missing and artifact_count == 0 else 0
+
+    if latest_artifact:
+        print(build_latest_instagram_artifact_listing(root))
+        return 0
+
+    if list_artifacts:
+        artifacts = build_instagram_artifact_listing(root)
+        if not artifacts:
+            print("No processed Instagram artifacts found.")
+            return 1 if fail_if_missing else 0
+
+        for artifact in artifacts:
+            print(artifact)
+        return 0
+
     target = artifact_path or find_latest_instagram_processed_artifact(root)
     summary = build_instagram_report_summary(target, top_limit, sort_by)
     if fail_if_empty and summary.records < 1:
@@ -233,10 +273,20 @@ def main(
             print("Selected Instagram artifact has 0 records; required at least 1.")
         return 1
 
+    planned_report_path = json_output_path or build_instagram_report_json_output_path(root, target)
+    if dry_run:
+        if not quiet:
+            print("Instagram report dry run")
+            print(f"artifact_path={_display_path(summary.artifact_path, root)}")
+            print(f"records={summary.records}")
+            print(f"sort_by={summary.sort_by}")
+            print(f"json_output_path={_display_path(planned_report_path, root)}")
+        return 0
+
     report_path = write_instagram_report_json(
         summary,
         root,
-        json_output_path,
+        planned_report_path,
         indent=json_indent,
     )
     if not quiet:
@@ -280,9 +330,35 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--quiet", action="store_true", help="Suppress summary output.")
     parser.add_argument("--print-json", action="store_true", help="Print JSON to stdout.")
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate selected inputs and show planned report output without writing files.",
+    )
+    parser.add_argument(
         "--fail-if-empty",
         action="store_true",
         help="Exit with failure when the selected artifact has no records.",
+    )
+    list_group = parser.add_mutually_exclusive_group()
+    list_group.add_argument(
+        "--list-artifacts",
+        action="store_true",
+        help="List processed Instagram artifacts without writing a report.",
+    )
+    list_group.add_argument(
+        "--latest-artifact",
+        action="store_true",
+        help="Print the latest processed Instagram artifact path without writing a report.",
+    )
+    list_group.add_argument(
+        "--count-artifacts",
+        action="store_true",
+        help="Print the processed Instagram artifact count without writing a report.",
+    )
+    parser.add_argument(
+        "--fail-if-missing",
+        action="store_true",
+        help="Exit with failure in list-only modes when no processed artifacts exist.",
     )
     parser.add_argument(
         "--top",
@@ -311,6 +387,11 @@ def cli_entrypoint() -> int:
             top_limit=args.top,
             sort_by=args.sort_by,
             fail_if_empty=args.fail_if_empty,
+            dry_run=args.dry_run,
+            list_artifacts=args.list_artifacts,
+            latest_artifact=args.latest_artifact,
+            count_artifacts=args.count_artifacts,
+            fail_if_missing=args.fail_if_missing,
         )
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)

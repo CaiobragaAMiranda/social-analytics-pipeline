@@ -7,12 +7,16 @@ from pathlib import Path
 from unittest import mock
 
 from social_analytics_pipeline.cli.instagram_report import (
+    build_instagram_artifact_listing,
     build_instagram_report_json_payload,
     build_instagram_report_summary,
+    build_latest_instagram_artifact_listing,
     cli_entrypoint,
+    count_instagram_processed_artifacts,
     find_latest_instagram_processed_artifact,
     load_instagram_report_rows,
     main,
+    parse_args,
     write_instagram_report_json,
 )
 
@@ -175,6 +179,141 @@ class InstagramReportTest(unittest.TestCase):
             "No processed Instagram",
         ):
             find_latest_instagram_processed_artifact(Path(tmpdir))
+
+    def test_build_instagram_artifact_listing_uses_sorted_relative_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "instagram"
+            artifact_dir.mkdir(parents=True)
+            older = artifact_dir / "instagram-20260501T000000-20260502T000000.json"
+            newer = artifact_dir / "instagram-20260502T000000-20260503T000000.json"
+            newer.write_text("[]", encoding="utf-8")
+            older.write_text("[]", encoding="utf-8")
+
+            listing = build_instagram_artifact_listing(project_root)
+            latest = build_latest_instagram_artifact_listing(project_root)
+            count = count_instagram_processed_artifacts(project_root)
+
+        self.assertEqual(
+            listing,
+            [
+                "data/processed/instagram/instagram-20260501T000000-20260502T000000.json",
+                "data/processed/instagram/instagram-20260502T000000-20260503T000000.json",
+            ],
+        )
+        self.assertEqual(
+            latest,
+            "data/processed/instagram/instagram-20260502T000000-20260503T000000.json",
+        )
+        self.assertEqual(count, 2)
+
+    def test_main_list_artifacts_prints_processed_instagram_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "instagram"
+            artifact_dir.mkdir(parents=True)
+            artifact_path = artifact_dir / "instagram-20260501T000000-20260502T000000.json"
+            artifact_path.write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root=project_root, list_artifacts=True)
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn(
+            "data/processed/instagram/instagram-20260501T000000-20260502T000000.json",
+            stdout.getvalue(),
+        )
+
+    def test_main_count_artifacts_can_fail_when_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root=Path(tmpdir),
+                    count_artifacts=True,
+                    fail_if_missing=True,
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout.getvalue().strip(), "0")
+
+    def test_main_latest_artifact_prints_latest_processed_instagram_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "instagram"
+            artifact_dir.mkdir(parents=True)
+            older = artifact_dir / "instagram-20260501T000000-20260502T000000.json"
+            newer = artifact_dir / "instagram-20260502T000000-20260503T000000.json"
+            older.write_text("[]", encoding="utf-8")
+            newer.write_text("[]", encoding="utf-8")
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root=project_root, latest_artifact=True)
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            stdout.getvalue().strip(),
+            "data/processed/instagram/instagram-20260502T000000-20260503T000000.json",
+        )
+
+    def test_main_dry_run_prints_plan_without_writing_report(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "instagram"
+            artifact_dir.mkdir(parents=True)
+            artifact_path = artifact_dir / "instagram-20260501T000000-20260502T000000.json"
+            artifact_path.write_text(
+                json.dumps([{"content_id": "ig-post-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            report_path = (
+                project_root
+                / "data"
+                / "reports"
+                / "instagram-json"
+                / "instagram-20260501T000000-20260502T000000.json"
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(project_root=project_root, dry_run=True)
+
+            report_exists = report_path.exists()
+
+        self.assertEqual(exit_code, 0)
+        self.assertFalse(report_exists)
+        self.assertIn("Instagram report dry run", stdout.getvalue())
+        self.assertIn(
+            "artifact_path=data/processed/instagram/"
+            "instagram-20260501T000000-20260502T000000.json",
+            stdout.getvalue(),
+        )
+        self.assertIn("records=1", stdout.getvalue())
+        self.assertIn("sort_by=views", stdout.getvalue())
+        self.assertIn(
+            "json_output_path=data/reports/instagram-json/"
+            "instagram-20260501T000000-20260502T000000.json",
+            stdout.getvalue(),
+        )
+
+    def test_parse_args_accepts_list_only_modes(self) -> None:
+        list_args = parse_args(["--list-artifacts", "--fail-if-missing"])
+        latest_args = parse_args(["--latest-artifact"])
+        count_args = parse_args(["--count-artifacts"])
+        dry_run_args = parse_args(["--dry-run"])
+
+        self.assertTrue(list_args.list_artifacts)
+        self.assertTrue(list_args.fail_if_missing)
+        self.assertTrue(latest_args.latest_artifact)
+        self.assertTrue(count_args.count_artifacts)
+        self.assertTrue(dry_run_args.dry_run)
+
+    def test_parse_args_rejects_multiple_list_only_modes(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["--list-artifacts", "--latest-artifact"])
 
     def test_load_instagram_report_rows_rejects_non_list_payload(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

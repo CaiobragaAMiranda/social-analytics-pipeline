@@ -18,20 +18,21 @@
 
 ## Current Task
 
-### TASK-196 - Post-v1 delivery decision
+### TASK-202 - PR review for Instagram provider depth batch
 
 Status: Pending
 
 Phase: Governance
 
-Goal: choose the next delivery direction after the dashboard v1 closure.
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram provider depth batch.
 
 Acceptance criteria:
 
-- The next slice is chosen before implementation starts.
-- The decision compares at least provider expansion, dashboard product polish and operational quality.
-- The decision states what is included and explicitly deferred.
-- The decision keeps public documentation free of secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+- The PR is open with the Instagram provider depth batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -3776,7 +3777,7 @@ Evidence:
 
 ### TASK-196 - Post-v1 delivery decision
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -3789,6 +3790,144 @@ Acceptance criteria:
 - The decision states what is included and explicitly deferred.
 - The decision keeps public documentation free of secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
+Evidence:
+
+- ADR-0003 compares provider expansion, dashboard product polish and operational quality.
+- ADR-0003 chooses Instagram provider depth as the next delivery direction.
+- The decision includes current Instagram provider/report/dashboard compatibility review before implementation.
+- TikTok, cloud deployment, advanced observability, large-scale async fetching and broad dashboard redesign remain deferred.
+
+### TASK-197 - Instagram provider depth gap review
+
+Status: Done
+
+Phase: Governance
+
+Goal: inspect the current Instagram provider path and define the smallest useful real-provider depth slice.
+
+Acceptance criteria:
+
+- Current Instagram provider, report and dashboard compatibility are reviewed.
+- The review identifies what already works and what blocks a useful local Instagram real-provider flow.
+- The next implementation tasks are scoped without adding TikTok, cloud deployment or broad orchestration changes.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- `docs/INSTAGRAM_PROVIDER_GAP_REVIEW.md` records current Instagram strengths and gaps.
+- The review confirms the provider, local pipeline, report command and dashboard smoke path already exist.
+- Focused Instagram provider, local pipeline, report and dashboard smoke tests passed locally.
+- The next slice is provider resilience for transient Instagram HTTP failures.
+- TikTok, PostgreSQL loading, Airflow DAGs, cloud deployment and broad dashboard redesign remain deferred.
+
+### TASK-198 - Instagram provider transient retry
+
+Status: Done
+
+Phase: Provider depth
+
+Goal: add retry/backoff behavior for transient Instagram HTTP failures.
+
+Acceptance criteria:
+
+- Instagram retries transient HTTP failures such as rate limits and server errors.
+- Credential failures still fail fast for unauthorized or forbidden responses.
+- Error messages stay sanitized and do not print tokens, raw request URLs, local paths or raw payloads.
+- Tests cover retry success, retry exhaustion and fail-fast credential errors.
+
+Evidence:
+
+- `InstagramHttpJsonClient` now retries transient statuses and network-style request errors using configurable attempts and backoff.
+- Unauthorized and forbidden responses still fail fast with sanitized messages.
+- `.env.example` now exposes local retry tuning placeholders.
+- Bootstrap notes mention local Instagram retry tuning without adding real credentials.
+- Focused Instagram provider, pipeline and report tests passed.
+
+### TASK-199 - Instagram report operator parity
+
+Status: Done
+
+Phase: Provider depth
+
+Goal: make `instagram-report` closer to the mature YouTube report operator flow.
+
+Acceptance criteria:
+
+- The report command supports at least one missing operator convenience identified in the gap review.
+- Existing `instagram-report` behavior remains backward compatible.
+- Documentation describes only supported Instagram report options.
+- Tests cover the new operator behavior.
+
+Evidence:
+
+- `instagram-report` now supports `--list-artifacts`, `--latest-artifact`, `--count-artifacts` and `--fail-if-missing`.
+- List-only modes use sorted processed Instagram artifact paths and relative display paths.
+- Existing report generation behavior remains unchanged.
+- Bootstrap documents only the supported Instagram report list-only modes.
+- Focused `instagram-report` lint and tests passed.
+
+### TASK-200 - Instagram report dry-run planning
+
+Status: Done
+
+Phase: Provider depth
+
+Goal: let operators preview Instagram report paths and selected artifact details without writing files.
+
+Acceptance criteria:
+
+- `instagram-report` supports a dry-run mode.
+- Dry-run prints the selected artifact, record count, sorting and planned JSON output path.
+- Dry-run does not write report files.
+- Existing `instagram-report` behavior remains backward compatible.
+- Tests cover dry-run output and no-write behavior.
+
+Evidence:
+
+- `instagram-report` now supports `--dry-run`.
+- Dry-run prints selected artifact, records, sorting and planned JSON output path.
+- Dry-run returns before writing report files.
+- Bootstrap documents the supported dry-run option.
+- Focused `instagram-report` lint and tests passed.
+
+### TASK-201 - Package Instagram provider depth batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Instagram provider depth batch.
+
+Acceptance criteria:
+
+- The batch passes local validation.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the Instagram direction, gap review and operator changes.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Local validation passed with docs verification, Ruff, unit tests and Bandit.
+- Sensitive-pattern scan found only existing safe placeholders in `.env.example` and bootstrap docs.
+- Documentation records ADR-0003, the Instagram provider gap review and operator changes.
+- The branch is prepared for commit and PR review through GitHub Actions and CodeRabbit.
+
+### TASK-202 - PR review for Instagram provider depth batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram provider depth batch.
+
+Acceptance criteria:
+
+- The PR is open with the Instagram provider depth batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -3798,8 +3937,8 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Choose the post-v1 delivery path: second real provider depth, dashboard product polish or operational quality.
-- Keep extra architecture refinement deferred unless it directly unlocks the selected post-v1 delivery.
+- Package the Instagram provider depth batch for review.
+- Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule
 
