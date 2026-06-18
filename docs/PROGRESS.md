@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-213 - PR review for Instagram local operator batch.
+Current task: TASK-216 - PR review for Airflow local auth alignment.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -240,6 +240,10 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - Do not commit real API keys, channel IDs, payloads, local paths, ports, IPs or expanded DSNs.
 - Gemini CLI review may be unavailable when local auth is invalid; GitHub Actions and CodeRabbit remain required on PRs.
 - Instagram real-provider work must use official Meta APIs and authorized professional accounts only.
+- PR #52 merged the Instagram local operator batch with GitHub quality gates and secret scan passing.
+- Local Airflow UI authentication now uses `AIRFLOW_ADMIN_USERNAME` and `AIRFLOW_ADMIN_PASSWORD` through Airflow 3.2.1 SimpleAuthManager without printing credential values.
+- Local DLQ and run-summary artifact directories are ignored by Git.
+- The Airflow local auth alignment passed documentation verification, Compose validation and login validation without printing credentials.
 
 ## Next Actions
 
