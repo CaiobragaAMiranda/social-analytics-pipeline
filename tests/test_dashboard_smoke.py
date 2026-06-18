@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import re
 import shutil
 import tempfile
 import unittest
@@ -27,22 +28,51 @@ class DashboardSmokeTest(unittest.TestCase):
             channels_config = json.loads(
                 summary.channels_config_path.read_text(encoding="utf-8")
             )
+            smoke_root = project_root / "data/temp/dashboard-smoke"
+            youtube_report_count = len(
+                list((smoke_root / "data/reports/youtube-json").glob("*.json"))
+            )
+            instagram_report_count = len(
+                list((smoke_root / "data/reports/instagram-json").glob("*.json"))
+            )
             youtube_processed_exists = summary.youtube_processed_path.exists()
             instagram_processed_exists = summary.instagram_processed_path.exists()
 
         self.assertTrue(youtube_processed_exists)
         self.assertTrue(instagram_processed_exists)
+        self.assertEqual(youtube_report_count, 2)
+        self.assertEqual(instagram_report_count, 2)
         self.assertEqual(
-            channels_config["channels"][0]["display_name"],
-            "Sample Monitored Channel",
+            [channel["display_name"] for channel in channels_config["channels"]],
+            ["Growth Lab", "Creator Studio", "Launch Room"],
         )
+        self.assertIn("tiktok", channels_config["channels"][0]["platforms"])
         self.assertEqual(youtube_report["source"]["provider"], "youtube")
         self.assertEqual(instagram_report["source"]["provider"], "instagram")
-        self.assertIn("Sample Monitored Channel", dashboard_html)
-        self.assertIn('<option value="0">Sample Monitored Channel</option>', dashboard_html)
-        self.assertNotIn('<option value="1">', dashboard_html)
+        self.assertEqual(youtube_report["source"]["channel_name"], "Growth Lab")
+        self.assertEqual(instagram_report["source"]["channel_name"], "Growth Lab")
+        self.assertIn("Growth Lab", dashboard_html)
+        self.assertIn("Creator Studio", dashboard_html)
+        self.assertIn("Launch Room", dashboard_html)
+        channel_options = re.findall(r'<option value="\d+">([^<]+)</option>', dashboard_html)
+        self.assertEqual(sorted(channel_options), ["Creator Studio", "Growth Lab", "Launch Room"])
+        self.assertNotIn('<option value="0">youtube</option>', dashboard_html.lower())
         self.assertIn('"provider": "youtube"', dashboard_html)
         self.assertIn('"provider": "instagram"', dashboard_html)
+
+    def test_run_dashboard_smoke_removes_stale_smoke_reports(self) -> None:
+        with self._sample_project_root() as tmpdir:
+            project_root = Path(tmpdir)
+            stale_report = (
+                project_root
+                / "data/temp/dashboard-smoke/data/reports/youtube-json/stale.json"
+            )
+            stale_report.parent.mkdir(parents=True)
+            stale_report.write_text("{}", encoding="utf-8")
+
+            run_dashboard_smoke(project_root)
+
+            self.assertFalse(stale_report.exists())
 
     def test_main_writes_relative_output_under_project_root(self) -> None:
         with self._sample_project_root() as tmpdir:
