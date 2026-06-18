@@ -130,6 +130,9 @@ Use only one list-only mode at a time: `--list-artifacts`, `--latest-artifact` o
 Instagram dashboard JSON report:
 
 See `docs/INSTAGRAM_LOCAL_RUNBOOK.md` for the compact end-to-end local Instagram operator flow.
+Use `instagram-local-pipeline --dry-run` to preview the local collection interval and artifact paths without credentials or API calls.
+Use `--start-at`, `--end-at` and `--lookback-days` with `instagram-local-pipeline` when you need a one-off local interval without editing `.env`.
+Use `--fail-if-empty` with `instagram-local-pipeline` when automation should fail a real local run that loads zero records.
 
 ```powershell
 $env:PYTHONPATH = "src"

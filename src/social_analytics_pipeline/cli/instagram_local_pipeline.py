@@ -1,3 +1,4 @@
+import argparse
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -102,7 +103,19 @@ def build_instagram_local_loader(
 def resolve_instagram_interval(
     runtime_env: Mapping[str, str],
     now: datetime | None = None,
+    start_at_override: str | None = None,
+    end_at_override: str | None = None,
+    lookback_days_override: int | None = None,
 ) -> tuple[datetime, datetime]:
+    if start_at_override or end_at_override:
+        if not start_at_override or not end_at_override:
+            raise RuntimeError("--start-at and --end-at must be set together.")
+        start_at = _parse_configured_datetime(start_at_override, "--start-at")
+        end_at = _parse_configured_datetime(end_at_override, "--end-at")
+        if start_at > end_at:
+            raise RuntimeError("--start-at must be before or equal to --end-at.")
+        return start_at, end_at
+
     start_value = runtime_env.get("INSTAGRAM_BACKFILL_START_AT", "").strip()
     end_value = runtime_env.get("INSTAGRAM_BACKFILL_END_AT", "").strip()
     if start_value or end_value:
@@ -119,13 +132,15 @@ def resolve_instagram_interval(
             )
         return start_at, end_at
 
-    lookback_days = _parse_positive_int(
-        runtime_env,
-        "INSTAGRAM_SMOKE_LOOKBACK_DAYS",
-        DEFAULT_INSTAGRAM_LOOKBACK_DAYS,
-    )
+    lookback_days = lookback_days_override
+    if lookback_days is None:
+        lookback_days = _parse_positive_int(
+            runtime_env,
+            "INSTAGRAM_SMOKE_LOOKBACK_DAYS",
+            DEFAULT_INSTAGRAM_LOOKBACK_DAYS,
+        )
     if lookback_days < 1:
-        raise RuntimeError("INSTAGRAM_SMOKE_LOOKBACK_DAYS must be greater than or equal to 1.")
+        raise RuntimeError("Instagram lookback days must be greater than or equal to 1.")
 
     end_at = now or datetime.now(UTC)
     return end_at - timedelta(days=lookback_days), end_at
@@ -161,15 +176,33 @@ def build_instagram_run_summary_payload(
     }
 
 
-def main(env: Mapping[str, str] | None = None, project_root: Path | None = None) -> int:
+def main(
+    env: Mapping[str, str] | None = None,
+    project_root: Path | None = None,
+    argv: list[str] | None = None,
+) -> int:
     root = project_root or Path.cwd()
+    args = parse_args(argv or [])
     runtime_env = build_runtime_env(env, root / ".env")
+    start_at, end_at = resolve_instagram_interval(
+        runtime_env,
+        start_at_override=args.start_at,
+        end_at_override=args.end_at,
+        lookback_days_override=args.lookback_days,
+    )
+    if args.dry_run:
+        return print_instagram_local_pipeline_dry_run(
+            runtime_env=runtime_env,
+            start_at=start_at,
+            end_at=end_at,
+            project_root=root,
+        )
+
     required_settings = require_instagram_settings(
         runtime_env,
         ("INSTAGRAM_ACCESS_TOKEN", "INSTAGRAM_USER_ID"),
         root / ".env",
     )
-    start_at, end_at = resolve_instagram_interval(runtime_env)
     provider = InstagramGraphApiProvider(InstagramApiConfig.from_env(runtime_env))
     account_id = required_settings["INSTAGRAM_USER_ID"]
     loader, processed_path = build_instagram_local_loader(
@@ -187,6 +220,7 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
         project_root=root,
         loader=loader,
     )
+    enforce_instagram_loaded_records(summary, fail_if_empty=args.fail_if_empty)
 
     print("Instagram local pipeline summary")
     print(f"provider={summary.result.provider}")
@@ -199,6 +233,54 @@ def main(env: Mapping[str, str] | None = None, project_root: Path | None = None)
     print(f"processed_path={processed_path.relative_to(root).as_posix()}")
     print(f"raw_root={summary.raw_root.relative_to(root).as_posix()}")
     print(f"run_summary_path={summary.run_summary_path.relative_to(root).as_posix()}")
+    return 0
+
+
+def enforce_instagram_loaded_records(
+    summary: InstagramLocalPipelineSummary,
+    fail_if_empty: bool,
+) -> None:
+    if fail_if_empty and summary.result.loaded_records == 0:
+        raise RuntimeError(
+            "Instagram local pipeline loaded 0 records. Review account access, "
+            "the selected interval or media availability."
+        )
+
+
+def print_instagram_local_pipeline_dry_run(
+    runtime_env: Mapping[str, str],
+    start_at: datetime,
+    end_at: datetime,
+    project_root: Path,
+) -> int:
+    _, processed_path = build_instagram_local_loader(
+        runtime_env=runtime_env,
+        provider_name="instagram",
+        start_at=start_at,
+        end_at=end_at,
+        project_root=project_root,
+    )
+    raw_root = project_root / "data" / "raw"
+    run_summary_path = build_run_summary_artifact_path(
+        project_root / "data" / "runs" / "instagram",
+        "instagram",
+        start_at,
+        end_at,
+    )
+    credentials_configured = (
+        bool(runtime_env.get("INSTAGRAM_ACCESS_TOKEN"))
+        and bool(runtime_env.get("INSTAGRAM_USER_ID"))
+    )
+
+    print("Instagram local pipeline dry run")
+    print("provider=instagram")
+    print(f"credentials_configured={'yes' if credentials_configured else 'no'}")
+    print(f"interval_start_at={start_at.isoformat()}")
+    print(f"interval_end_at={end_at.isoformat()}")
+    print(f"load_target={runtime_env.get('INSTAGRAM_LOCAL_LOAD_TARGET', 'json').lower()}")
+    print(f"planned_processed_path={processed_path.relative_to(project_root).as_posix()}")
+    print(f"planned_raw_root={raw_root.relative_to(project_root).as_posix()}")
+    print(f"planned_run_summary_path={run_summary_path.relative_to(project_root).as_posix()}")
     return 0
 
 
@@ -238,9 +320,56 @@ def _parse_positive_int(env: Mapping[str, str], key: str, default: int) -> int:
         raise RuntimeError(f"{key} must be an integer.") from exc
 
 
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the local Instagram provider pipeline into ignored JSON artifacts."
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "Print the planned local Instagram pipeline inputs and artifact paths "
+            "without API calls."
+        ),
+    )
+    parser.add_argument(
+        "--start-at",
+        help="ISO-8601 interval start. Must be used with --end-at.",
+    )
+    parser.add_argument(
+        "--end-at",
+        help="ISO-8601 interval end. Must be used with --start-at.",
+    )
+    parser.add_argument(
+        "--lookback-days",
+        type=_parse_arg_positive_int,
+        help="Lookback window for default interval planning.",
+    )
+    parser.add_argument(
+        "--fail-if-empty",
+        action="store_true",
+        help="Fail after a real local run when no records are loaded.",
+    )
+    return parser.parse_args(argv)
+
+
+def _parse_arg_positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be greater than or equal to 1")
+    return parsed
+
+
+def cli_entrypoint() -> int:
+    return main(argv=sys.argv[1:])
+
+
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        raise SystemExit(cli_entrypoint())
     except RuntimeError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1) from None
