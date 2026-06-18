@@ -18,7 +18,7 @@ dependencies = [
 
 [project.scripts]
 dashboard-smoke = "social_analytics_pipeline.cli.dashboard_smoke:cli_entrypoint"
-instagram-local-pipeline = "social_analytics_pipeline.cli.instagram_local_pipeline:main"
+instagram-local-pipeline = "social_analytics_pipeline.cli.instagram_local_pipeline:cli_entrypoint"
 instagram-report = "social_analytics_pipeline.cli.instagram_report:cli_entrypoint"
 serve-dashboard = "social_analytics_pipeline.cli.serve_dashboard:cli_entrypoint"
 social-dashboard = "social_analytics_pipeline.cli.dashboard:cli_entrypoint"

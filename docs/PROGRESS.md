@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-207 - PR review for Instagram runbook parity batch.
+Current task: TASK-213 - PR review for Instagram local operator batch.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -220,6 +220,18 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - PR #49 passed GitHub Actions quality/security, secret scan and CodeRabbit, then was squash-merged into `master`.
 - The next Instagram slice is local runbook clarity: connect local credentials placeholders, pipeline execution, report generation, artifact checks and dashboard review.
 - The Instagram local runbook now documents safe local settings, collection, artifact checks, report dry-run, report generation and dashboard review.
+- PR #51 merged the Instagram runbook and report output directory batch with GitHub quality gates and secret scan passing.
+- The next Instagram operator slice adds local pipeline dry-run planning before real credentialed API execution.
+- `instagram-local-pipeline --dry-run` now previews interval, load target and planned artifact paths without credentials, API calls or writes.
+- The next Instagram operator slice adds command-line interval overrides so local runs do not require editing `.env` for each backfill check.
+- `instagram-local-pipeline` now accepts one-off interval overrides through `--start-at`, `--end-at` and `--lookback-days`.
+- The next Instagram operator slice adds an optional fail-if-empty guard for real local runs.
+- `instagram-local-pipeline --fail-if-empty` now lets automation fail a real local run that loads zero records.
+- The next Instagram operator slice is a small validation pass over CLI behavior and documentation before packaging the batch.
+- Instagram local operator option parsing and help text were validated with focused tests and command output.
+- The next step is packaging the local operator batch for PR review.
+- The Instagram local operator batch passed full local validation and sensitive-pattern review.
+- The next step is PR review through GitHub Actions and CodeRabbit.
 - `instagram-report` now supports `--json-output-dir` while preserving artifact-based report file names.
 
 ## Current Constraints

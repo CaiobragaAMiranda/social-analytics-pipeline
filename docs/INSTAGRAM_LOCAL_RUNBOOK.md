@@ -46,10 +46,42 @@ Do not commit `.env`, raw payloads, processed artifacts, run summaries or real a
 
 ## Run Local Collection
 
+Preview the local execution plan without credentials or API calls:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --dry-run
+```
+
+Preview a specific interval without editing `.env`:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --dry-run --start-at 2026-05-01T00:00:00Z --end-at 2026-05-31T00:00:00Z
+```
+
+Preview a lookback window without editing `.env`:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --dry-run --lookback-days 7
+```
+
+Success looks like:
+
+- The command prints `Instagram local pipeline dry run`.
+- The command shows whether local credentials are configured without printing them.
+- Planned raw, processed and run-summary paths are project-relative.
+- No API request is made and no artifact is written.
+
+Run the local collection:
+
 ```powershell
 $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.instagram_local_pipeline
 ```
+
+Use `--fail-if-empty` when automation should fail a real local run that loads zero records.
 
 Success looks like:
 

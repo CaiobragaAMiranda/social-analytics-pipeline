@@ -18,19 +18,19 @@
 
 ## Current Task
 
-### TASK-207 - PR review for Instagram runbook parity batch
+### TASK-213 - PR review for Instagram local operator batch
 
 Status: Pending
 
 Phase: Governance
 
-Goal: open and review the Instagram runbook parity batch PR.
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram local operator batch.
 
 Acceptance criteria:
 
-- The PR is opened against `master`.
+- The PR is opened with the Instagram local operator batch.
 - GitHub Actions and CodeRabbit are reviewed.
-- Any blocking review feedback is addressed.
+- Any blocking feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
@@ -4029,7 +4029,7 @@ Evidence:
 
 ### TASK-207 - PR review for Instagram runbook parity batch
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -4042,6 +4042,142 @@ Acceptance criteria:
 - Any blocking review feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
 
+Evidence:
+
+- PR #51 was opened and merged.
+- GitHub Quality Gates passed.
+- GitHub Secret scan passed.
+- CodeRabbit status was successful; detailed review was limited by the configured review quota.
+
+### TASK-208 - Instagram local pipeline dry-run planning
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators preview the local Instagram collection plan before using credentials or calling the API.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline --dry-run` does not require credentials.
+- Dry-run prints the selected interval, load target and planned artifact paths.
+- Dry-run does not call the API or write artifacts.
+- Documentation explains the safe dry-run step.
+- Tests cover the dry-run behavior.
+
+Evidence:
+
+- `instagram-local-pipeline --dry-run` now prints the provider, credential presence, interval, load target and planned artifact paths.
+- Dry-run does not require credentials, call the API or create local data artifacts.
+- Focused lint, focused tests, docs verification and a real dry-run command passed.
+
+### TASK-209 - Instagram local pipeline interval CLI overrides
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators choose Instagram local collection intervals from the command line.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` accepts explicit start/end interval arguments.
+- Explicit start/end arguments override environment backfill values.
+- Start/end arguments must be provided together.
+- A command-line lookback override is supported for default interval planning.
+- Tests cover interval override behavior.
+
+Evidence:
+
+- `instagram-local-pipeline` now accepts `--start-at`, `--end-at` and `--lookback-days`.
+- Explicit command-line intervals override `.env` backfill settings.
+- Partial start/end intervals fail clearly.
+- Focused lint, focused tests, docs verification and a dry-run with explicit interval passed.
+
+### TASK-210 - Instagram local pipeline empty-run guard
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators fail a real local Instagram run when no records are loaded.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` accepts `--fail-if-empty`.
+- The default behavior remains unchanged.
+- When enabled, a run with zero loaded records fails with a sanitized message.
+- Dry-run is not affected by `--fail-if-empty`.
+- Tests cover the empty-run guard.
+
+Evidence:
+
+- `instagram-local-pipeline` now accepts `--fail-if-empty`.
+- The default behavior still allows empty runs.
+- The optional guard raises a sanitized zero-record message.
+- Focused lint, focused tests and documentation verification passed.
+
+### TASK-211 - Instagram local pipeline operator validation pass
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: verify the Instagram local operator command surface before packaging the batch.
+
+Acceptance criteria:
+
+- The installed CLI entrypoint parses the new local operator options.
+- Dry-run remains safe with interval and empty-run options.
+- Help text documents the operator options.
+- Focused validation covers the final command surface.
+
+Evidence:
+
+- Parser tests cover `--dry-run`, `--start-at`, `--end-at`, `--lookback-days` and `--fail-if-empty`.
+- Dry-run with `--fail-if-empty` remains safe without credentials.
+- Command help lists the operator options.
+- Focused lint, focused tests and documentation verification passed.
+
+### TASK-212 - Package Instagram local operator batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Instagram local operator improvements.
+
+Acceptance criteria:
+
+- The batch passes local validation.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the local operator options.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Documentation verification passed.
+- Ruff passed.
+- Full unit test suite passed.
+- Bandit passed.
+- Sensitive-pattern scan found only documented placeholder values, not real secrets.
+- The batch is ready to commit and open as a PR.
+
+### TASK-213 - PR review for Instagram local operator batch
+
+Status: Pending
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram local operator batch.
+
+Acceptance criteria:
+
+- The PR is opened with the Instagram local operator batch.
+- GitHub Actions and CodeRabbit are reviewed.
+- Any blocking feedback is addressed.
+- The PR is merged when checks are green and the branch is mergeable.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -4051,7 +4187,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Package the Instagram runbook and report parity batch for review.
+- Package the Instagram local operator batch for review.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule

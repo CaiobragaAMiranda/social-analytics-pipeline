@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-207 - PR review for Instagram runbook parity batch
-- Last completed delivery: TASK-206 - Package Instagram runbook parity batch
+- Current task: TASK-213 - PR review for Instagram local operator batch
+- Last completed delivery: TASK-212 - Package Instagram local operator batch
 
 ## Workflow
 
@@ -67,6 +67,12 @@ The first dashboard slice exposes a `social-dashboard` command that reads report
 The Instagram provider is available through the explicit `instagram-local-pipeline` command. It requires local `INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_USER_ID` values, writes ignored local artifacts, and prints only compact masked execution summaries. Processed Instagram artifacts can be converted into dashboard-compatible JSON with `instagram-report`.
 
 The compact local Instagram operator flow is documented in `docs/INSTAGRAM_LOCAL_RUNBOOK.md`.
+
+`instagram-local-pipeline --dry-run` previews the local collection interval and planned artifact paths without credentials, API calls or writes.
+
+The same command accepts one-off interval overrides through `--start-at`, `--end-at` and `--lookback-days`.
+
+Use `--fail-if-empty` when local automation should treat a zero-record Instagram run as a failure.
 
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 
