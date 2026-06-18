@@ -17,6 +17,7 @@ from social_analytics_pipeline.cli.instagram_report import (
     load_instagram_report_rows,
     main,
     parse_args,
+    resolve_instagram_report_json_output_path,
     write_instagram_report_json,
 )
 
@@ -299,17 +300,89 @@ class InstagramReportTest(unittest.TestCase):
             stdout.getvalue(),
         )
 
+    def test_main_writes_report_to_json_output_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_dir = project_root / "data" / "processed" / "instagram"
+            artifact_dir.mkdir(parents=True)
+            artifact_path = artifact_dir / "instagram-20260501T000000-20260502T000000.json"
+            artifact_path.write_text(
+                json.dumps([{"content_id": "ig-post-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            output_dir = project_root / "custom-json"
+
+            exit_code = main(
+                project_root=project_root,
+                json_output_dir=output_dir,
+                quiet=True,
+            )
+            report_path = output_dir / "instagram-20260501T000000-20260502T000000.json"
+            report_exists = report_path.exists()
+
+        self.assertEqual(exit_code, 0)
+        self.assertTrue(report_exists)
+
+    def test_main_rejects_conflicting_json_output_options(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "instagram.json"
+            artifact_path.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "json-output"):
+                main(
+                    project_root=project_root,
+                    artifact_path=artifact_path,
+                    json_output_path=project_root / "report.json",
+                    json_output_dir=project_root / "reports",
+                )
+
+    def test_dry_run_uses_json_output_dir_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "instagram-20260501T000000-20260502T000000.json"
+            artifact_path.write_text(
+                json.dumps([{"content_id": "ig-post-1", "views": 100}]),
+                encoding="utf-8",
+            )
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = main(
+                    project_root=project_root,
+                    artifact_path=artifact_path,
+                    json_output_dir=project_root / "custom-json",
+                    dry_run=True,
+                )
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn(
+            "json_output_path=custom-json/instagram-20260501T000000-20260502T000000.json",
+            stdout.getvalue(),
+        )
+
+    def test_resolve_instagram_report_json_output_path_rejects_conflict(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "json-output"):
+            resolve_instagram_report_json_output_path(
+                Path("project"),
+                Path("instagram.json"),
+                Path("report.json"),
+                Path("reports"),
+            )
+
     def test_parse_args_accepts_list_only_modes(self) -> None:
         list_args = parse_args(["--list-artifacts", "--fail-if-missing"])
         latest_args = parse_args(["--latest-artifact"])
         count_args = parse_args(["--count-artifacts"])
         dry_run_args = parse_args(["--dry-run"])
+        output_dir_args = parse_args(["--json-output-dir", "reports"])
 
         self.assertTrue(list_args.list_artifacts)
         self.assertTrue(list_args.fail_if_missing)
         self.assertTrue(latest_args.latest_artifact)
         self.assertTrue(count_args.count_artifacts)
         self.assertTrue(dry_run_args.dry_run)
+        self.assertEqual(output_dir_args.json_output_dir, Path("reports"))
 
     def test_parse_args_rejects_multiple_list_only_modes(self) -> None:
         with self.assertRaises(SystemExit):

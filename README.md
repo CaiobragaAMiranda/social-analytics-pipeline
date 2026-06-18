@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-203 - Instagram provider next slice decision
-- Last completed delivery: TASK-202 - PR review for Instagram provider depth batch
+- Current task: TASK-207 - PR review for Instagram runbook parity batch
+- Last completed delivery: TASK-206 - Package Instagram runbook parity batch
 
 ## Workflow
 
@@ -60,9 +60,13 @@ Instagram API requests now retry transient failures with local retry tuning whil
 
 `instagram-report` also supports dry-run planning so operators can preview the selected artifact and planned JSON output without writing files.
 
+`instagram-report` can write JSON reports to a chosen directory while preserving artifact-based file names.
+
 The first dashboard slice exposes a `social-dashboard` command that reads report JSON files and writes a static HTML file. When no report path is provided, it uses the latest JSON report from the local YouTube report directory. Automation can pass `--project-root` to discover reports outside the current directory. The command also accepts repeated `--report-json` values or `--all-reports` to aggregate multiple local artifacts by channel identity. A local `--channels-config` JSON file can map platform handles or IDs to a monitored channel display name and image URL; use `config/channels.example.json` as the safe placeholder template and keep `config/channels.local.json` uncommitted. The current static dashboard is a single-page channel analytics view with a channel selector, channel hero, responsive visual metric cards, per-record averages, engagement breakdown, readable generation time, report metadata with source artifact context, data quality status, platform source cards, an activity-style production panel, a top-content card gallery, a supporting top-content table and explicit empty states. The dashboard contract accepts platform source metrics inside each monitored channel.
 
 The Instagram provider is available through the explicit `instagram-local-pipeline` command. It requires local `INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_USER_ID` values, writes ignored local artifacts, and prints only compact masked execution summaries. Processed Instagram artifacts can be converted into dashboard-compatible JSON with `instagram-report`.
+
+The compact local Instagram operator flow is documented in `docs/INSTAGRAM_LOCAL_RUNBOOK.md`.
 
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 

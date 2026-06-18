@@ -129,6 +129,8 @@ Use only one list-only mode at a time: `--list-artifacts`, `--latest-artifact` o
 
 Instagram dashboard JSON report:
 
+See `docs/INSTAGRAM_LOCAL_RUNBOOK.md` for the compact end-to-end local Instagram operator flow.
+
 ```powershell
 $env:PYTHONPATH = "src"
 python -m social_analytics_pipeline.cli.instagram_report
@@ -136,6 +138,7 @@ python -m social_analytics_pipeline.cli.instagram_report
 
 Use `--artifact data/processed/instagram/<artifact>.json` to report a specific processed Instagram artifact.
 Use `--json-output data/reports/instagram-json/<report>.json` to choose the report path.
+Use `--json-output-dir data/reports/instagram-json` to choose the report directory while keeping the artifact-based file name.
 Use `--top <n>`, `--sort-by views|likes|comments|shares`, `--print-json`, `--quiet` and `--fail-if-empty` the same way as the YouTube report flow.
 Use `--dry-run` to validate the selected artifact and show the planned JSON output path without writing files.
 Use `--list-artifacts`, `--latest-artifact`, `--count-artifacts` and `--fail-if-missing` for list-only Instagram artifact checks.
