@@ -259,7 +259,7 @@ class InstagramLocalPipelineTest(unittest.TestCase):
 
     def test_parse_args_rejects_conflicting_summary_modes(self) -> None:
         with self.assertRaises(SystemExit):
-            parse_args(["--latest-run-summary", "--show-latest-run-summary"])
+            parse_args(["--list-run-summaries", "--latest-run-summary"])
 
     def test_main_dry_run_ignores_fail_if_empty_without_credentials(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -304,6 +304,73 @@ class InstagramLocalPipelineTest(unittest.TestCase):
             "data/runs/instagram/instagram-run-20260516T000000-20260531T000000.json",
         )
 
+    def test_main_lists_run_summary_paths_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            first = run_dir / "instagram-run-20260501T000000-20260515T000000.json"
+            second = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            second.write_text("{}", encoding="utf-8")
+            first.write_text("{}", encoding="utf-8")
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--list-run-summaries"],
+                )
+
+            output = stdout.getvalue().splitlines()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(
+            output,
+            [
+                "data/runs/instagram/instagram-run-20260501T000000-20260515T000000.json",
+                "data/runs/instagram/instagram-run-20260516T000000-20260531T000000.json",
+            ],
+        )
+
+    def test_main_counts_run_summaries_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            (run_dir / "instagram-run-20260501T000000-20260515T000000.json").write_text(
+                "{}",
+                encoding="utf-8",
+            )
+            (run_dir / "instagram-run-20260516T000000-20260531T000000.json").write_text(
+                "{}",
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--count-run-summaries"],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(output.strip(), "2")
+
+    def test_main_count_run_summaries_missing_can_fail(self) -> None:
+        with TemporaryDirectory() as tmpdir, self.assertRaisesRegex(
+            RuntimeError,
+            "No Instagram run summaries found",
+        ):
+            main(
+                env={},
+                project_root=Path(tmpdir),
+                argv=["--count-run-summaries", "--fail-if-missing"],
+            )
+
     def test_main_prints_latest_run_summary_counts_without_credentials(self) -> None:
         with TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
@@ -346,6 +413,299 @@ class InstagramLocalPipelineTest(unittest.TestCase):
         self.assertIn("valid_records=2", output)
         self.assertIn("invalid_records=1", output)
         self.assertIn("loaded_records=2", output)
+
+    def test_main_prints_selected_run_summary_counts_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            selected = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            selected.write_text(
+                json.dumps(
+                    {
+                        "provider": "instagram",
+                        "status": "ok",
+                        "interval": {
+                            "start_at": "2026-05-16T00:00:00+00:00",
+                            "end_at": "2026-05-31T00:00:00+00:00",
+                        },
+                        "counts": {
+                            "raw_records": 5,
+                            "valid_records": 4,
+                            "invalid_records": 1,
+                            "loaded_records": 4,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--show-run-summary", selected.relative_to(project_root).as_posix()],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Instagram run summary", output)
+        self.assertIn(
+            "run_summary_path=data/runs/instagram/instagram-run-20260516T000000-20260531T000000.json",
+            output,
+        )
+        self.assertIn("raw_records=5", output)
+        self.assertIn("loaded_records=4", output)
+
+    def test_main_selected_run_summary_rejects_path_outside_project(self) -> None:
+        with TemporaryDirectory() as tmpdir, TemporaryDirectory() as outside:
+            outside_path = Path(outside) / "instagram-run-20260516T000000-20260531T000000.json"
+            outside_path.write_text("{}", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "must stay inside the project root"):
+                main(
+                    env={},
+                    project_root=Path(tmpdir),
+                    argv=["--show-run-summary", str(outside_path)],
+                )
+
+    def test_main_selected_run_summary_invalid_json_fails_clearly(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            selected = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            selected.write_text("{", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "Invalid Instagram run summary JSON"):
+                main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--show-run-summary", selected.relative_to(project_root).as_posix()],
+                )
+
+    def test_main_validates_selected_run_summary_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            selected = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            selected.write_text(
+                json.dumps(
+                    {
+                        "provider": "instagram",
+                        "status": "ok",
+                        "interval": {
+                            "start_at": "2026-05-16T00:00:00+00:00",
+                            "end_at": "2026-05-31T00:00:00+00:00",
+                        },
+                        "counts": {
+                            "raw_records": 5,
+                            "valid_records": 4,
+                            "invalid_records": 1,
+                            "loaded_records": 4,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--validate-run-summary", selected.relative_to(project_root).as_posix()],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Instagram run summary validation", output)
+        self.assertIn("status=valid", output)
+        self.assertIn("provider=instagram", output)
+        self.assertIn("run_status=ok", output)
+        self.assertIn("loaded_records=4", output)
+
+    def test_main_validates_latest_run_summary_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            older = run_dir / "instagram-run-20260501T000000-20260515T000000.json"
+            latest = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            older.write_text(
+                json.dumps(
+                    {
+                        "provider": "instagram",
+                        "status": "ok",
+                        "interval": {
+                            "start_at": "2026-05-01T00:00:00+00:00",
+                            "end_at": "2026-05-15T00:00:00+00:00",
+                        },
+                        "counts": {
+                            "raw_records": 1,
+                            "valid_records": 1,
+                            "invalid_records": 0,
+                            "loaded_records": 1,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            latest.write_text(
+                json.dumps(
+                    {
+                        "provider": "instagram",
+                        "status": "ok",
+                        "interval": {
+                            "start_at": "2026-05-16T00:00:00+00:00",
+                            "end_at": "2026-05-31T00:00:00+00:00",
+                        },
+                        "counts": {
+                            "raw_records": 5,
+                            "valid_records": 4,
+                            "invalid_records": 1,
+                            "loaded_records": 4,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--validate-latest-run-summary"],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Latest Instagram run summary validation", output)
+        self.assertIn(
+            "run_summary_path=data/runs/instagram/instagram-run-20260516T000000-20260531T000000.json",
+            output,
+        )
+        self.assertIn("status=valid", output)
+        self.assertIn("loaded_records=4", output)
+
+    def test_main_validate_latest_run_summary_missing_can_fail(self) -> None:
+        with TemporaryDirectory() as tmpdir, self.assertRaisesRegex(
+            RuntimeError,
+            "No Instagram run summaries found",
+        ):
+            main(
+                env={},
+                project_root=Path(tmpdir),
+                argv=["--validate-latest-run-summary", "--fail-if-missing"],
+            )
+
+    def test_main_validates_all_run_summaries_without_credentials(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            for name in (
+                "instagram-run-20260501T000000-20260515T000000.json",
+                "instagram-run-20260516T000000-20260531T000000.json",
+            ):
+                (run_dir / name).write_text(
+                    json.dumps(
+                        {
+                            "provider": "instagram",
+                            "status": "ok",
+                            "interval": {
+                                "start_at": "2026-05-16T00:00:00+00:00",
+                                "end_at": "2026-05-31T00:00:00+00:00",
+                            },
+                            "counts": {
+                                "raw_records": 5,
+                                "valid_records": 4,
+                                "invalid_records": 1,
+                                "loaded_records": 4,
+                            },
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            stdout = StringIO()
+
+            with redirect_stdout(stdout):
+                exit_code = main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--validate-run-summaries"],
+                )
+
+            output = stdout.getvalue()
+
+        self.assertEqual(exit_code, 0)
+        self.assertIn("Instagram run summaries validation", output)
+        self.assertIn("valid_summaries=2", output)
+
+    def test_main_validate_all_run_summaries_missing_can_fail(self) -> None:
+        with TemporaryDirectory() as tmpdir, self.assertRaisesRegex(
+            RuntimeError,
+            "No Instagram run summaries found",
+        ):
+            main(
+                env={},
+                project_root=Path(tmpdir),
+                argv=["--validate-run-summaries", "--fail-if-missing"],
+            )
+
+    def test_main_validate_all_run_summaries_reports_invalid_file(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            invalid = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            invalid.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "Invalid Instagram run summary"):
+                main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--validate-run-summaries"],
+                )
+
+    def test_main_validate_run_summary_reports_missing_fields(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            selected = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            selected.write_text(
+                json.dumps({"provider": "instagram", "counts": {"raw_records": 1}}),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "missing required fields"):
+                main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--validate-run-summary", selected.relative_to(project_root).as_posix()],
+                )
+
+    def test_main_validate_run_summary_rejects_non_object_json(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            run_dir = project_root / "data" / "runs" / "instagram"
+            run_dir.mkdir(parents=True)
+            selected = run_dir / "instagram-run-20260516T000000-20260531T000000.json"
+            selected.write_text("[]", encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "must be an object"):
+                main(
+                    env={},
+                    project_root=project_root,
+                    argv=["--validate-run-summary", selected.relative_to(project_root).as_posix()],
+                )
 
     def test_main_latest_run_summary_missing_can_fail(self) -> None:
         with TemporaryDirectory() as tmpdir, self.assertRaisesRegex(

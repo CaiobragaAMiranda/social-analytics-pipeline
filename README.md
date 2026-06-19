@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-220 - PR review for Instagram run summary inspection
-- Last completed delivery: TASK-219 - Package Instagram run summary inspection
+- Current task: TASK-228 - Select next delivery after Instagram run summary operator batch
+- Last completed delivery: TASK-227 - PR review for Instagram run summary operator batch
 
 ## Workflow
 
@@ -74,7 +74,7 @@ The same command accepts one-off interval overrides through `--start-at`, `--end
 
 Use `--fail-if-empty` when local automation should treat a zero-record Instagram run as a failure.
 
-Use `--latest-run-summary` or `--show-latest-run-summary` to inspect the latest local Instagram run summary without credentials or API calls.
+Use `--list-run-summaries`, `--count-run-summaries`, `--latest-run-summary`, `--validate-run-summaries`, `--validate-latest-run-summary`, `--validate-run-summary <path>`, `--show-run-summary <path>` or `--show-latest-run-summary` to inspect local Instagram run summaries without credentials or API calls.
 
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 

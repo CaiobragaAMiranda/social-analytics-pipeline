@@ -134,7 +134,7 @@ See `docs/INSTAGRAM_LOCAL_RUNBOOK.md` for the compact end-to-end local Instagram
 Use `instagram-local-pipeline --dry-run` to preview the local collection interval and artifact paths without credentials or API calls.
 Use `--start-at`, `--end-at` and `--lookback-days` with `instagram-local-pipeline` when you need a one-off local interval without editing `.env`.
 Use `--fail-if-empty` with `instagram-local-pipeline` when automation should fail a real local run that loads zero records.
-Use `--latest-run-summary` or `--show-latest-run-summary` with `instagram-local-pipeline` to inspect the latest ignored local run summary without credentials or API calls.
+Use `--list-run-summaries`, `--count-run-summaries`, `--latest-run-summary`, `--validate-run-summaries`, `--validate-latest-run-summary`, `--validate-run-summary <path>`, `--show-run-summary <path>` or `--show-latest-run-summary` with `instagram-local-pipeline` to inspect ignored local run summaries without credentials or API calls.
 
 ```powershell
 $env:PYTHONPATH = "src"

@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-220 - PR review for Instagram run summary inspection.
+Current task: TASK-228 - Select next delivery after Instagram run summary operator batch.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -248,9 +248,17 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 - The next delivery slice returns to Instagram provider operations and adds a safe latest run-summary inspection mode.
 - `instagram-local-pipeline` can now print the latest Instagram run-summary path or compact status/counts without credentials or API calls.
 - The Instagram run-summary inspection batch passed focused validation and sensitive-pattern review.
+- PR #54 merged the Instagram latest run-summary inspection batch after GitHub quality gates, secret scan and CodeRabbit status passed.
+- `instagram-local-pipeline` can now list and count local Instagram run-summary artifacts without credentials or API calls.
+- `instagram-local-pipeline` can now inspect a selected local run-summary artifact by path, while blocking paths outside the project root.
+- `instagram-local-pipeline` can now validate a selected local run-summary artifact before relying on it.
+- `instagram-local-pipeline` can now validate the latest local run-summary artifact without requiring a path.
+- `instagram-local-pipeline` can now validate all local Instagram run-summary artifacts in one command.
+- PR #55 passed GitHub Actions quality/security, secret scan and CodeRabbit status, then was ready to merge.
+- The next step is selecting the next small delivery after the run-summary operator batch.
 
 ## Next Actions
 
-- Package the Instagram runbook and report parity batch for review.
+- Select the next small delivery after the Instagram run-summary operator batch.
 - Keep TikTok, PostgreSQL loading, Airflow DAGs and dashboard redesign deferred for this slice.
 - Keep TikTok mocked until an official analytics path fits this project.

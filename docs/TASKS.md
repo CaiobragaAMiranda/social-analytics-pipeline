@@ -18,20 +18,20 @@
 
 ## Current Task
 
-### TASK-220 - PR review for Instagram run summary inspection
+### TASK-228 - Select next delivery after Instagram run summary operator batch
 
 Status: Pending
 
-Phase: Governance
+Phase: Planning
 
-Goal: review GitHub Actions and CodeRabbit feedback for the Instagram run summary inspection batch.
+Goal: choose the next small delivery after closing the Instagram run-summary operator batch.
 
 Acceptance criteria:
 
-- The PR is opened with the Instagram run summary inspection batch.
-- GitHub Actions and CodeRabbit are reviewed.
-- Any blocking feedback is addressed.
-- The PR is merged when checks are green and the branch is mergeable.
+- The next delivery is chosen from the current project state.
+- The decision keeps broad infrastructure deferred unless it directly unlocks the selected slice.
+- The chosen slice has clear acceptance criteria.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -4323,7 +4323,7 @@ Evidence:
 
 ### TASK-220 - PR review for Instagram run summary inspection
 
-Status: Pending
+Status: Done
 
 Phase: Governance
 
@@ -4336,6 +4336,196 @@ Acceptance criteria:
 - Any blocking feedback is addressed.
 - The PR is merged when checks are green and the branch is mergeable.
 
+Evidence:
+
+- PR #54 was opened and merged.
+- GitHub Quality Gates passed.
+- GitHub Secret scan passed.
+- CodeRabbit status passed; detailed manual review was rate limited, with no blocking feedback posted.
+
+### TASK-221 - Instagram run summary list and count modes
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators list and count local Instagram run summaries without credentials or API calls.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` can list local Instagram run-summary paths.
+- `instagram-local-pipeline` can print the local Instagram run-summary count.
+- Missing run summaries produce a clear no-data or zero-count result.
+- `--fail-if-missing` works with list mode.
+- Tests cover list and count modes.
+
+Evidence:
+
+- `instagram-local-pipeline --list-run-summaries` lists sorted local run-summary paths without credentials or API calls.
+- `instagram-local-pipeline --count-run-summaries` prints the local summary count.
+- Missing local summaries return a clear no-data message or `0`.
+- `--fail-if-missing` is covered for missing summary count behavior.
+- Focused Ruff, focused unit tests, documentation verification and sensitive-pattern scan passed.
+
+### TASK-222 - Instagram explicit run summary inspection
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators inspect a chosen local Instagram run summary path without credentials or API calls.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` accepts a local run-summary path for compact inspection.
+- The selected path must stay inside the local project root.
+- Missing or invalid run-summary paths fail clearly without printing raw payloads.
+- Latest summary inspection behavior remains unchanged.
+- Tests cover explicit path inspection.
+
+Evidence:
+
+- `instagram-local-pipeline --show-run-summary <path>` prints compact status and counts from a selected local run-summary artifact.
+- Explicit inspection blocks paths outside the project root.
+- Missing files and invalid JSON fail with clear sanitized messages.
+- Latest run-summary inspection behavior remains unchanged.
+- Focused Ruff, focused unit tests, documentation verification and sensitive-pattern scan passed.
+
+### TASK-223 - Instagram run summary validation
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators validate a selected local Instagram run summary before relying on it.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` accepts a local run-summary path for validation.
+- Validation checks JSON readability and required top-level summary fields.
+- Validation prints only compact status, not raw payloads.
+- Invalid summaries fail with clear sanitized messages.
+- Tests cover valid and invalid selected summaries.
+
+Evidence:
+
+- `instagram-local-pipeline --validate-run-summary <path>` validates selected local summary JSON without credentials or API calls.
+- Validation checks required provider, status, interval and count fields.
+- Non-object JSON, invalid JSON and missing fields fail with sanitized messages.
+- Missing selected files fail with a clear sanitized message.
+- Focused Ruff, focused unit tests, documentation verification and sensitive-pattern scan passed.
+
+### TASK-224 - Instagram latest run summary validation
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators validate the latest local Instagram run summary without copying a path.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` can validate the latest local run-summary artifact.
+- Missing latest summaries produce a clear no-data message.
+- `--fail-if-missing` works with latest validation.
+- Validation reuses the same compact output and required-field checks.
+- Tests cover latest validation.
+
+Evidence:
+
+- `instagram-local-pipeline --validate-latest-run-summary` validates the latest local summary without credentials or API calls.
+- Missing latest summaries return a clear no-data message, and `--fail-if-missing` is covered.
+- Validation reuses the selected summary required-field checks and compact output.
+- Focused Ruff, focused unit tests, documentation verification and sensitive-pattern scan passed.
+
+### TASK-225 - Instagram all run summaries validation
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let operators validate all local Instagram run summaries in one command.
+
+Acceptance criteria:
+
+- `instagram-local-pipeline` can validate all local run-summary artifacts.
+- Missing summaries produce a clear no-data message.
+- `--fail-if-missing` works with all-summary validation.
+- Validation prints a compact count of valid summaries.
+- Tests cover all-summary validation.
+
+Evidence:
+
+- `instagram-local-pipeline --validate-run-summaries` validates all local summary artifacts without credentials or API calls.
+- Missing summaries return a clear no-data message, and `--fail-if-missing` is covered.
+- Invalid files fail with a sanitized message that names the project-relative summary path.
+- Focused Ruff, focused unit tests, documentation verification and sensitive-pattern scan passed.
+
+### TASK-226 - Package Instagram run summary operator batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Instagram run-summary operator batch.
+
+Acceptance criteria:
+
+- Local validation passes.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the list, count, inspection and validation modes.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Documentation verification passed.
+- Ruff passed.
+- Full unit test suite passed.
+- Bandit passed.
+- Sensitive-pattern scan found only documented placeholder values, not real secrets.
+- The branch was pushed to `feat/task-221-instagram-run-summary-listing`.
+- PR #55 was opened for GitHub Actions and CodeRabbit review.
+
+### TASK-227 - PR review for Instagram run summary operator batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Instagram run-summary operator batch.
+
+Acceptance criteria:
+
+- PR #55 is open with the Instagram run-summary operator batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #55 was opened with the Instagram run-summary operator batch.
+- GitHub Actions `Python quality and security` passed.
+- GitHub Actions `Secret scan` passed.
+- CodeRabbit status passed with no blocking code findings.
+- CodeRabbit posted only a non-blocking docstring coverage warning, which does not match the current lightweight style of this module.
+- PR #55 was mergeable after checks passed.
+
+### TASK-228 - Select next delivery after Instagram run summary operator batch
+
+Status: Pending
+
+Phase: Planning
+
+Goal: choose the next small delivery after closing the Instagram run-summary operator batch.
+
+Acceptance criteria:
+
+- The next delivery is chosen from the current project state.
+- The decision keeps broad infrastructure deferred unless it directly unlocks the selected slice.
+- The chosen slice has clear acceptance criteria.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -4345,7 +4535,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Package the Instagram run summary inspection batch for review.
+- Select the next small delivery after the Instagram run-summary operator batch.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule
