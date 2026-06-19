@@ -18,13 +18,13 @@
 
 ## Current Task
 
-### TASK-232 - Select next delivery after Docker dashboard service
+### TASK-237 - Select next delivery after Docker dashboard operations batch
 
 Status: Pending
 
 Phase: Planning
 
-Goal: choose the next small delivery after closing the Docker dashboard service.
+Goal: choose the next small delivery after closing the Docker dashboard operations batch.
 
 Acceptance criteria:
 
@@ -4609,11 +4609,130 @@ Evidence:
 
 ### TASK-232 - Select next delivery after Docker dashboard service
 
-Status: Pending
+Status: Done
 
 Phase: Planning
 
 Goal: choose the next small delivery after closing the Docker dashboard service.
+
+Acceptance criteria:
+
+- The next delivery is chosen from the current project state.
+- The choice keeps the project focused on usable local operation and dashboard/provider value.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected next delivery is a Docker dashboard healthcheck.
+- The slice improves local operation without changing providers, dashboard UI or Airflow DAGs.
+- Broad infrastructure work remains deferred.
+
+### TASK-233 - Docker dashboard healthcheck
+
+Status: Done
+
+Phase: Local operations
+
+Goal: make Docker Compose report whether the local dashboard service is responding.
+
+Acceptance criteria:
+
+- The `dashboard` service has a healthcheck.
+- The healthcheck verifies the generated smoke dashboard path responds locally inside the container.
+- The healthcheck does not require credentials or external network access.
+- Documentation mentions that Compose can show the dashboard service health.
+- Tests or configuration checks cover the healthcheck.
+
+Evidence:
+
+- The `dashboard` service now has a Python-based local healthcheck.
+- The healthcheck probes the generated smoke dashboard path inside the container.
+- `docker compose --env-file .env.example config --quiet` passed.
+- `docker compose --env-file .env.example ps dashboard` reported the service as `healthy`.
+- Focused Ruff, focused Compose tests and documentation verification passed.
+
+### TASK-234 - Docker dashboard no-smoke mode
+
+Status: Done
+
+Phase: Local operations
+
+Goal: let Docker Compose serve an existing dashboard artifact without regenerating smoke data.
+
+Acceptance criteria:
+
+- The Docker dashboard service can be configured to pass `--no-smoke`.
+- The default still generates safe smoke data.
+- Documentation explains when to use the no-smoke mode.
+- Tests or configuration checks cover the option.
+
+Evidence:
+
+- `.env.example` now includes the optional `DASHBOARD_NO_SMOKE` setting.
+- The `dashboard` service passes `DASHBOARD_NO_SMOKE` to `serve-dashboard` through the container command.
+- Empty `DASHBOARD_NO_SMOKE` keeps the default safe smoke generation behavior.
+- `DASHBOARD_NO_SMOKE=--no-smoke` was validated with a temporary local env file and the container remained healthy.
+- The healthcheck now uses an HTTP `HEAD` request to avoid noisy server logs.
+- Focused Ruff, focused Compose tests, Compose config and documentation verification passed.
+
+### TASK-235 - Package Docker dashboard operations batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Docker dashboard healthcheck and no-smoke updates.
+
+Acceptance criteria:
+
+- Local validation passes.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the healthcheck and no-smoke mode.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Documentation verification passed.
+- Ruff passed.
+- Full unit test suite passed.
+- Bandit passed.
+- `docker compose --env-file .env.example config --quiet` passed.
+- Dashboard default and no-smoke Compose modes were validated.
+- The dashboard service reported `healthy`.
+- Sensitive-pattern scan found only internal Compose/test placeholders, not real secrets.
+
+### TASK-236 - PR review for Docker dashboard operations batch
+
+Status: Done
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Docker dashboard operations batch.
+
+Acceptance criteria:
+
+- The PR is open with the Docker dashboard operations batch.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #57 was opened with the Docker dashboard operations batch.
+- GitHub Actions `Python quality and security` passed.
+- GitHub Actions `Secret scan` passed.
+- CodeRabbit status passed with no blocking findings.
+- PR #57 was mergeable after checks passed.
+
+### TASK-237 - Select next delivery after Docker dashboard operations batch
+
+Status: Pending
+
+Phase: Planning
+
+Goal: choose the next small delivery after closing the Docker dashboard operations batch.
 
 Acceptance criteria:
 
@@ -4631,7 +4750,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Package the Docker dashboard service for PR review.
+- Add Docker dashboard no-smoke mode for serving an existing dashboard artifact.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule

@@ -45,7 +45,7 @@ services:
     build:
       context: .
     container_name: social-analytics-dashboard
-    command: ["serve-dashboard", "--host", "0.0.0.0", "--port", "8000"]
+    command: /bin/sh -c "serve-dashboard --host 0.0.0.0 --port 8000 $${DASHBOARD_NO_SMOKE}"
     environment:
       PYTHONUNBUFFERED: "1"
     ports:
@@ -53,6 +53,21 @@ services:
     volumes:
       - ./data:/app/data
       - ./config:/app/config:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >
+          import urllib.request;
+          request = urllib.request.Request(
+          "http://localhost:8000/data/dashboard/smoke.html", method="HEAD"
+          );
+          urllib.request.urlopen(request, timeout=2).close()
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
   postgres:
