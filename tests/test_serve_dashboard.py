@@ -22,6 +22,14 @@ class ServeDashboardTest(unittest.TestCase):
 
         self.assertEqual(url, "http://127.0.0.1:8000/data/dashboard/smoke.html")
 
+    def test_dashboard_url_displays_localhost_when_binding_all_interfaces(self) -> None:
+        project_root = Path("project")
+        dashboard_path = project_root / "data" / "dashboard" / "smoke.html"
+
+        url = dashboard_url(project_root, dashboard_path, "0.0.0.0", 8000)
+
+        self.assertEqual(url, "http://localhost:8000/data/dashboard/smoke.html")
+
     def test_parse_args_accepts_host_port_output_and_no_smoke(self) -> None:
         args = parse_args(
             [

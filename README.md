@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-228 - Select next delivery after Instagram run summary operator batch
-- Last completed delivery: TASK-227 - PR review for Instagram run summary operator batch
+- Current task: TASK-232 - Select next delivery after Docker dashboard service
+- Last completed delivery: TASK-231 - PR review for Docker dashboard service
 
 ## Workflow
 
@@ -79,6 +79,8 @@ Use `--list-run-summaries`, `--count-run-summaries`, `--latest-run-summary`, `--
 The local `dashboard-smoke` command can generate safe sample YouTube and Instagram artifacts from fixtures and build a static multi-provider dashboard without API credentials. It also creates an ignored placeholder channel identity config so both providers render inside one monitored channel option.
 
 The local `serve-dashboard` command can generate that safe smoke dashboard and print a local URL for browser review.
+
+The dashboard can also run as the optional Docker Compose `dashboard` service. It uses the safe smoke dashboard flow by default and binds the host port configured by `DASHBOARD_PORT`.
 
 When multiple provider reports are grouped into one monitored channel, top content is ranked globally across providers by the configured ranking metric, with `views` as the fallback.
 
@@ -169,6 +171,7 @@ $env:PYTHONPATH = "src"; python -m unittest discover -s tests
 ruff check .
 bandit -c pyproject.toml -r src
 serve-dashboard
+docker compose --env-file .env.example up dashboard
 docker compose --env-file .env.example config --quiet
 ```
 
