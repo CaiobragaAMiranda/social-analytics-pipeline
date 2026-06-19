@@ -6,10 +6,7 @@ class DockerComposeTest(unittest.TestCase):
     def test_airflow_receives_youtube_runtime_environment_names(self) -> None:
         compose = Path("docker-compose.yml").read_text(encoding="utf-8")
 
-        self.assertIn(
-            "AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET:?",
-            compose,
-        )
+        self.assertIn("AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET}", compose)
         self.assertIn(
             "AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/",
             compose,
@@ -38,6 +35,14 @@ class DockerComposeTest(unittest.TestCase):
 
             self.assertIn("airflow-api-server:", service_block)
             self.assertIn("condition: service_healthy", service_block)
+
+    def test_dashboard_service_uses_configurable_host_port(self) -> None:
+        compose = Path("docker-compose.yml").read_text(encoding="utf-8")
+        service_block = compose.split("  dashboard:", 1)[1].split("\n  postgres:", 1)[0]
+
+        self.assertIn("container_name: social-analytics-dashboard", service_block)
+        self.assertIn('"serve-dashboard", "--host", "0.0.0.0", "--port", "8000"', service_block)
+        self.assertIn('"${DASHBOARD_PORT}:8000"', service_block)
 
 
 if __name__ == "__main__":

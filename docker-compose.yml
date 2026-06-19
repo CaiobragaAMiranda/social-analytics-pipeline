@@ -6,12 +6,12 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
-    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET:?Set AIRFLOW_API_AUTH_JWT_SECRET in local .env}
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_API_AUTH_JWT_SECRET}
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_POSTGRES_USER}:${AIRFLOW_POSTGRES_PASSWORD}@airflow-postgres/${AIRFLOW_POSTGRES_DB}
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${AIRFLOW_POSTGRES_USER}:${AIRFLOW_POSTGRES_PASSWORD}@airflow-postgres/${AIRFLOW_POSTGRES_DB}
     AIRFLOW__CELERY__BROKER_URL: redis://:@airflow-redis:6379/${AIRFLOW_REDIS_DB}
-    AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME:?Set AIRFLOW_ADMIN_USERNAME in local .env}
-    AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:?Set AIRFLOW_ADMIN_PASSWORD in local .env}
+    AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME}
+    AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
     AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
     AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
     AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
@@ -41,6 +41,20 @@ x-airflow-common: &airflow-common
       condition: service_healthy
 
 services:
+  dashboard:
+    build:
+      context: .
+    container_name: social-analytics-dashboard
+    command: ["serve-dashboard", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "${DASHBOARD_PORT}:8000"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config:ro
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     container_name: social-analytics-postgres

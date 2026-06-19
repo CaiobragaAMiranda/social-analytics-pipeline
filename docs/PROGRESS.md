@@ -6,7 +6,7 @@ Date: 2026-06-17
 
 Current phase: Consumption layer
 
-Current task: TASK-228 - Select next delivery after Instagram run summary operator batch.
+Current task: TASK-232 - Select next delivery after Docker dashboard service.
 
 Overall status: the current YouTube v1 slice is closed, local reports are versioned, and the dashboard MVP can render explicit or discovered report JSON artifacts as a single-page channel analytics view. The dashboard contract now accepts platform source metrics inside a monitored channel, renders per-platform source cards inside the selected channel, can aggregate multiple local report JSON artifacts by channel identity and can apply a local channel identity configuration. Dashboard content display now prioritizes human-readable metadata such as titles, thumbnails, links and publish dates while keeping technical IDs secondary. Instagram now has a local report JSON command compatible with the dashboard contract. A safe multi-provider dashboard smoke command now proves YouTube and Instagram report artifacts can feed the same monitored channel dashboard option. Aggregated channel top content is now ranked globally across provider reports and shows platform metadata per row. Platform Sources now shows provider coverage, each platform's share of channel views and engagements, leading sources for views and engagements, provider-specific top content, top-content dates, top-content links, top-content thumbnails, top-content views and top-content type labels. The top-content table now shows rank badges, highlights the leading row and displays a ranked-item count for easier scanning. The dashboard can now be served locally through a dedicated command. The visual dashboard batch now adds a polished dark shell, stronger channel hero, graphic metric cards, a clearer production activity panel and a top-content card gallery.
 
@@ -32,6 +32,10 @@ Overall status: the current YouTube v1 slice is closed, local reports are versio
 
 ## Latest Notes
 
+- The next delivery after the Instagram run-summary operator batch is a local Docker Compose dashboard service.
+- Docker Compose now includes an optional dashboard service that serves the safe smoke dashboard on the configured local port.
+- The Docker dashboard service batch is ready for PR review after local validation and container smoke verification.
+- PR #56 passed GitHub Actions, secret scan and CodeRabbit status for the Docker dashboard service.
 - Windows reserved the previous local metrics PostgreSQL port; the local `.env` now uses a non-reserved port.
 - Airflow 3.2.1 initialization now runs metadata migration without the incompatible user creation command.
 - Celery workers now use the Airflow execution API URL and a shared JWT secret from local environment configuration.

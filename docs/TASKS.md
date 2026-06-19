@@ -18,19 +18,19 @@
 
 ## Current Task
 
-### TASK-228 - Select next delivery after Instagram run summary operator batch
+### TASK-232 - Select next delivery after Docker dashboard service
 
 Status: Pending
 
 Phase: Planning
 
-Goal: choose the next small delivery after closing the Instagram run-summary operator batch.
+Goal: choose the next small delivery after closing the Docker dashboard service.
 
 Acceptance criteria:
 
 - The next delivery is chosen from the current project state.
-- The decision keeps broad infrastructure deferred unless it directly unlocks the selected slice.
-- The chosen slice has clear acceptance criteria.
+- The choice keeps the project focused on usable local operation and dashboard/provider value.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
 - Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
@@ -4513,7 +4513,7 @@ Evidence:
 
 ### TASK-228 - Select next delivery after Instagram run summary operator batch
 
-Status: Pending
+Status: Done
 
 Phase: Planning
 
@@ -4526,6 +4526,102 @@ Acceptance criteria:
 - The chosen slice has clear acceptance criteria.
 - Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
 
+Evidence:
+
+- The selected next delivery is a Docker Compose dashboard service.
+- The slice improves local operation of the already-closed dashboard v1 without adding provider scope.
+- Broad Airflow, TikTok, cloud deployment and observability work remain deferred.
+
+### TASK-229 - Docker Compose dashboard service
+
+Status: Done
+
+Phase: Local operations
+
+Goal: make the local dashboard available as an optional Docker Compose service.
+
+Acceptance criteria:
+
+- Docker Compose includes an optional dashboard service.
+- The service serves the existing safe dashboard smoke flow.
+- The dashboard bind port is configurable through `.env.example`.
+- Documentation explains how to start the dashboard container without exposing secrets.
+- Compose validation passes.
+
+Evidence:
+
+- `docker-compose.yml` now includes a `dashboard` service.
+- `Dockerfile` builds a lightweight project image for the dashboard command.
+- `.dockerignore` excludes local artifacts, caches and environment files from the build context.
+- `DASHBOARD_PORT` controls the host port in `.env.example`.
+- The service generated the safe smoke dashboard and responded with HTTP 200 at the local dashboard path.
+- The dashboard server now prints a localhost URL when binding to all interfaces for Docker.
+
+### TASK-230 - Package Docker dashboard service
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the Docker dashboard service.
+
+Acceptance criteria:
+
+- Local validation passes.
+- Sensitive-pattern scan is clean for changed files.
+- Documentation records the Docker dashboard service.
+- The batch is committed and opened as a PR for GitHub Actions and CodeRabbit.
+
+Evidence:
+
+- Documentation verification passed.
+- Ruff passed.
+- Full unit test suite passed.
+- Bandit passed.
+- `docker compose --env-file .env.example config --quiet` passed.
+- `docker compose --env-file .env.example up -d --build --force-recreate dashboard` built and started the dashboard service.
+- The dashboard responded with HTTP 200 at the local smoke dashboard path.
+- Sensitive-pattern scan found only internal Compose/test placeholders, not real secrets.
+
+### TASK-231 - PR review for Docker dashboard service
+
+Status: Done
+
+Phase: Governance
+
+Goal: review GitHub Actions and CodeRabbit feedback for the Docker dashboard service.
+
+Acceptance criteria:
+
+- The PR is open with the Docker dashboard service.
+- GitHub Actions checks are reviewed.
+- CodeRabbit feedback is reviewed according to the documented policy.
+- Any blocker is fixed before merge.
+- If checks are green and no blocker exists, the PR can be merged.
+
+Evidence:
+
+- PR #56 was opened with the Docker dashboard service.
+- GitHub Actions `Python quality and security` passed.
+- GitHub Actions `Secret scan` passed.
+- CodeRabbit status passed with no blocking findings posted.
+- PR #56 was mergeable after checks passed.
+
+### TASK-232 - Select next delivery after Docker dashboard service
+
+Status: Pending
+
+Phase: Planning
+
+Goal: choose the next small delivery after closing the Docker dashboard service.
+
+Acceptance criteria:
+
+- The next delivery is chosen from the current project state.
+- The choice keeps the project focused on usable local operation and dashboard/provider value.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
 ## Deferred Until After v1 Closure
 
 - Broaden run summaries beyond the real YouTube path.
@@ -4535,7 +4631,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Select the next small delivery after the Instagram run-summary operator batch.
+- Package the Docker dashboard service for PR review.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule

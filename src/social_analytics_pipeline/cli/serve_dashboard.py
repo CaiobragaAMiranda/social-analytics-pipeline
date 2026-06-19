@@ -2,6 +2,7 @@ import argparse
 import functools
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from ipaddress import ip_address
 from pathlib import Path
 from urllib.parse import quote
 
@@ -47,7 +48,11 @@ def dashboard_url(project_root: Path, dashboard_path: Path, host: str, port: int
         relative_path = dashboard_path.name
     path_text = relative_path.as_posix() if isinstance(relative_path, Path) else relative_path
     quoted_path = quote(path_text)
-    return f"http://{host}:{port}/{quoted_path}"
+    try:
+        display_host = "localhost" if ip_address(host).is_unspecified else host
+    except ValueError:
+        display_host = host
+    return f"http://{display_host}:{port}/{quoted_path}"
 
 
 def serve_directory(project_root: Path, host: str, port: int) -> None:

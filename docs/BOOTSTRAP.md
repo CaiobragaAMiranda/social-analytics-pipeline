@@ -168,6 +168,15 @@ python -m social_analytics_pipeline.cli.serve_dashboard
 Open the local dashboard URL printed by the command while it is running.
 Use `--no-smoke` to serve an existing `data/dashboard/smoke.html` without regenerating safe sample artifacts.
 
+Serve the safe dashboard through Docker Compose:
+
+```powershell
+docker compose --env-file .env.example up dashboard
+```
+
+Open the dashboard using the host port configured by `DASHBOARD_PORT`.
+The service generates safe fixture-based smoke artifacts and does not require API credentials.
+
 Controlled backfill example:
 
 ```powershell
