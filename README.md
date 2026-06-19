@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Consumption layer
-- Current task: TASK-232 - Select next delivery after Docker dashboard service
-- Last completed delivery: TASK-231 - PR review for Docker dashboard service
+- Current task: TASK-237 - Select next delivery after Docker dashboard operations batch
+- Last completed delivery: TASK-236 - PR review for Docker dashboard operations batch
 
 ## Workflow
 
@@ -81,6 +81,8 @@ The local `dashboard-smoke` command can generate safe sample YouTube and Instagr
 The local `serve-dashboard` command can generate that safe smoke dashboard and print a local URL for browser review.
 
 The dashboard can also run as the optional Docker Compose `dashboard` service. It uses the safe smoke dashboard flow by default and binds the host port configured by `DASHBOARD_PORT`.
+The service includes a local healthcheck for the generated smoke dashboard path.
+Set `DASHBOARD_NO_SMOKE=--no-smoke` locally when you want the container to serve an existing dashboard artifact instead of regenerating smoke data.
 
 When multiple provider reports are grouped into one monitored channel, top content is ranked globally across providers by the configured ranking metric, with `views` as the fallback.
 

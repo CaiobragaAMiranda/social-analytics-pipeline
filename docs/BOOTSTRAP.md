@@ -176,6 +176,8 @@ docker compose --env-file .env.example up dashboard
 
 Open the dashboard using the host port configured by `DASHBOARD_PORT`.
 The service generates safe fixture-based smoke artifacts and does not require API credentials.
+Use `docker compose --env-file .env.example ps dashboard` to inspect the container health status.
+Set `DASHBOARD_NO_SMOKE=--no-smoke` in a local environment file when you want the container to serve an existing dashboard artifact instead of regenerating smoke data.
 
 Controlled backfill example:
 
