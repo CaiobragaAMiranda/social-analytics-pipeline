@@ -184,8 +184,20 @@ def main(
 ) -> int:
     root = project_root or Path.cwd()
     args = parse_args(argv or [])
+    if args.list_run_summaries:
+        return print_instagram_run_summary_paths(root, fail_if_missing=args.fail_if_missing)
+    if args.count_run_summaries:
+        return print_instagram_run_summary_count(root, fail_if_missing=args.fail_if_missing)
     if args.latest_run_summary:
         return print_latest_instagram_run_summary_path(root, fail_if_missing=args.fail_if_missing)
+    if args.validate_run_summaries:
+        return validate_instagram_run_summaries(root, fail_if_missing=args.fail_if_missing)
+    if args.validate_latest_run_summary:
+        return validate_latest_instagram_run_summary(root, fail_if_missing=args.fail_if_missing)
+    if args.validate_run_summary:
+        return validate_selected_instagram_run_summary(root, args.validate_run_summary)
+    if args.show_run_summary:
+        return print_selected_instagram_run_summary(root, args.show_run_summary)
     if args.show_latest_run_summary:
         return print_latest_instagram_run_summary(root, fail_if_missing=args.fail_if_missing)
 
@@ -268,6 +280,33 @@ def print_latest_instagram_run_summary_path(
     return 0
 
 
+def print_instagram_run_summary_paths(
+    project_root: Path,
+    fail_if_missing: bool = False,
+) -> int:
+    artifact_paths = find_instagram_run_summary_artifacts(project_root)
+    if not artifact_paths:
+        print("No Instagram run summaries found.")
+        if fail_if_missing:
+            raise RuntimeError("No Instagram run summaries found.")
+        return 0
+
+    for artifact_path in artifact_paths:
+        print(artifact_path.relative_to(project_root).as_posix())
+    return 0
+
+
+def print_instagram_run_summary_count(
+    project_root: Path,
+    fail_if_missing: bool = False,
+) -> int:
+    artifact_count = len(find_instagram_run_summary_artifacts(project_root))
+    print(artifact_count)
+    if fail_if_missing and artifact_count == 0:
+        raise RuntimeError("No Instagram run summaries found.")
+    return 0
+
+
 def print_latest_instagram_run_summary(
     project_root: Path,
     fail_if_missing: bool = False,
@@ -279,11 +318,164 @@ def print_latest_instagram_run_summary(
             raise RuntimeError("No Instagram run summaries found.")
         return 0
 
-    payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    return print_instagram_run_summary(
+        project_root,
+        artifact_path,
+        heading="Latest Instagram run summary",
+    )
+
+
+def print_selected_instagram_run_summary(project_root: Path, run_summary_path: str) -> int:
+    artifact_path = resolve_instagram_run_summary_path(project_root, run_summary_path)
+    return print_instagram_run_summary(project_root, artifact_path, heading="Instagram run summary")
+
+
+def validate_latest_instagram_run_summary(
+    project_root: Path,
+    fail_if_missing: bool = False,
+) -> int:
+    artifact_path = find_latest_instagram_run_summary_artifact(project_root)
+    if not artifact_path:
+        print("No Instagram run summaries found.")
+        if fail_if_missing:
+            raise RuntimeError("No Instagram run summaries found.")
+        return 0
+    return validate_instagram_run_summary(
+        project_root,
+        artifact_path,
+        heading="Latest Instagram run summary validation",
+    )
+
+
+def validate_instagram_run_summaries(
+    project_root: Path,
+    fail_if_missing: bool = False,
+) -> int:
+    artifact_paths = find_instagram_run_summary_artifacts(project_root)
+    if not artifact_paths:
+        print("No Instagram run summaries found.")
+        if fail_if_missing:
+            raise RuntimeError("No Instagram run summaries found.")
+        return 0
+
+    root = project_root.resolve()
+    for artifact_path in artifact_paths:
+        try:
+            payload = load_instagram_run_summary_payload(artifact_path)
+            validate_instagram_run_summary_payload(payload)
+        except RuntimeError as exc:
+            relative_path = artifact_path.resolve().relative_to(root).as_posix()
+            raise RuntimeError(f"Invalid Instagram run summary {relative_path}: {exc}") from exc
+
+    print("Instagram run summaries validation")
+    print(f"valid_summaries={len(artifact_paths)}")
+    return 0
+
+
+def validate_selected_instagram_run_summary(project_root: Path, run_summary_path: str) -> int:
+    artifact_path = resolve_instagram_run_summary_path(project_root, run_summary_path)
+    return validate_instagram_run_summary(
+        project_root,
+        artifact_path,
+        heading="Instagram run summary validation",
+    )
+
+
+def validate_instagram_run_summary(
+    project_root: Path,
+    artifact_path: Path,
+    heading: str,
+) -> int:
+    payload = load_instagram_run_summary_payload(artifact_path)
+    validate_instagram_run_summary_payload(payload)
+    counts = payload["counts"]
+    print(heading)
+    print(f"run_summary_path={artifact_path.relative_to(project_root.resolve()).as_posix()}")
+    print("status=valid")
+    print(f"provider={payload['provider']}")
+    print(f"run_status={payload['status']}")
+    print(f"raw_records={counts['raw_records']}")
+    print(f"valid_records={counts['valid_records']}")
+    print(f"invalid_records={counts['invalid_records']}")
+    print(f"loaded_records={counts['loaded_records']}")
+    return 0
+
+
+def resolve_instagram_run_summary_path(project_root: Path, run_summary_path: str) -> Path:
+    root = project_root.resolve()
+    candidate = Path(run_summary_path)
+    if not candidate.is_absolute():
+        candidate = root / candidate
+    artifact_path = candidate.resolve()
+
+    try:
+        artifact_path.relative_to(root)
+    except ValueError as exc:
+        raise RuntimeError("Instagram run summary path must stay inside the project root.") from exc
+
+    if not artifact_path.exists():
+        raise RuntimeError("Instagram run summary not found.")
+    if not artifact_path.is_file():
+        raise RuntimeError("Instagram run summary path must point to a file.")
+    return artifact_path
+
+
+def load_instagram_run_summary_payload(artifact_path: Path) -> dict[str, object]:
+    try:
+        payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Invalid Instagram run summary JSON.") from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError("Instagram run summary JSON must be an object.")
+    return payload
+
+
+def validate_instagram_run_summary_payload(payload: Mapping[str, object]) -> None:
+    missing_fields = [
+        field
+        for field in ("provider", "status", "interval", "counts")
+        if field not in payload
+    ]
+    interval = payload.get("interval")
+    if not isinstance(interval, Mapping):
+        missing_fields.append("interval.start_at")
+        missing_fields.append("interval.end_at")
+    else:
+        missing_fields.extend(
+            field
+            for field in ("start_at", "end_at")
+            if field not in interval
+        )
+
+    counts = payload.get("counts")
+    if not isinstance(counts, Mapping):
+        missing_fields.append("counts.raw_records")
+        missing_fields.append("counts.valid_records")
+        missing_fields.append("counts.invalid_records")
+        missing_fields.append("counts.loaded_records")
+    else:
+        missing_fields.extend(
+            f"counts.{field}"
+            for field in ("raw_records", "valid_records", "invalid_records", "loaded_records")
+            if field not in counts
+        )
+
+    if missing_fields:
+        missing = ", ".join(dict.fromkeys(missing_fields))
+        raise RuntimeError(f"Instagram run summary is missing required fields: {missing}.")
+
+
+def print_instagram_run_summary(
+    project_root: Path,
+    artifact_path: Path,
+    heading: str,
+) -> int:
+    root = project_root.resolve()
+    payload = load_instagram_run_summary_payload(artifact_path)
     counts = payload.get("counts", {})
     interval = payload.get("interval", {})
-    print("Latest Instagram run summary")
-    print(f"run_summary_path={artifact_path.relative_to(project_root).as_posix()}")
+    print(heading)
+    print(f"run_summary_path={artifact_path.resolve().relative_to(root).as_posix()}")
     print(f"provider={payload.get('provider', 'instagram')}")
     print(f"status={payload.get('status', 'unknown')}")
     print(f"interval_start_at={interval.get('start_at', '')}")
@@ -385,6 +577,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     summary_modes = parser.add_mutually_exclusive_group()
     summary_modes.add_argument(
+        "--list-run-summaries",
+        action="store_true",
+        help="List local Instagram run-summary artifact paths without API calls.",
+    )
+    summary_modes.add_argument(
+        "--count-run-summaries",
+        action="store_true",
+        help="Print the number of local Instagram run-summary artifacts without API calls.",
+    )
+    summary_modes.add_argument(
         "--latest-run-summary",
         action="store_true",
         help="Print the latest local Instagram run-summary artifact path without API calls.",
@@ -393,6 +595,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--show-latest-run-summary",
         action="store_true",
         help="Print compact status and counts from the latest local Instagram run summary.",
+    )
+    summary_modes.add_argument(
+        "--validate-latest-run-summary",
+        action="store_true",
+        help="Validate the latest local Instagram run summary without API calls.",
+    )
+    summary_modes.add_argument(
+        "--validate-run-summaries",
+        action="store_true",
+        help="Validate all local Instagram run summaries without API calls.",
+    )
+    summary_modes.add_argument(
+        "--validate-run-summary",
+        help="Validate a selected local Instagram run-summary path without API calls.",
+    )
+    summary_modes.add_argument(
+        "--show-run-summary",
+        help="Print compact status and counts from a selected local Instagram run-summary path.",
     )
     parser.add_argument(
         "--dry-run",

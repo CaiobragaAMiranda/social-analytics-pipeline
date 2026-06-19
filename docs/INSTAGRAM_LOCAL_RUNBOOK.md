@@ -93,6 +93,48 @@ Success looks like:
 
 ## Inspect Run Summaries
 
+List local run-summary paths:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --list-run-summaries
+```
+
+Count local run summaries:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --count-run-summaries
+```
+
+Validate a selected run summary before relying on it:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --validate-run-summary data/runs/instagram/<run-summary-file>.json
+```
+
+Validate all local run summaries before relying on them:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --validate-run-summaries
+```
+
+Validate the latest run summary before relying on it:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --validate-latest-run-summary
+```
+
+Print compact status and counts from a selected run summary:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m social_analytics_pipeline.cli.instagram_local_pipeline --show-run-summary data/runs/instagram/<run-summary-file>.json
+```
+
 Print the latest run-summary path:
 
 ```powershell
@@ -114,7 +156,7 @@ Success looks like:
 - The command does not require credentials.
 - The command does not call the Instagram API.
 - Paths are project-relative.
-- Status and counts come from the ignored local run-summary artifact.
+- Validation status and counts come from the ignored local run-summary artifact.
 
 Failure handling:
 
