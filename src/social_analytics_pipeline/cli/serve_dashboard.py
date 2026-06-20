@@ -53,7 +53,13 @@ def main(
 def dashboard_url(project_root: Path, dashboard_path: Path, host: str, port: int) -> str:
     quoted_path = quote(_display_dashboard_path(project_root, dashboard_path))
     try:
-        display_host = "localhost" if ip_address(host).is_unspecified else host
+        address = ip_address(host)
+        if address.is_unspecified:
+            display_host = "localhost"
+        elif address.version == 6:
+            display_host = f"[{host}]"
+        else:
+            display_host = host
     except ValueError:
         display_host = host
     return f"http://{display_host}:{port}/{quoted_path}"
