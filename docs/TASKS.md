@@ -20,7 +20,7 @@
 
 ### TASK-237 - Select next delivery after Docker dashboard operations batch
 
-Status: Pending
+Status: Done
 
 Phase: Planning
 
@@ -32,6 +32,193 @@ Acceptance criteria:
 - The choice keeps the project focused on usable local operation and dashboard/provider value.
 - Broad infrastructure remains deferred unless it directly unlocks the selected slice.
 - Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery is a project-facing documentation consolidation.
+- The README now presents the current product state, architecture and normalized metric contract without replaying the full task history.
+- Historical evidence remains in this task ledger and `docs/PROGRESS.md`.
+
+### TASK-238 - Consolidate project-facing documentation
+
+Status: Done
+
+Phase: Documentation
+
+Goal: make the repository easier to evaluate without changing runtime behavior.
+
+Acceptance criteria:
+
+- README describes the current product scope separately from historical task evidence.
+- README includes a simple end-to-end architecture diagram.
+- README defines required and optional `SocialMetric` fields, validation rules and provider mappings.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- README now has concise Architecture, SocialMetric Contract and Current Product Scope sections.
+- The architecture explains the provider, raw storage, normalization, load and dashboard flow.
+- The SocialMetric contract mirrors the implemented schema and normalizers for YouTube, Instagram and TikTok fixtures.
+
+### TASK-239 - Select the next small delivery after documentation consolidation
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose one small implementation slice from the current documented project state.
+
+Acceptance criteria:
+
+- The choice improves local usability, dashboard value or a real-provider operation.
+- The choice does not reopen completed dashboard v1 scope without a concrete gap.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery is a no-smoke artifact guard for the Docker dashboard path.
+- The slice prevents a misleading local server start without changing default smoke generation.
+
+### TASK-240 - Guard Docker dashboard no-smoke mode against a missing artifact
+
+Status: Done
+
+Phase: Local operations
+
+Goal: fail clearly before starting the static server when no-smoke mode has no dashboard artifact to serve.
+
+Acceptance criteria:
+
+- Default smoke generation behavior is unchanged.
+- No-smoke mode rejects a missing output before binding the server.
+- The error does not expose an absolute local path.
+- Focused tests cover the guard and the existing bind-failure behavior.
+
+Evidence:
+
+- `serve-dashboard --no-smoke` now rejects a missing dashboard output before binding the server.
+- The error uses a project-relative path when available, otherwise only the file name.
+- Default smoke generation remains unchanged.
+- Focused tests, full unit suite, Ruff, Bandit and documentation verification passed.
+
+### TASK-241 - Select the next small delivery after the no-smoke artifact guard
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose one small delivery after closing the Docker dashboard no-smoke guard.
+
+Acceptance criteria:
+
+- The choice improves the current local dashboard or real-provider workflow.
+- The choice preserves the safe fixture-first default and current dashboard v1 scope.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery makes the Docker dashboard artifact path configurable.
+- The slice completes the practical no-smoke workflow without changing providers or dashboard UI.
+
+### TASK-242 - Configure the Docker dashboard artifact path
+
+Status: Done
+
+Phase: Local operations
+
+Goal: let Docker Compose serve a chosen relative dashboard artifact while keeping the smoke artifact as the safe default.
+
+Acceptance criteria:
+
+- Docker Compose passes a configurable dashboard output to `serve-dashboard`.
+- The healthcheck probes the same configured artifact.
+- The safe smoke output remains the default.
+- Compose tests cover the command, environment and healthcheck configuration.
+
+Evidence:
+
+- Compose now passes `DASHBOARD_OUTPUT` to `serve-dashboard` and keeps the smoke artifact as its default.
+- The dashboard healthcheck resolves the same output setting before issuing its local `HEAD` request.
+- Focused Compose tests, full unit suite, Ruff, Compose config validation and documentation verification passed.
+
+### TASK-243 - Select the next small delivery after configurable dashboard output
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose one small delivery after closing the configurable Docker dashboard output.
+
+Acceptance criteria:
+
+- The choice improves the current local dashboard or real-provider workflow.
+- The choice preserves the safe fixture-first default and current dashboard v1 scope.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery validates configured dashboard output paths against the served project root.
+- The slice prevents misleading URLs and unintended paths while preserving local artifact selection.
+
+### TASK-244 - Keep dashboard output inside the project root
+
+Status: Done
+
+Phase: Local operations
+
+Goal: reject dashboard output paths outside the served project root before generating or serving artifacts.
+
+Acceptance criteria:
+
+- Relative paths that escape the project root are rejected.
+- Errors do not reveal absolute local paths.
+- Default smoke generation and valid relative artifacts remain supported.
+- Focused tests cover the rejected path behavior.
+
+Evidence:
+
+- `serve-dashboard` now resolves the output path and rejects values outside the project root before smoke generation or server binding.
+- The rejection message contains no absolute local path.
+- Focused dashboard/Compose tests, full unit suite, Ruff and documentation verification passed.
+
+### TASK-245 - Package Docker dashboard artifact operations
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the documentation consolidation and Docker dashboard artifact operation improvements.
+
+Acceptance criteria:
+
+- The batch has passing local validation.
+- The commit contains no sensitive local configuration.
+- The PR describes the behavior and validation clearly.
+- GitHub Actions and CodeRabbit can review the batch.
+
+Evidence:
+
+- Commit `d721459` packages the dashboard documentation consolidation and artifact operation improvements.
+- Local validation passed before packaging: full unit suite, Ruff, Bandit, Compose config and documentation verification.
+- The local Gitleaks executable did not return in this environment; the required GitHub secret scan remains part of PR review.
+
+### TASK-246 - Review Docker dashboard artifact operations PR
+
+Status: In Progress
+
+Phase: Governance
+
+Goal: publish and review the Docker dashboard artifact operations batch.
+
+Acceptance criteria:
+
+- The feature branch is pushed and has an open PR.
+- GitHub Actions quality/security and secret scan are reviewed.
+- CodeRabbit is reviewed according to the repository policy.
+- Blocking findings are fixed before merge.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -4750,7 +4937,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Add Docker dashboard no-smoke mode for serving an existing dashboard artifact.
+- Make Docker no-smoke mode fail clearly when the expected dashboard artifact is absent.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule

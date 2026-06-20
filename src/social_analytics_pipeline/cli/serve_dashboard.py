@@ -20,10 +20,19 @@ def main(
     generate_smoke: bool = True,
     start_server: bool = True,
 ) -> int:
-    root = project_root or Path.cwd()
-    dashboard_path = output_path if output_path.is_absolute() else root / output_path
+    root = (project_root or Path.cwd()).resolve()
+    dashboard_path = (output_path if output_path.is_absolute() else root / output_path).resolve()
+    if not _is_inside_project_root(root, dashboard_path):
+        print("Error: dashboard output must be inside the project root.", file=sys.stderr)
+        return 1
     if generate_smoke:
         dashboard_path = run_dashboard_smoke(root, output_path).dashboard_path
+    elif not dashboard_path.is_file():
+        print(
+            f"Error: dashboard output not found: {_display_dashboard_path(root, dashboard_path)}",
+            file=sys.stderr,
+        )
+        return 1
 
     url = dashboard_url(root, dashboard_path, host, port)
     print(f"dashboard_url={url}")
@@ -42,17 +51,28 @@ def main(
 
 
 def dashboard_url(project_root: Path, dashboard_path: Path, host: str, port: int) -> str:
-    try:
-        relative_path = dashboard_path.relative_to(project_root)
-    except ValueError:
-        relative_path = dashboard_path.name
-    path_text = relative_path.as_posix() if isinstance(relative_path, Path) else relative_path
-    quoted_path = quote(path_text)
+    quoted_path = quote(_display_dashboard_path(project_root, dashboard_path))
     try:
         display_host = "localhost" if ip_address(host).is_unspecified else host
     except ValueError:
         display_host = host
     return f"http://{display_host}:{port}/{quoted_path}"
+
+
+def _display_dashboard_path(project_root: Path, dashboard_path: Path) -> str:
+    try:
+        relative_path = dashboard_path.relative_to(project_root)
+    except ValueError:
+        relative_path = dashboard_path.name
+    return relative_path.as_posix() if isinstance(relative_path, Path) else relative_path
+
+
+def _is_inside_project_root(project_root: Path, dashboard_path: Path) -> bool:
+    try:
+        dashboard_path.relative_to(project_root)
+    except ValueError:
+        return False
+    return True
 
 
 def serve_directory(project_root: Path, host: str, port: int) -> None:

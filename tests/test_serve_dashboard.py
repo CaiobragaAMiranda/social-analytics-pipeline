@@ -77,6 +77,9 @@ class ServeDashboardTest(unittest.TestCase):
     def test_main_reports_bind_failure_with_host_and_port(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)
+            dashboard_path = project_root / "data" / "dashboard" / "existing.html"
+            dashboard_path.parent.mkdir(parents=True)
+            dashboard_path.write_text("<html></html>", encoding="utf-8")
             stdout = io.StringIO()
             stderr = io.StringIO()
 
@@ -98,6 +101,54 @@ class ServeDashboardTest(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("could not bind dashboard server at 127.0.0.1:9000", stderr.getvalue())
+
+    def test_main_rejects_missing_dashboard_in_no_smoke_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            stderr = io.StringIO()
+
+            with (
+                mock.patch(
+                    "social_analytics_pipeline.cli.serve_dashboard.serve_directory"
+                ) as serve_directory,
+                contextlib.redirect_stderr(stderr),
+            ):
+                exit_code = main(
+                    project_root=project_root,
+                    output_path=Path("data/dashboard/missing.html"),
+                    generate_smoke=False,
+                )
+
+        self.assertEqual(exit_code, 1)
+        serve_directory.assert_not_called()
+        self.assertIn(
+            "dashboard output not found: data/dashboard/missing.html",
+            stderr.getvalue(),
+        )
+
+    def test_main_rejects_dashboard_output_outside_project_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            stderr = io.StringIO()
+
+            with (
+                mock.patch(
+                    "social_analytics_pipeline.cli.serve_dashboard.run_dashboard_smoke"
+                ) as run_smoke,
+                contextlib.redirect_stderr(stderr),
+            ):
+                exit_code = main(
+                    project_root=project_root,
+                    output_path=Path("../outside.html"),
+                    start_server=False,
+                )
+
+        self.assertEqual(exit_code, 1)
+        run_smoke.assert_not_called()
+        self.assertEqual(
+            stderr.getvalue(),
+            "Error: dashboard output must be inside the project root.\n",
+        )
 
     def test_cli_entrypoint_uses_parser_and_main(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
