@@ -413,7 +413,7 @@ Evidence:
 
 ### TASK-257 - Add dashboard channel management panel
 
-Status: In Progress
+Status: Done
 
 Phase: Consumption layer
 
@@ -426,19 +426,71 @@ Acceptance criteria:
 - Platform enablement uses clear controls.
 - The panel updates catalog data without exposing credentials.
 
-### TASK-258 - Use catalog channels for deliberate collection
+Evidence:
 
-Status: Pending
+- The sidebar contains the global `Manage channels` action.
+- Users add channels by human name; a stable internal ID is generated from that name.
+- The panel lists, renames and removes local channels, shows images when available and toggles YouTube, Instagram and TikTok.
+- Dashboard tests and Ruff passed during the panel implementation.
+
+### TASK-258 - Add deliberate collection for catalog channels
+
+Status: In Progress
 
 Phase: Provider operations
 
-Goal: allow a deliberate collection command to target enabled sources from the channel catalog.
+Goal: allow a `Collect now` action to target enabled configured sources from one catalog channel.
+
+Planning note: the management panel must first capture a public platform reference such as a handle or URL. Enabling a source alone is not enough to identify a provider account.
 
 Acceptance criteria:
 
 - Collection remains an explicit command or button action.
 - Only enabled, configured provider sources are selected.
 - Output identifies the human channel and source coverage without exposing credentials.
+
+### TASK-259 - Record catalog collection status
+
+Status: Pending
+
+Phase: Provider operations
+
+Goal: persist safe per-channel and per-source collection status for dashboard display.
+
+Acceptance criteria:
+
+- Status records last attempt, last success and safe outcome text.
+- Status never contains credentials, raw payloads or full local paths.
+- Dashboard shows source status and most recent successful sync.
+
+### TASK-260 - Add configurable channel collection schedules
+
+Status: Pending
+
+Phase: Orchestration
+
+Goal: let a catalog channel opt into a daily or weekly collection schedule.
+
+Acceptance criteria:
+
+- Schedules apply only to enabled configured sources.
+- Saving a channel does not enable scheduling by default.
+- Schedule choices are visible and editable in the channel management panel.
+- Existing retry and failure behavior remains active for scheduled runs.
+
+### TASK-261 - Add collection failure visibility
+
+Status: Pending
+
+Phase: Resilience
+
+Goal: show a safe actionable status when a configured source cannot collect.
+
+Acceptance criteria:
+
+- Dashboard distinguishes successful, pending, unavailable and failed source states.
+- Failure text is safe for the local UI and excludes secrets.
+- Operators can retry deliberately after resolving local configuration.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 

@@ -69,6 +69,32 @@ def set_platform_enabled(
     return updated
 
 
+def set_platform_reference(
+    catalog_path: Path,
+    channel_id: str,
+    provider: str,
+    handle: str,
+) -> ChannelIdentityConfig:
+    channel = _channel_by_id(list_channels(catalog_path), channel_id)
+    platforms = tuple(
+        ChannelPlatformIdentity(
+            item.provider, item.channel_id, handle, item.account_id, item.enabled
+        )
+        if item.provider == provider
+        else item
+        for item in channel.platforms
+    )
+    if not any(item.provider == provider for item in platforms):
+        platforms += (ChannelPlatformIdentity(provider, handle=handle, enabled=False),)
+    updated = ChannelIdentityConfig(
+        channel.channel_id, channel.display_name, channel.image_url, platforms
+    )
+    write_channel_identity_config(
+        catalog_path, update_channel_identity(list_channels(catalog_path), updated)
+    )
+    return updated
+
+
 def _channel_by_id(
     channels: tuple[ChannelIdentityConfig, ...], channel_id: str
 ) -> ChannelIdentityConfig:

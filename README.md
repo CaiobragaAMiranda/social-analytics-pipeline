@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Local operations and consumption layer
-- Current task: TASK-257 - Add dashboard channel management panel
-- Last completed delivery: TASK-256 - Add local catalog API for dashboard management
+- Current task: TASK-258 - Use catalog channels for deliberate collection
+- Last completed delivery: TASK-257 - Add dashboard channel management panel
 - Product state: the project has a channel-first static dashboard, real local YouTube and Instagram paths, safe fixture-based smoke flows, and optional Docker services for the dashboard, PostgreSQL and Airflow.
 
 ## Workflow

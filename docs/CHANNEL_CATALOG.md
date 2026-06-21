@@ -11,7 +11,7 @@ The dashboard selects a catalog channel. Platforms are sources within that chann
 - The real catalog is local and ignored by Git.
 - The repository ships only a safe example catalog with placeholders.
 - A future dashboard management panel uses a localhost-only catalog API to create, edit, enable, disable and remove entries without manual JSON editing. The Docker dashboard port is bound to localhost only.
-- Saving a channel updates catalog configuration only. Collection remains a deliberate separate action in the first version.
+- Saving a channel updates catalog configuration only. A separate `Collect now` action starts a deliberate provider run for enabled configured sources.
 
 ## Catalog Contract
 
@@ -46,3 +46,10 @@ The dashboard selects a catalog channel. Platforms are sources within that chann
 - No automatic collection when a channel is saved.
 - No shared cloud catalog or multi-user authorization.
 - No storage of API keys, access tokens or raw provider payloads in the catalog.
+
+## Collection Automation Roadmap
+
+1. Add `Collect now` for one catalog channel after the user explicitly requests it.
+2. Record safe per-source sync status and last successful collection time.
+3. Allow an enabled channel to opt into a configured daily or weekly schedule.
+4. Reuse existing retry, token safety and failure reporting behavior for scheduled runs.

@@ -904,6 +904,41 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         gap: 0.55rem;
       }}
     }}
+    .channel-manager {{
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid #2d3851;
+      background: #101827;
+    }}
+    .channel-manager form, .channel-manager-row, .channel-manager-sources {{
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }}
+    .channel-manager form {{ margin-bottom: 0.8rem; flex-wrap: wrap; }}
+    .channel-manager label {{ display: grid; gap: 0.3rem; color: #9eabc0; font-size: 0.78rem; }}
+    .channel-manager input {{
+      min-width: 10rem; padding: 0.45rem; border: 1px solid #33425f;
+      background: #0b1220; color: #e6edf7;
+    }}
+    .channel-manager button {{
+      padding: 0.45rem 0.65rem; border: 1px solid #3a4a68;
+      background: #17243a; color: #d9e6f7; cursor: pointer;
+    }}
+    .channel-manager-row {{
+      justify-content: space-between; padding: 0.65rem 0;
+      border-top: 1px solid #26334b; flex-wrap: wrap;
+    }}
+    .channel-manager-row input {{ flex: 1 1 11rem; }}
+    .channel-manager-sources {{ flex-wrap: wrap; }}
+    .channel-manager-sources button {{ text-transform: capitalize; }}
+    .nav-list .channel-manager-trigger {{
+      width: 100%; border: 0; text-align: left; font: inherit;
+      color: inherit; background: transparent;
+    }}
+    .channel-manager-image {{
+      width: 2rem; height: 2rem; object-fit: cover; border-radius: 50%;
+    }}
   </style>
 </head>
 <body>
@@ -911,11 +946,14 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     <aside class="sidebar">
       <h1 class="brand">Social</h1>
       <p class="sidebar-note">Channel-first analytics across connected social sources.</p>
-      <div class="nav-list">
-        <div class="nav-item"><span class="nav-icon">#</span><span>Overview</span></div>
-        <div class="nav-item"><span class="nav-icon">%</span><span>Performance</span></div>
-        <div class="nav-item"><span class="nav-icon">*</span><span>Content</span></div>
-        <div class="nav-item"><span class="nav-icon">i</span><span>Metadata</span></div>
+        <div class="nav-list">
+          <div class="nav-item"><span class="nav-icon">#</span><span>Overview</span></div>
+          <div class="nav-item"><span class="nav-icon">%</span><span>Performance</span></div>
+          <div class="nav-item"><span class="nav-icon">*</span><span>Content</span></div>
+          <div class="nav-item"><span class="nav-icon">i</span><span>Metadata</span></div>
+          <button class="nav-item channel-manager-trigger" type="button" data-channel-manager-open>
+            <span class="nav-icon">+</span><span>Manage channels</span>
+          </button>
       </div>
     </aside>
     <section class="content">
@@ -949,6 +987,18 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             {_channel_option_cards(channels)}
           </div>
         </div>
+      </section>
+      <section class="channel-manager" data-channel-manager hidden>
+        <div class="section-header">
+          <h2>Managed Channels</h2>
+          <button type="button" data-channel-manager-close>Close</button>
+        </div>
+        <form data-channel-manager-add>
+          <label>Channel name<input name="name" required></label>
+          <button type="submit">Add channel</button>
+        </form>
+        <div data-channel-manager-list></div>
+        <p data-channel-manager-status></p>
       </section>
       <section class="hero-grid">
         {_metric_card(
@@ -1150,6 +1200,112 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
   <script type="application/json" id="dashboard-data">{channels_json}</script>
   <script>
     const channels = JSON.parse(document.getElementById("dashboard-data").textContent);
+    const catalogEndpoint = "/api/channels";
+    const manager = document.querySelector("[data-channel-manager]");
+    const managerList = document.querySelector("[data-channel-manager-list]");
+    const managerStatus = document.querySelector("[data-channel-manager-status]");
+    const setManagerStatus = (message) => {{ managerStatus.textContent = message; }};
+    const catalogAction = async (payload) => {{
+      const response = await fetch(catalogEndpoint, {{
+        method: "POST",
+        headers: {{"Content-Type": "application/json"}},
+        body: JSON.stringify(payload),
+      }});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Catalog update failed.");
+      return result.channels;
+    }};
+    const renderCatalog = (catalog) => {{
+      managerList.replaceChildren(...catalog.map((channel) => {{
+        const row = document.createElement("div");
+        row.className = "channel-manager-row";
+        if (channel.image_url) {{
+          const image = document.createElement("img");
+          image.className = "channel-manager-image";
+          image.src = channel.image_url;
+          image.alt = "";
+          row.append(image);
+        }}
+        const name = document.createElement("input");
+        name.value = channel.name;
+        name.setAttribute("aria-label", `Channel name for ${{channel.name}}`);
+        const save = document.createElement("button");
+        save.type = "button";
+        save.textContent = "Save";
+        save.addEventListener("click", async () => {{
+          try {{
+            await catalogAction({{action: "rename", id: channel.id, name: name.value}});
+            await loadCatalog();
+          }} catch (error) {{ setManagerStatus(error.message); }}
+        }});
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Remove";
+        remove.addEventListener("click", async () => {{
+          try {{ await catalogAction({{action: "remove", id: channel.id}}); await loadCatalog(); }}
+          catch (error) {{ setManagerStatus(error.message); }}
+        }});
+        const sources = document.createElement("div");
+        sources.className = "channel-manager-sources";
+        ["youtube", "instagram", "tiktok"].forEach((provider) => {{
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          const enabled = Boolean(channel.platforms[provider]?.enabled);
+          toggle.textContent = `${{provider}}: ${{enabled ? "on" : "off"}}`;
+          toggle.addEventListener("click", async () => {{
+            try {{
+              await catalogAction({{
+                action: enabled ? "disable" : "enable",
+                id: channel.id,
+                provider,
+              }});
+              await loadCatalog();
+            }} catch (error) {{ setManagerStatus(error.message); }}
+          }});
+          sources.append(toggle);
+        }});
+        row.append(name, save, sources, remove);
+        managerList.append(row);
+      }}));
+    }};
+    const loadCatalog = async () => {{
+      try {{
+        const response = await fetch(catalogEndpoint);
+        const result = await response.json();
+        renderCatalog(result.channels);
+        setManagerStatus("");
+      }} catch (error) {{ setManagerStatus("Catalog is available only when served locally."); }}
+    }};
+    document.querySelector("[data-channel-manager-open]").addEventListener("click", () => {{
+      manager.hidden = false;
+      loadCatalog();
+    }});
+    document.querySelector("[data-channel-manager-close]").addEventListener("click", () => {{
+      manager.hidden = true;
+    }});
+    document.querySelector("[data-channel-manager-add]").addEventListener(
+      "submit",
+      async (event) => {{
+      event.preventDefault();
+      const form = event.currentTarget;
+      try {{
+        const channelId = form.elements.name.value
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        await catalogAction({{
+          action: "add",
+          id: channelId,
+          name: form.elements.name.value,
+        }});
+        form.reset();
+        await loadCatalog();
+      }} catch (error) {{ setManagerStatus(error.message); }}
+      }},
+    );
     const select = document.querySelector("[data-channel-select]");
     const setText = (selector, value) => {{
       document.querySelectorAll(selector).forEach((target) => {{
