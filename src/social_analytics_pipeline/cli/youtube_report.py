@@ -32,6 +32,7 @@ class YouTubeReportSummary:
     average_engagements_per_record: float
     engagement_rate: float
     max_followers: int
+    has_followers: bool
     top_content_id: str | None
     top_views: int
     top_metric_value: int
@@ -129,6 +130,7 @@ def build_youtube_report_summary_with_options(
         average_engagements_per_record=_rate(total_engagements, len(rows)),
         engagement_rate=_rate(total_engagements, total_views),
         max_followers=max((_metric_value(row, "followers") for row in rows), default=0),
+        has_followers=any(row.get("followers") is not None for row in rows),
         top_content_id=top_row.get("content_id") if top_row else None,
         top_views=_metric_value(top_row, "views") if top_row else 0,
         top_metric_value=_metric_value(top_row, sort_by) if top_row else 0,
@@ -267,6 +269,7 @@ def build_youtube_report_json_payload(
         },
         "data_quality": {
             "has_engagements": summary.total_engagements > 0,
+            "has_followers": summary.has_followers,
             "has_records": summary.records > 0,
             "has_top_content": summary.top_content_id is not None,
             "is_partial": False,

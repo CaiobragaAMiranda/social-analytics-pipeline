@@ -42,7 +42,7 @@ class DockerComposeTest(unittest.TestCase):
 
         self.assertIn("container_name: social-analytics-dashboard", service_block)
         self.assertIn("serve-dashboard --host 0.0.0.0 --port 8000", service_block)
-        self.assertIn('"${DASHBOARD_PORT}:8000"', service_block)
+        self.assertIn('"127.0.0.1:${DASHBOARD_PORT}:8000"', service_block)
 
     def test_dashboard_service_can_disable_smoke_generation(self) -> None:
         compose = Path("docker-compose.yml").read_text(encoding="utf-8")
@@ -52,6 +52,19 @@ class DockerComposeTest(unittest.TestCase):
         self.assertIn("$${DASHBOARD_NO_SMOKE}", service_block)
         self.assertIn("DASHBOARD_NO_SMOKE=", env_example)
 
+    def test_dashboard_service_uses_configurable_dashboard_output(self) -> None:
+        compose = Path("docker-compose.yml").read_text(encoding="utf-8")
+        env_example = Path(".env.example").read_text(encoding="utf-8")
+        service_block = compose.split("  dashboard:", 1)[1].split("\n  postgres:", 1)[0]
+
+        self.assertIn("--output", service_block)
+        self.assertIn("$${DASHBOARD_OUTPUT}", service_block)
+        self.assertIn(
+            "DASHBOARD_OUTPUT: ${DASHBOARD_OUTPUT:-data/dashboard/smoke.html}",
+            service_block,
+        )
+        self.assertIn("DASHBOARD_OUTPUT=data/dashboard/smoke.html", env_example)
+
     def test_dashboard_service_has_local_healthcheck(self) -> None:
         compose = Path("docker-compose.yml").read_text(encoding="utf-8")
         service_block = compose.split("  dashboard:", 1)[1].split("\n  postgres:", 1)[0]
@@ -59,7 +72,11 @@ class DockerComposeTest(unittest.TestCase):
         self.assertIn("healthcheck:", service_block)
         self.assertIn("python", service_block)
         self.assertIn('method="HEAD"', service_block)
-        self.assertIn("http://localhost:8000/data/dashboard/smoke.html", service_block)
+        self.assertIn(
+            'os.environ.get("DASHBOARD_OUTPUT", "data/dashboard/smoke.html")',
+            service_block,
+        )
+        self.assertIn("quote(output.lstrip('/'))", service_block)
 
 
 if __name__ == "__main__":

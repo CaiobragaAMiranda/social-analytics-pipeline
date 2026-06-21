@@ -28,6 +28,7 @@ class ChannelPlatformIdentity:
     channel_id: str = ""
     handle: str = ""
     account_id: str = ""
+    enabled: bool = True
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,68 @@ def load_channel_identity_config(config_path: Path) -> tuple[ChannelIdentityConf
     channels = payload.get("channels", [])
     if not isinstance(channels, list):
         raise RuntimeError("Channel identity config 'channels' must be a list.")
-    return tuple(_channel_identity_config(channel) for channel in channels)
+    catalog = tuple(_channel_identity_config(channel) for channel in channels)
+    _validate_unique_channel_ids(catalog)
+    return catalog
+
+
+def write_channel_identity_config(
+    config_path: Path,
+    channels: tuple[ChannelIdentityConfig, ...],
+) -> None:
+    _validate_unique_channel_ids(channels)
+    payload = {
+        "channels": [
+            {
+                "id": channel.channel_id,
+                "display_name": channel.display_name,
+                "image_url": channel.image_url,
+                "platforms": {
+                    platform.provider: {
+                        "channel_id": platform.channel_id,
+                        "handle": platform.handle,
+                        "account_id": platform.account_id,
+                        "enabled": platform.enabled,
+                    }
+                    for platform in channel.platforms
+                },
+            }
+            for channel in channels
+        ]
+    }
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def add_channel_identity(
+    channels: tuple[ChannelIdentityConfig, ...],
+    channel: ChannelIdentityConfig,
+) -> tuple[ChannelIdentityConfig, ...]:
+    updated = (*channels, channel)
+    _validate_unique_channel_ids(updated)
+    return updated
+
+
+def update_channel_identity(
+    channels: tuple[ChannelIdentityConfig, ...],
+    channel: ChannelIdentityConfig,
+) -> tuple[ChannelIdentityConfig, ...]:
+    if not any(existing.channel_id == channel.channel_id for existing in channels):
+        raise RuntimeError(f"Channel identity '{channel.channel_id}' does not exist.")
+    return tuple(
+        channel if existing.channel_id == channel.channel_id else existing
+        for existing in channels
+    )
+
+
+def remove_channel_identity(
+    channels: tuple[ChannelIdentityConfig, ...],
+    channel_id: str,
+) -> tuple[ChannelIdentityConfig, ...]:
+    updated = tuple(channel for channel in channels if channel.channel_id != channel_id)
+    if len(updated) == len(channels):
+        raise RuntimeError(f"Channel identity '{channel_id}' does not exist.")
+    return updated
 
 
 def match_channel_identity(
@@ -123,6 +185,7 @@ def _platform_identity(provider: object, payload: object) -> ChannelPlatformIden
         channel_id=str(payload.get("channel_id", "")),
         handle=str(payload.get("handle", "")),
         account_id=str(payload.get("account_id", "")),
+        enabled=bool(payload.get("enabled", True)),
     )
 
 
@@ -131,3 +194,9 @@ def _required_text(payload: dict[str, Any], key: str) -> str:
     if not value:
         raise RuntimeError(f"Channel identity config requires '{key}'.")
     return str(value)
+
+
+def _validate_unique_channel_ids(channels: tuple[ChannelIdentityConfig, ...]) -> None:
+    channel_ids = [channel.channel_id.lower() for channel in channels]
+    if len(channel_ids) != len(set(channel_ids)):
+        raise RuntimeError("Channel identity config cannot contain duplicate IDs.")

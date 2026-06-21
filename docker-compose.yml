@@ -45,11 +45,12 @@ services:
     build:
       context: .
     container_name: social-analytics-dashboard
-    command: /bin/sh -c "serve-dashboard --host 0.0.0.0 --port 8000 $${DASHBOARD_NO_SMOKE}"
+    command: /bin/sh -c "serve-dashboard --host 0.0.0.0 --port 8000 --output \"$${DASHBOARD_OUTPUT}\" $${DASHBOARD_NO_SMOKE}"
     environment:
       PYTHONUNBUFFERED: "1"
+      DASHBOARD_OUTPUT: ${DASHBOARD_OUTPUT:-data/dashboard/smoke.html}
     ports:
-      - "${DASHBOARD_PORT}:8000"
+      - "127.0.0.1:${DASHBOARD_PORT}:8000"
     volumes:
       - ./data:/app/data
       - ./config:/app/config:ro
@@ -59,9 +60,11 @@ services:
         - python
         - -c
         - >
-          import urllib.request;
+          import os, urllib.request;
+          from urllib.parse import quote;
+          output = os.environ.get("DASHBOARD_OUTPUT", "data/dashboard/smoke.html");
           request = urllib.request.Request(
-          "http://localhost:8000/data/dashboard/smoke.html", method="HEAD"
+          f"http://localhost:8000/{quote(output.lstrip('/'))}", method="HEAD"
           );
           urllib.request.urlopen(request, timeout=2).close()
       interval: 30s

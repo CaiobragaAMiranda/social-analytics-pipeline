@@ -20,7 +20,7 @@
 
 ### TASK-237 - Select next delivery after Docker dashboard operations batch
 
-Status: Pending
+Status: Done
 
 Phase: Planning
 
@@ -32,6 +32,413 @@ Acceptance criteria:
 - The choice keeps the project focused on usable local operation and dashboard/provider value.
 - Broad infrastructure remains deferred unless it directly unlocks the selected slice.
 - Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery is a project-facing documentation consolidation.
+- The README now presents the current product state, architecture and normalized metric contract without replaying the full task history.
+- Historical evidence remains in this task ledger and `docs/PROGRESS.md`.
+
+### TASK-238 - Consolidate project-facing documentation
+
+Status: Done
+
+Phase: Documentation
+
+Goal: make the repository easier to evaluate without changing runtime behavior.
+
+Acceptance criteria:
+
+- README describes the current product scope separately from historical task evidence.
+- README includes a simple end-to-end architecture diagram.
+- README defines required and optional `SocialMetric` fields, validation rules and provider mappings.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- README now has concise Architecture, SocialMetric Contract and Current Product Scope sections.
+- The architecture explains the provider, raw storage, normalization, load and dashboard flow.
+- The SocialMetric contract mirrors the implemented schema and normalizers for YouTube, Instagram and TikTok fixtures.
+
+### TASK-239 - Select the next small delivery after documentation consolidation
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose one small implementation slice from the current documented project state.
+
+Acceptance criteria:
+
+- The choice improves local usability, dashboard value or a real-provider operation.
+- The choice does not reopen completed dashboard v1 scope without a concrete gap.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery is a no-smoke artifact guard for the Docker dashboard path.
+- The slice prevents a misleading local server start without changing default smoke generation.
+
+### TASK-240 - Guard Docker dashboard no-smoke mode against a missing artifact
+
+Status: Done
+
+Phase: Local operations
+
+Goal: fail clearly before starting the static server when no-smoke mode has no dashboard artifact to serve.
+
+Acceptance criteria:
+
+- Default smoke generation behavior is unchanged.
+- No-smoke mode rejects a missing output before binding the server.
+- The error does not expose an absolute local path.
+- Focused tests cover the guard and the existing bind-failure behavior.
+
+Evidence:
+
+- `serve-dashboard --no-smoke` now rejects a missing dashboard output before binding the server.
+- The error uses a project-relative path when available, otherwise only the file name.
+- Default smoke generation remains unchanged.
+- Focused tests, full unit suite, Ruff, Bandit and documentation verification passed.
+
+### TASK-241 - Select the next small delivery after the no-smoke artifact guard
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose one small delivery after closing the Docker dashboard no-smoke guard.
+
+Acceptance criteria:
+
+- The choice improves the current local dashboard or real-provider workflow.
+- The choice preserves the safe fixture-first default and current dashboard v1 scope.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery makes the Docker dashboard artifact path configurable.
+- The slice completes the practical no-smoke workflow without changing providers or dashboard UI.
+
+### TASK-242 - Configure the Docker dashboard artifact path
+
+Status: Done
+
+Phase: Local operations
+
+Goal: let Docker Compose serve a chosen relative dashboard artifact while keeping the smoke artifact as the safe default.
+
+Acceptance criteria:
+
+- Docker Compose passes a configurable dashboard output to `serve-dashboard`.
+- The healthcheck probes the same configured artifact.
+- The safe smoke output remains the default.
+- Compose tests cover the command, environment and healthcheck configuration.
+
+Evidence:
+
+- Compose now passes `DASHBOARD_OUTPUT` to `serve-dashboard` and keeps the smoke artifact as its default.
+- The dashboard healthcheck resolves the same output setting before issuing its local `HEAD` request.
+- Focused Compose tests, full unit suite, Ruff, Compose config validation and documentation verification passed.
+
+### TASK-243 - Select the next small delivery after configurable dashboard output
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose one small delivery after closing the configurable Docker dashboard output.
+
+Acceptance criteria:
+
+- The choice improves the current local dashboard or real-provider workflow.
+- The choice preserves the safe fixture-first default and current dashboard v1 scope.
+- Broad infrastructure remains deferred unless it directly unlocks the selected slice.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery validates configured dashboard output paths against the served project root.
+- The slice prevents misleading URLs and unintended paths while preserving local artifact selection.
+
+### TASK-244 - Keep dashboard output inside the project root
+
+Status: Done
+
+Phase: Local operations
+
+Goal: reject dashboard output paths outside the served project root before generating or serving artifacts.
+
+Acceptance criteria:
+
+- Relative paths that escape the project root are rejected.
+- Errors do not reveal absolute local paths.
+- Default smoke generation and valid relative artifacts remain supported.
+- Focused tests cover the rejected path behavior.
+
+Evidence:
+
+- `serve-dashboard` now resolves the output path and rejects values outside the project root before smoke generation or server binding.
+- The rejection message contains no absolute local path.
+- Focused dashboard/Compose tests, full unit suite, Ruff and documentation verification passed.
+
+### TASK-245 - Package Docker dashboard artifact operations
+
+Status: Done
+
+Phase: Governance
+
+Goal: commit and open a PR for the documentation consolidation and Docker dashboard artifact operation improvements.
+
+Acceptance criteria:
+
+- The batch has passing local validation.
+- The commit contains no sensitive local configuration.
+- The PR describes the behavior and validation clearly.
+- GitHub Actions and CodeRabbit can review the batch.
+
+Evidence:
+
+- Commit `d721459` packages the dashboard documentation consolidation and artifact operation improvements.
+- Local validation passed before packaging: full unit suite, Ruff, Bandit, Compose config and documentation verification.
+- The local Gitleaks executable did not return in this environment; the required GitHub secret scan remains part of PR review.
+
+### TASK-246 - Review Docker dashboard artifact operations PR
+
+Status: In Progress
+
+Phase: Governance
+
+Goal: publish and review the Docker dashboard artifact operations batch.
+
+Acceptance criteria:
+
+- The feature branch is pushed and has an open PR.
+- GitHub Actions quality/security and secret scan are reviewed.
+- CodeRabbit is reviewed according to the repository policy.
+- Blocking findings are fixed before merge.
+
+### TASK-247 - Make dashboard data freshness explicit
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the selected channel's data freshness visible in the primary dashboard header.
+
+Acceptance criteria:
+
+- The dashboard uses its existing consolidated report timestamp.
+- The primary label explains that the value is a data update time.
+- Channel switching updates the displayed value.
+- The change does not expose raw paths, IDs, credentials or new provider data.
+
+Evidence:
+
+- The channel header now labels the existing timestamp as `Data updated`.
+- The existing channel render path updates the timestamp whenever the selected channel changes.
+- Focused dashboard tests, Ruff and documentation verification passed.
+
+### TASK-248 - Select the next dashboard or provider delivery
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose the next small product or real-provider improvement while PR #58 review continues.
+
+Acceptance criteria:
+
+- The choice adds clear user or operator value.
+- The choice does not broaden into deferred infrastructure work.
+- Public documentation avoids secrets, local paths, raw payloads, ports, IPs and expanded DSNs.
+
+Evidence:
+
+- The selected delivery adds explicit follower-metric availability before presenting followers in the dashboard.
+- This prevents missing provider data from being represented as a real zero value.
+
+### TASK-249 - Mark follower metric availability in report output
+
+Status: Done
+
+Phase: Provider depth
+
+Goal: distinguish an unavailable follower metric from a reported value in YouTube and Instagram report JSON.
+
+Acceptance criteria:
+
+- Report data quality includes `has_followers`.
+- The flag is true only when at least one processed row has a follower value.
+- Existing numeric report totals remain unchanged.
+- Focused report tests cover the new signal.
+
+Evidence:
+
+- YouTube and Instagram report JSON now include `data_quality.has_followers`.
+- The value is calculated from processed rows, so a missing metric remains distinct from a numeric zero.
+- Focused YouTube and Instagram report tests passed.
+
+### TASK-250 - Show available followers in the dashboard
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: show a channel follower value only when report data explicitly marks it as available.
+
+Acceptance criteria:
+
+- Dashboard aggregates available follower values across provider reports.
+- Missing follower data renders as an explicit unavailable state, never as zero.
+- Channel switching updates the value.
+- Tests cover available and unavailable cases.
+
+Evidence:
+
+- Dashboard channel cards now include `Followers`.
+- Consolidated channels use the largest available provider follower value.
+- Missing follower data renders as `Unavailable`, never as zero.
+- Focused dashboard and report tests plus Ruff passed.
+
+### TASK-251 - Select the next dashboard or provider delivery
+
+Status: Done
+
+Phase: Planning
+
+Goal: choose the next small product or real-provider improvement.
+
+Evidence:
+
+- The selected delivery fixes the production calendar data contract before more visual dashboard polish.
+- The dashboard product brief records the six-month default period and the remaining usability gaps.
+
+### TASK-252 - Preserve complete six-month production history in reports
+
+Status: Pending
+
+Phase: Consumption layer
+
+Goal: make report production data represent every collected content item in the most recent six-month period.
+
+Planning note: implement after the initial catalog foundation so production history is associated with an explicit monitored channel and source set.
+
+Acceptance criteria:
+
+- Production dates are built from all processed report rows, not only ranked rows.
+- The report contract keeps the configured period explicit.
+- Dashboard production totals and calendar use the complete production dataset.
+- Tests cover more production dates than the top-content limit.
+
+### TASK-253 - Define local channel catalog contract
+
+Status: Done
+
+Phase: Product planning
+
+Goal: document how monitored human channels and their platform sources are represented locally.
+
+Evidence:
+
+- `docs/CHANNEL_CATALOG.md` defines the local-first catalog, safe contract and first-version exclusions.
+- The catalog separates a human channel identity from its YouTube, Instagram and TikTok sources.
+- Saving a channel is deliberately separate from provider collection.
+
+### TASK-254 - Add validated local channel catalog storage
+
+Status: Done
+
+Phase: Product foundation
+
+Goal: create a safe local catalog reader and writer with validation and a Git-ignored real catalog.
+
+Acceptance criteria:
+
+- A safe example catalog is committed without real accounts or credentials.
+- Real catalog data remains local and ignored by Git.
+- Validation rejects duplicate IDs, blank names and invalid platform entries.
+- Tests cover read, create, update, remove and invalid catalog cases.
+
+Evidence:
+
+- Existing channel identity configuration now preserves per-platform `enabled` state.
+- The catalog module reads, writes, validates, adds, updates and removes local channel identities.
+- The public example includes enabled platform placeholders and the real local catalog remains ignored by Git.
+- Focused catalog tests, Ruff and documentation verification passed.
+
+### TASK-255 - Add channel management commands
+
+Status: Done
+
+Phase: Product foundation
+
+Goal: expose local add, edit, enable, disable and remove operations before building the visual panel.
+
+Acceptance criteria:
+
+- Commands operate on catalog channels by stable local ID.
+- Operations produce compact safe summaries.
+- Saving a channel does not automatically call any provider API.
+
+Evidence:
+
+- `python -m social_analytics_pipeline.cli.channel_catalog` supports list, add, rename, remove, enable and disable actions.
+- Operations update only the local catalog and print compact safe summaries.
+- Focused catalog command/config tests and Ruff passed.
+
+### TASK-256 - Add local catalog API for dashboard management
+
+Status: Done
+
+Phase: Product foundation
+
+Goal: expose localhost-only catalog operations for the dashboard management panel.
+
+Acceptance criteria:
+
+- The local server exposes catalog list and mutation operations.
+- Mutations use the validated local catalog module.
+- The API does not expose credentials or call provider APIs.
+- Tests cover request validation and catalog persistence.
+
+Evidence:
+
+- The local dashboard server exposes `GET /api/channels` and catalog actions through `POST /api/channels`.
+- Responses include only safe display metadata and platform enabled states.
+- The dashboard Compose port is restricted to localhost before enabling catalog mutations.
+- Focused server/catalog tests, Ruff and documentation verification passed.
+
+### TASK-257 - Add dashboard channel management panel
+
+Status: In Progress
+
+Phase: Consumption layer
+
+Goal: let an intermediate user manage monitored channels through a visual dashboard panel.
+
+Acceptance criteria:
+
+- The panel lists channel name, image and platform coverage.
+- Users can add, edit and remove a local catalog channel.
+- Platform enablement uses clear controls.
+- The panel updates catalog data without exposing credentials.
+
+### TASK-258 - Use catalog channels for deliberate collection
+
+Status: Pending
+
+Phase: Provider operations
+
+Goal: allow a deliberate collection command to target enabled sources from the channel catalog.
+
+Acceptance criteria:
+
+- Collection remains an explicit command or button action.
+- Only enabled, configured provider sources are selected.
+- Output identifies the human channel and source coverage without exposing credentials.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
@@ -4750,7 +5157,7 @@ Acceptance criteria:
 
 ## Next Candidate Deliveries
 
-- Add Docker dashboard no-smoke mode for serving an existing dashboard artifact.
+- Make Docker no-smoke mode fail clearly when the expected dashboard artifact is absent.
 - Keep TikTok, cloud deployment and broad operational refinements deferred unless they directly unlock the selected Instagram slice.
 
 ## Review Rule

@@ -7,13 +7,16 @@
       "platforms": {
         "youtube": {
           "channel_id": "UC_EXAMPLE_CHANNEL_ID",
-          "handle": "@example-youtube"
+          "handle": "@example-youtube",
+          "enabled": true
         },
         "tiktok": {
-          "handle": "@example-tiktok"
+          "handle": "@example-tiktok",
+          "enabled": false
         },
         "instagram": {
-          "handle": "@example-instagram"
+          "handle": "@example-instagram",
+          "enabled": false
         }
       }
     }
