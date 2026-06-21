@@ -383,6 +383,7 @@ class YouTubeReportTest(unittest.TestCase):
             payload["data_quality"],
             {
                 "has_engagements": True,
+                "has_followers": True,
                 "has_records": True,
                 "has_top_content": True,
                 "is_partial": False,
@@ -440,6 +441,7 @@ class YouTubeReportTest(unittest.TestCase):
             payload["data_quality"],
             {
                 "has_engagements": False,
+                "has_followers": False,
                 "has_records": True,
                 "has_top_content": True,
                 "is_partial": False,
@@ -466,6 +468,7 @@ class YouTubeReportTest(unittest.TestCase):
             payload["data_quality"],
             {
                 "has_engagements": False,
+                "has_followers": False,
                 "has_records": False,
                 "has_top_content": False,
                 "is_partial": False,

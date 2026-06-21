@@ -50,7 +50,7 @@ services:
       PYTHONUNBUFFERED: "1"
       DASHBOARD_OUTPUT: ${DASHBOARD_OUTPUT:-data/dashboard/smoke.html}
     ports:
-      - "${DASHBOARD_PORT}:8000"
+      - "127.0.0.1:${DASHBOARD_PORT}:8000"
     volumes:
       - ./data:/app/data
       - ./config:/app/config:ro

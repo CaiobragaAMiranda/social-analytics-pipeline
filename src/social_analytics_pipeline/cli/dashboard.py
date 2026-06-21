@@ -925,8 +925,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           <div class="hero-copy">
             <h1 data-channel-name>{_text(active["name"])}</h1>
             <p class="channel-provider" data-channel-provider>{_text(active["source_summary"])}</p>
-            <p class="meta">
-              Generated: <span data-generated-at>{_text(active["generated_at"])}</span>
+            <p class="meta freshness">
+              <span>Data updated</span>
+              <strong data-generated-at>{_text(active["generated_at"])}</strong>
             </p>
           </div>
         </div>
@@ -959,6 +960,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         {_metric_card("Productions", active["records"], False, "data-records")}
         {_metric_card("Total Views", active["views"], False, "data-views")}
         {_metric_card("Total Engagements", active["engagements"], False, "data-engagements")}
+        {_metric_card("Followers", active["followers"], False, "data-followers")}
       </section>
       <section class="insights-grid" data-channel-insights>
         {_insight_item(
@@ -1562,6 +1564,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-records]", channel.records);
       setText("[data-views]", channel.views);
       setText("[data-engagements]", channel.engagements);
+      setText("[data-followers]", channel.followers);
       setText("[data-likes-percent]", channel.likes_percent);
       setText("[data-comments-percent]", channel.comments_percent);
       setText("[data-shares-percent]", channel.shares_percent);
@@ -1825,6 +1828,7 @@ def _platform_payload_from_report(payload: dict[str, Any]) -> dict[str, Any]:
         "provider": str(source.get("provider", payload.get("provider", "unknown"))),
         "status": str(data_quality.get("status", "available")),
         "records": payload.get("records", 0),
+        "has_followers": bool(data_quality.get("has_followers", False)),
         "totals": totals,
     }
 
@@ -1947,6 +1951,9 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "records": _display_number(payload.get("records", 0)),
         "views": _display_number(totals.get("views", 0)),
         "engagements": _display_number(totals.get("engagements", 0)),
+        "followers": _display_number(totals.get("max_followers", 0))
+        if (totals.get("has_followers") or data_quality.get("has_followers"))
+        else "Unavailable",
         "engagement_rate": f"{_number(totals.get('engagement_rate_percent', 0.0)):.2f}%",
         "likes_percent": _breakdown_percent(engagement_breakdown, "likes_percent"),
         "comments_percent": _breakdown_percent(engagement_breakdown, "comments_percent"),
@@ -2153,6 +2160,8 @@ def _platform_model(platform: dict[str, Any]) -> dict[str, Any]:
         "engagements": _display_number(totals.get("engagements", 0)),
         "engagements_share": "0.00%",
         "engagement_rate": f"{_number(totals.get('engagement_rate_percent', 0.0)):.2f}%",
+        "followers": _display_number(totals.get("max_followers", 0)),
+        "has_followers": bool(platform.get("has_followers", False)),
     }
 
 
@@ -2170,6 +2179,15 @@ def _consolidated_platform_totals(
         "views": total_views,
         "engagements": total_engagements,
         "engagement_rate_percent": engagement_rate_percent,
+        "max_followers": max(
+            (
+                _plain_number(platform.get("followers", 0))
+                for platform in platforms
+                if platform.get("has_followers")
+            ),
+            default=0,
+        ),
+        "has_followers": any(platform.get("has_followers") for platform in platforms),
     }
 
 

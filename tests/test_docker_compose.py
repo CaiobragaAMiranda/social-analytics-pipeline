@@ -42,7 +42,7 @@ class DockerComposeTest(unittest.TestCase):
 
         self.assertIn("container_name: social-analytics-dashboard", service_block)
         self.assertIn("serve-dashboard --host 0.0.0.0 --port 8000", service_block)
-        self.assertIn('"${DASHBOARD_PORT}:8000"', service_block)
+        self.assertIn('"127.0.0.1:${DASHBOARD_PORT}:8000"', service_block)
 
     def test_dashboard_service_can_disable_smoke_generation(self) -> None:
         compose = Path("docker-compose.yml").read_text(encoding="utf-8")

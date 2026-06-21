@@ -6,7 +6,7 @@ Date: 2026-06-20
 
 Current phase: Local operations and consumption layer
 
-Current task: TASK-246 - Review Docker dashboard artifact operations PR.
+Current task: TASK-257 - Add dashboard channel management panel.
 
 Overall status: YouTube v1 is closed and Instagram has a real local provider path. The channel-first dashboard accepts report artifacts, has safe fixture-based smoke generation and can run as a healthy optional Docker service. TikTok remains fixture-only. Docker no-smoke mode fails clearly when an expected static dashboard artifact is missing, and Docker can serve a chosen relative dashboard artifact inside the project root.
 

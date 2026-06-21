@@ -7,8 +7,8 @@ The repository is the source of truth. Work is split into small, reviewable task
 ## Current Status
 
 - Phase: Local operations and consumption layer
-- Current task: TASK-246 - Review Docker dashboard artifact operations PR
-- Last completed delivery: TASK-245 - Package Docker dashboard artifact operations
+- Current task: TASK-257 - Add dashboard channel management panel
+- Last completed delivery: TASK-256 - Add local catalog API for dashboard management
 - Product state: the project has a channel-first static dashboard, real local YouTube and Instagram paths, safe fixture-based smoke flows, and optional Docker services for the dashboard, PostgreSQL and Airflow.
 
 ## Workflow
@@ -82,7 +82,7 @@ The dashboard is a single-page, channel-first view: users choose a monitored cha
 
 YouTube v1 is closed. Instagram has a real local provider path with masked summaries and dashboard-compatible reports. The next implementation decision should prioritize a small operator or product improvement, not broad infrastructure expansion.
 
-For detailed milestones and task evidence, see `docs/TASKS.md` and `docs/PROGRESS.md`. The final dashboard scope is recorded in `docs/DASHBOARD_V1_ACCEPTANCE.md`; the Instagram operational flow is in `docs/INSTAGRAM_LOCAL_RUNBOOK.md`.
+For detailed milestones and task evidence, see `docs/TASKS.md` and `docs/PROGRESS.md`. The final dashboard scope is recorded in `docs/DASHBOARD_V1_ACCEPTANCE.md`; the product objective and remaining usability gaps are in `docs/DASHBOARD_PRODUCT_BRIEF.md`; channel management is planned in `docs/CHANNEL_CATALOG.md`; the Instagram operational flow is in `docs/INSTAGRAM_LOCAL_RUNBOOK.md`.
 
 ## Useful Commands
 
@@ -93,6 +93,7 @@ $env:PYTHONPATH = "src"; python -m unittest discover -s tests
 ruff check .
 bandit -c pyproject.toml -r src
 serve-dashboard
+python -m social_analytics_pipeline.cli.channel_catalog --list
 docker compose --env-file .env.example up dashboard
 docker compose --env-file .env.example config --quiet
 ```

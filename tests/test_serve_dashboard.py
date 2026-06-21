@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest import mock
 
 from social_analytics_pipeline.cli.serve_dashboard import (
+    _apply_catalog_action,
     cli_entrypoint,
     dashboard_url,
     main,
@@ -14,6 +15,22 @@ from social_analytics_pipeline.cli.serve_dashboard import (
 
 
 class ServeDashboardTest(unittest.TestCase):
+    def test_catalog_api_actions_persist_safe_channel_payload(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            added = _apply_catalog_action(
+                catalog_path,
+                {"action": "add", "id": "brand", "name": "Brand Channel"},
+            )
+            enabled = _apply_catalog_action(
+                catalog_path,
+                {"action": "enable", "id": "brand", "provider": "youtube"},
+            )
+
+        self.assertEqual(added["channels"][0]["name"], "Brand Channel")
+        self.assertNotIn("handle", added["channels"][0])
+        self.assertTrue(enabled["channels"][0]["platforms"]["youtube"]["enabled"])
+
     def test_dashboard_url_uses_project_relative_output_path(self) -> None:
         project_root = Path("project")
         dashboard_path = project_root / "data" / "dashboard" / "smoke.html"
