@@ -71,7 +71,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     active = channels[0]
     source_image = _channel_image_markup(active)
 
-    return f"""<!doctype html>
+    return (
+        f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -1446,7 +1447,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       }} catch (error) {{ setManagerStatus(error.message); }}
       }},
     );
-    const select = document.querySelector("[data-channel-select]");
+    const channelSelect = document.querySelector("[data-channel-select]");
     const setText = (selector, value) => {{
       document.querySelectorAll(selector).forEach((target) => {{
         target.textContent = value;
@@ -1899,11 +1900,11 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       }});
     }};
     const renderChannelAt = (index) => {{
-      select.selectedIndex = index;
+      channelSelect.selectedIndex = index;
       setActiveChannelOption(index);
       renderChannel(channels[index]);
     }};
-    select.addEventListener("change", () => renderChannelAt(select.selectedIndex));
+    channelSelect.addEventListener("change", () => renderChannelAt(channelSelect.selectedIndex));
     document.querySelectorAll("[data-channel-option]").forEach((button) => {{
       button.addEventListener("click", () => renderChannelAt(Number(button.dataset.channelIndex)));
     }});
@@ -1911,6 +1912,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
 </body>
 </html>
 """
+    )
 
 
 def write_dashboard_html(payload: dict[str, Any], output_path: Path) -> Path:

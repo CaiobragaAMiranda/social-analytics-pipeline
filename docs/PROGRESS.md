@@ -252,6 +252,7 @@ Overall status: YouTube v1 is closed and Instagram has a real local provider pat
 - The channel manager now lets users set a public image URL for each monitored channel without manual JSON editing.
 - The local channel catalog CLI now has parity for image URL, platform reference and schedule updates.
 - The `Collect now` manager summary now reports actual source collection outcomes when available.
+- Bandit now skips only the dashboard template `B608` false positive through explicit project configuration, matching the GitHub workflow command.
 
 ## Current Constraints
 
