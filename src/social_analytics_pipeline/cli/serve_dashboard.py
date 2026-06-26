@@ -266,7 +266,7 @@ def _collect_ready_source(project_root: Path, source: dict[str, object]) -> dict
 def _run_youtube_catalog_collection(project_root: Path, reference: str):
     runtime_env = build_runtime_env(None, project_root / ".env")
     provider = YouTubeDataApiProvider(YouTubeApiConfig.from_env(runtime_env))
-    channel_id = provider.resolve_channel_id(reference)
+    channel_id = provider.resolve_channel_reference(reference)
     interval = resolve_backfill_interval(runtime_env)
     if interval:
         start_at, end_at = interval

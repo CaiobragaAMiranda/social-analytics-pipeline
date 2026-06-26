@@ -148,6 +148,7 @@ def build_instagram_report_json_payload(
     artifact = _display_path(summary.artifact_path, project_root)
     all_rows = load_instagram_report_rows(summary.artifact_path)
     top_row = summary.top_rows[0] if summary.top_rows else None
+    production_dates = _production_dates(summary.top_rows, all_rows)
     return {
         "report_schema_version": INSTAGRAM_REPORT_SCHEMA_VERSION,
         "generated_at": generated_at or _utc_now_iso(),
@@ -206,7 +207,12 @@ def build_instagram_report_json_payload(
             "metric": summary.sort_by,
             "metric_value": summary.top_metric_value,
         },
-        "production_dates": _production_dates(summary.top_rows, all_rows),
+        "production": {
+            "period": "latest_6_months",
+            "date_source": "all_processed_rows",
+            "dates_count": len(production_dates),
+        },
+        "production_dates": production_dates,
         "top_rows": [_report_row(row) for row in summary.top_rows],
     }
 

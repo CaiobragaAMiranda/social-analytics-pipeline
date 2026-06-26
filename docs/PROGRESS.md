@@ -253,6 +253,11 @@ Overall status: YouTube v1 is closed and Instagram has a real local provider pat
 - The local channel catalog CLI now has parity for image URL, platform reference and schedule updates.
 - The `Collect now` manager summary now reports actual source collection outcomes when available.
 - Bandit now skips only the dashboard template `B608` false positive through explicit project configuration, matching the GitHub workflow command.
+- Production history is now explicit in YouTube and Instagram report JSON and is sourced from all processed rows, so the dashboard calendar is not limited to top-content rows.
+- The dashboard Production Calendar now shows the production period/source label so users can see that the calendar comes from all processed content.
+- YouTube catalog collection now accepts handles, direct public channel IDs and public channel URLs while avoiding an extra API call when the ID is already present.
+- The channel manager now shows provider-specific source reference placeholders so users know whether to paste a handle or profile/channel URL.
+- Catalog source references are now trimmed before persistence so accidental pasted spaces do not break later collection.
 
 ## Current Constraints
 

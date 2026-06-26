@@ -163,6 +163,57 @@ class YouTubeReportTest(unittest.TestCase):
         self.assertEqual(summary.top_limit, 1)
         self.assertEqual(summary.top_rows[0]["content_id"], "video-2")
 
+    def test_youtube_report_json_keeps_all_production_dates_beyond_top_limit(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "youtube" / "youtube.json"
+            artifact_path.parent.mkdir(parents=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "video-1",
+                            "views": 100,
+                            "published_at": "2026-01-01T10:00:00+00:00",
+                        },
+                        {
+                            "content_id": "video-2",
+                            "views": 900,
+                            "published_at": "2026-02-01T10:00:00+00:00",
+                        },
+                        {
+                            "content_id": "video-3",
+                            "views": 50,
+                            "published_at": "2026-03-01T10:00:00+00:00",
+                        },
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            summary = build_youtube_report_summary_with_limit(artifact_path, 1)
+            payload = build_youtube_report_json_payload(summary, project_root)
+
+        self.assertEqual(len(payload["top_rows"]), 1)
+        self.assertEqual(
+            payload["production_dates"],
+            [
+                "2026-01-01T10:00:00+00:00",
+                "2026-02-01T10:00:00+00:00",
+                "2026-03-01T10:00:00+00:00",
+            ],
+        )
+        self.assertEqual(
+            payload["production"],
+            {
+                "period": "latest_6_months",
+                "date_source": "all_processed_rows",
+                "dates_count": 3,
+            },
+        )
+
     def test_build_youtube_report_summary_with_limit_rejects_invalid_limit(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             artifact_path = Path(tmpdir) / "youtube-empty.json"

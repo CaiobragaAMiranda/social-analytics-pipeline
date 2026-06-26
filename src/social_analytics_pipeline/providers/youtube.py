@@ -157,6 +157,12 @@ class YouTubeDataApiProvider(SocialProvider):
 
         return channel_id
 
+    def resolve_channel_reference(self, reference: str) -> str:
+        channel_id = _extract_channel_id(reference)
+        if channel_id:
+            return channel_id
+        return self.resolve_channel_id(reference)
+
     def collect_metrics(
         self,
         account_id: str,
@@ -278,6 +284,14 @@ def _normalize_handle(value: str) -> str:
     if handle.startswith("@"):
         handle = handle[1:]
     return handle
+
+
+def _extract_channel_id(value: str) -> str:
+    reference = value.strip().rstrip("/")
+    if not reference:
+        return ""
+    candidate = reference.rsplit("/", 1)[-1]
+    return candidate if candidate.startswith("UC") else ""
 
 
 def _rfc3339_utc(value: datetime) -> str:

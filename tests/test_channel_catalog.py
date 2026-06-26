@@ -98,6 +98,20 @@ class ChannelCatalogCliTest(unittest.TestCase):
         self.assertEqual(plan[1]["status"], "pending")
         self.assertFalse(plan[1]["selected"])
 
+    def test_set_platform_reference_trims_user_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            add_channel(catalog_path, "brand", "Brand")
+
+            channel = set_platform_reference(
+                catalog_path,
+                "brand",
+                "youtube",
+                "  https://www.youtube.com/@brand  ",
+            )
+
+        self.assertEqual(channel.platforms[0].handle, "https://www.youtube.com/@brand")
+
     def test_record_collection_status_persists_safe_source_outcomes(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             status_path = Path(tmpdir) / "collection_status.local.json"

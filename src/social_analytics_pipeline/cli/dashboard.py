@@ -1115,7 +1115,12 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       </section>
       <section class="section">
         <div class="section-header">
-          <h2>Production Calendar</h2>
+          <div>
+            <h2>Production Calendar</h2>
+            <p class="meta" data-production-scope>
+              {_text(active["production_scope"])}
+            </p>
+          </div>
           <span class="status-pill" data-production-total>{_text(active["production_total"])}</span>
         </div>
         <div class="cadence-grid" data-cadence-summary>
@@ -1367,8 +1372,13 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           sourceActions.className = "channel-manager-source-actions";
           const reference = document.createElement("input");
           reference.value = platform.reference || "";
-          reference.placeholder = `${{provider}} handle or URL`;
-          reference.setAttribute("aria-label", `${{provider}} public handle or URL`);
+          const referencePlaceholders = {{
+            youtube: "YouTube @handle or channel URL",
+            instagram: "Instagram handle or profile URL",
+            tiktok: "TikTok handle or profile URL",
+          }};
+          reference.placeholder = referencePlaceholders[provider] || `${{provider}} handle or URL`;
+          reference.setAttribute("aria-label", reference.placeholder);
           const saveReference = document.createElement("button");
           saveReference.type = "button";
           saveReference.textContent = "Set";
@@ -1882,6 +1892,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       setText("[data-insight-views-leader]", channel.insight_top_views_source);
       setText("[data-insight-engagement-leader]", channel.insight_top_engagement_source);
       setText("[data-insight-production-summary]", channel.production_summary);
+      setText("[data-production-scope]", channel.production_scope);
       setText("[data-cadence-total]", channel.cadence_total);
       setText("[data-cadence-active-days]", channel.cadence_active_days);
       setText("[data-cadence-average]", channel.cadence_average_per_active_day);
@@ -2066,6 +2077,7 @@ def _aggregated_channel_payload(payloads: list[dict[str, Any]]) -> dict[str, Any
     source = _source_object(first_payload)
     channel_name = _channel_display_name(first_payload)
     top_rows = _aggregated_top_rows(payloads)
+    production_dates = _aggregated_production_dates(payloads)
     return {
         "generated_at": _latest_generated_at(payloads),
         "source": {
@@ -2078,15 +2090,24 @@ def _aggregated_channel_payload(payloads: list[dict[str, Any]]) -> dict[str, Any
         "ranking": _first_dict_value(payloads, "ranking"),
         "data_quality": _aggregated_data_quality(payloads),
         "top_content": top_rows[0] if top_rows else _first_dict_value(payloads, "top_content"),
-        "production_dates": [
-            date
-            for payload in payloads
-            for date in payload.get("production_dates", [])
-            if date
-        ],
+        "production": {
+            "period": "latest_6_months",
+            "date_source": "all_processed_rows",
+            "dates_count": len(production_dates),
+        },
+        "production_dates": production_dates,
         "top_rows": top_rows,
         "platforms": [_platform_payload_from_report(payload) for payload in payloads],
     }
+
+
+def _aggregated_production_dates(payloads: list[dict[str, Any]]) -> list[object]:
+    return [
+        date
+        for payload in payloads
+        for date in payload.get("production_dates", [])
+        if date
+    ]
 
 
 def _aggregated_top_rows(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -2217,6 +2238,9 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
     top_content = payload.get("top_content", {})
     ranking = payload.get("ranking", {})
     engagement_breakdown = payload.get("engagement_breakdown", {})
+    production = payload.get("production", {})
+    if not isinstance(production, dict):
+        production = {}
     rows = payload.get("top_rows", [])
     if not isinstance(rows, list):
         rows = []
@@ -2282,6 +2306,7 @@ def _channel_model(payload: dict[str, Any]) -> dict[str, Any]:
         "top_rows": [_row_model(row) for row in rows],
         "production_total": _production_total(production_source),
         "production_summary": production_summary,
+        "production_scope": _production_scope_label(production),
         "cadence_total": cadence["total"],
         "cadence_active_days": cadence["active_days"],
         "cadence_average_per_active_day": cadence["average_per_active_day"],
@@ -2515,6 +2540,27 @@ def _production_total(rows: list[object]) -> str:
     if not dates:
         return "No dates"
     return f"{len(dates)} productions"
+
+
+def _production_scope_label(production: dict[str, Any]) -> str:
+    period = _production_period_label(production.get("period"))
+    source = _production_source_label(production.get("date_source"))
+    dates_count = int(_number(production.get("dates_count", 0)))
+    if dates_count:
+        return f"{period} from {source} ({dates_count} dated item(s))"
+    return f"{period} from {source}"
+
+
+def _production_period_label(period: object) -> str:
+    labels = {"latest_6_months": "Latest 6 months"}
+    value = str(period or "").strip()
+    return labels.get(value, "Available production window")
+
+
+def _production_source_label(source: object) -> str:
+    labels = {"all_processed_rows": "all processed content"}
+    value = str(source or "").strip()
+    return labels.get(value, "available content dates")
 
 
 def _production_summary(rows: list[object]) -> str:

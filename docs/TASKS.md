@@ -318,7 +318,7 @@ Evidence:
 
 ### TASK-252 - Preserve complete six-month production history in reports
 
-Status: Pending
+Status: Done
 
 Phase: Consumption layer
 
@@ -332,6 +332,14 @@ Acceptance criteria:
 - The report contract keeps the configured period explicit.
 - Dashboard production totals and calendar use the complete production dataset.
 - Tests cover more production dates than the top-content limit.
+
+Evidence:
+
+- YouTube and Instagram report JSON now include explicit `production` metadata.
+- `production.date_source` records that dates come from all processed rows.
+- `production.dates_count` records the number of publication dates available to the dashboard.
+- Dashboard aggregation preserves complete production dates across platform reports.
+- Focused report and dashboard tests cover production dates beyond the top-content limit.
 
 ### TASK-253 - Define local channel catalog contract
 
@@ -643,6 +651,92 @@ Evidence:
 - `pyproject.toml` now skips only Bandit `B608`.
 - The dashboard builder remains a static HTML template generator, not a SQL query builder.
 - `bandit -c pyproject.toml -r src` passed locally.
+
+### TASK-268 - Show production history scope in the dashboard
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the production calendar explain which production history it is using.
+
+Acceptance criteria:
+
+- The production calendar shows a concise period and source label.
+- The label updates when the selected channel changes.
+- Older report JSON without production metadata still renders with a readable fallback.
+- Tests cover the production scope label.
+
+Evidence:
+
+- The dashboard now renders `data-production-scope` below the Production Calendar title.
+- The channel model reads `production.period`, `production.date_source` and `production.dates_count`.
+- The label explains that the current report uses the latest six months from all processed content.
+- Dashboard tests cover the rendered scope label.
+
+### TASK-269 - Accept YouTube channel references in catalog collection
+
+Status: Done
+
+Phase: Provider operations
+
+Goal: let catalog collection accept public YouTube references without forcing users to know a technical channel ID.
+
+Acceptance criteria:
+
+- Catalog collection accepts a public YouTube handle.
+- Catalog collection accepts a public YouTube channel URL containing a channel ID.
+- Catalog collection accepts a public YouTube channel ID directly.
+- Direct channel IDs do not require an extra handle-resolution API call.
+- Tests cover each supported reference shape without printing credentials or payloads.
+
+Evidence:
+
+- `YouTubeDataApiProvider.resolve_channel_reference` now handles direct IDs, channel URLs and handles.
+- Dashboard catalog collection uses the reference resolver before running the local YouTube pipeline.
+- Provider tests cover direct ID, channel URL and handle resolution paths.
+
+### TASK-270 - Clarify source reference inputs in channel manager
+
+Status: Done
+
+Phase: Consumption layer
+
+Goal: make the channel manager clearer about what users can paste for each platform source.
+
+Acceptance criteria:
+
+- YouTube reference input mentions handles and channel URLs.
+- Instagram reference input mentions handles and profile URLs.
+- TikTok reference input mentions handles and profile URLs.
+- The change does not expose credentials, raw payloads or technical IDs as the primary user path.
+- Dashboard tests cover the platform-specific input text.
+
+Evidence:
+
+- The channel manager now uses provider-specific placeholders for source references.
+- YouTube copy points users to `@handle` or channel URL input.
+- Dashboard HTML tests cover all three provider placeholder strings.
+
+### TASK-271 - Trim catalog source references on save
+
+Status: Done
+
+Phase: Product foundation
+
+Goal: prevent accidental leading or trailing spaces from breaking catalog source collection.
+
+Acceptance criteria:
+
+- Source references are trimmed before they are written to the local catalog.
+- The behavior applies to both dashboard API and CLI flows through the shared catalog function.
+- Existing enable, schedule and collection status behavior is unchanged.
+- Tests cover trimmed reference persistence.
+
+Evidence:
+
+- `set_platform_reference` now strips leading and trailing whitespace before persistence.
+- Catalog tests cover a pasted YouTube URL with surrounding spaces.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 

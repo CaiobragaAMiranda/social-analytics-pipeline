@@ -106,16 +106,19 @@ def set_platform_reference(
     handle: str,
 ) -> ChannelIdentityConfig:
     channel = _channel_by_id(list_channels(catalog_path), channel_id)
+    normalized_handle = handle.strip()
     platforms = tuple(
         ChannelPlatformIdentity(
-            item.provider, item.channel_id, handle, item.account_id, item.enabled
+            item.provider, item.channel_id, normalized_handle, item.account_id, item.enabled
         )
         if item.provider == provider
         else item
         for item in channel.platforms
     )
     if not any(item.provider == provider for item in platforms):
-        platforms += (ChannelPlatformIdentity(provider, handle=handle, enabled=False),)
+        platforms += (
+            ChannelPlatformIdentity(provider, handle=normalized_handle, enabled=False),
+        )
     updated = ChannelIdentityConfig(
         channel.channel_id,
         channel.display_name,
