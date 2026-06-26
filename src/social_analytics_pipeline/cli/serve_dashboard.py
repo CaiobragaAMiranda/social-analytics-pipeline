@@ -15,6 +15,7 @@ from social_analytics_pipeline.cli.channel_catalog import (
     record_collection_status,
     remove_channel,
     rename_channel,
+    set_channel_image,
     set_channel_schedule,
     set_platform_enabled,
     set_platform_reference,
@@ -23,9 +24,18 @@ from social_analytics_pipeline.cli.dashboard_smoke import (
     DEFAULT_SMOKE_DASHBOARD_OUTPUT,
     run_dashboard_smoke,
 )
+from social_analytics_pipeline.cli.instagram_local_pipeline import (
+    resolve_instagram_interval,
+    run_instagram_local_pipeline,
+)
 from social_analytics_pipeline.cli.youtube_local_pipeline import run_youtube_local_pipeline
 from social_analytics_pipeline.cli.youtube_smoke import build_runtime_env, resolve_backfill_interval
-from social_analytics_pipeline.providers import YouTubeApiConfig, YouTubeDataApiProvider
+from social_analytics_pipeline.providers import (
+    InstagramApiConfig,
+    InstagramGraphApiProvider,
+    YouTubeApiConfig,
+    YouTubeDataApiProvider,
+)
 
 DEFAULT_COLLECTION_LOOKBACK_DAYS = 180
 
@@ -167,6 +177,8 @@ def _apply_catalog_action(
         add_channel(catalog_path, channel_id, str(payload.get("name", "")))
     elif action == "rename":
         rename_channel(catalog_path, channel_id, str(payload.get("name", "")))
+    elif action == "image":
+        set_channel_image(catalog_path, channel_id, str(payload.get("image_url", "")))
     elif action == "remove":
         remove_channel(catalog_path, channel_id)
     elif action in {"enable", "disable"}:
@@ -220,6 +232,19 @@ def _collect_ready_source(project_root: Path, source: dict[str, object]) -> dict
         return result
 
     provider = str(source.get("provider", ""))
+    if provider == "instagram":
+        try:
+            summary = _run_instagram_catalog_collection(project_root)
+        except RuntimeError as exc:
+            result["collection_status"] = "failed"
+            result["outcome"] = _safe_collection_error(exc)
+            return result
+
+        result["collection_status"] = "ok"
+        result["outcome"] = "Instagram collection completed"
+        result["loaded_records"] = summary.result.loaded_records
+        return result
+
     if provider != "youtube":
         result["collection_status"] = "failed"
         result["outcome"] = "Provider dispatch is not implemented yet"
@@ -258,6 +283,19 @@ def _run_youtube_catalog_collection(project_root: Path, reference: str):
     )
 
 
+def _run_instagram_catalog_collection(project_root: Path):
+    runtime_env = build_runtime_env(None, project_root / ".env")
+    provider = InstagramGraphApiProvider(InstagramApiConfig.from_env(runtime_env))
+    start_at, end_at = resolve_instagram_interval(runtime_env)
+    return run_instagram_local_pipeline(
+        provider=provider,
+        account_id=provider.config.account_id,
+        start_at=start_at,
+        end_at=end_at,
+        project_root=project_root,
+    )
+
+
 def _collection_lookback_days(runtime_env: dict[str, str]) -> int:
     raw_value = runtime_env.get(
         "CATALOG_COLLECTION_LOOKBACK_DAYS",
@@ -276,6 +314,8 @@ def _safe_collection_error(exc: RuntimeError) -> str:
     message = str(exc)
     if "YOUTUBE_API_KEY" in message:
         return "YouTube credentials are missing or invalid"
+    if "INSTAGRAM_ACCESS_TOKEN" in message or "INSTAGRAM_USER_ID" in message:
+        return "Instagram credentials are missing or invalid"
     return message
 
 

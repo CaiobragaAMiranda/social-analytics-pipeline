@@ -71,7 +71,8 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     active = channels[0]
     source_image = _channel_image_markup(active)
 
-    return f"""<!doctype html>
+    return (
+        f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -958,6 +959,13 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
     }}
     .channel-manager-source-status.ready {{ color: #54ff8a; }}
     .channel-manager-source-status.pending {{ color: #ffcc66; }}
+    .channel-manager-source-detail {{
+      color: #9eabc0;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }}
     .channel-manager-source-actions {{
       display: flex;
       gap: 0.45rem;
@@ -1299,6 +1307,23 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           try {{ await catalogAction({{action: "remove", id: channel.id}}); await loadCatalog(); }}
           catch (error) {{ setManagerStatus(error.message); }}
         }});
+        const imageUrl = document.createElement("input");
+        imageUrl.value = channel.image_url || "";
+        imageUrl.placeholder = "Channel image URL";
+        imageUrl.setAttribute("aria-label", `Image URL for ${{channel.name}}`);
+        const saveImage = document.createElement("button");
+        saveImage.type = "button";
+        saveImage.textContent = "Set image";
+        saveImage.addEventListener("click", async () => {{
+          try {{
+            await catalogAction({{
+              action: "image",
+              id: channel.id,
+              image_url: imageUrl.value,
+            }});
+            await loadCatalog();
+          }} catch (error) {{ setManagerStatus(error.message); }}
+        }});
         const sources = document.createElement("div");
         sources.className = "channel-manager-sources";
         ["youtube", "instagram", "tiktok"].forEach((provider) => {{
@@ -1327,6 +1352,17 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
           status.textContent = platform.status?.status || (ready ? "ready" : "pending");
           status.title = platform.status?.outcome || "";
           sourceHeader.append(toggle, status);
+          const detail = document.createElement("p");
+          detail.className = "channel-manager-source-detail";
+          const detailParts = [];
+          if (platform.status?.outcome) detailParts.push(platform.status.outcome);
+          if (platform.status?.loaded_records !== undefined) {{
+            detailParts.push(`${{platform.status.loaded_records}} loaded`);
+          }}
+          if (platform.status?.last_success) {{
+            detailParts.push(`last success ${{platform.status.last_success}}`);
+          }}
+          detail.textContent = detailParts.join(" | ") || "No collection attempt yet";
           const sourceActions = document.createElement("div");
           sourceActions.className = "channel-manager-source-actions";
           const reference = document.createElement("input");
@@ -1348,7 +1384,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             }} catch (error) {{ setManagerStatus(error.message); }}
           }});
           sourceActions.append(reference, saveReference);
-          source.append(sourceHeader, sourceActions);
+          source.append(sourceHeader, detail, sourceActions);
           sources.append(source);
         }});
         const collect = document.createElement("button");
@@ -1359,7 +1395,9 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             const result = await catalogAction({{action: "collect", id: channel.id}});
             const summary = (result.sources || [])
               .map((source) => {{
-                const state = source.selected ? "selected" : source.status;
+                const state = source.collection_status || (
+                  source.selected ? "selected" : source.status
+                );
                 return `${{source.provider}}=${{state}}`;
               }})
               .join(", ");
@@ -1367,7 +1405,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             await loadCatalog();
           }} catch (error) {{ setManagerStatus(error.message); }}
         }});
-        row.append(name, save, schedule, sources, collect, remove);
+        row.append(name, save, schedule, imageUrl, saveImage, sources, collect, remove);
         managerList.append(row);
       }}));
     }};
@@ -1409,7 +1447,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       }} catch (error) {{ setManagerStatus(error.message); }}
       }},
     );
-    const select = document.querySelector("[data-channel-select]");
+    const channelSelect = document.querySelector("[data-channel-select]");
     const setText = (selector, value) => {{
       document.querySelectorAll(selector).forEach((target) => {{
         target.textContent = value;
@@ -1862,11 +1900,11 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       }});
     }};
     const renderChannelAt = (index) => {{
-      select.selectedIndex = index;
+      channelSelect.selectedIndex = index;
       setActiveChannelOption(index);
       renderChannel(channels[index]);
     }};
-    select.addEventListener("change", () => renderChannelAt(select.selectedIndex));
+    channelSelect.addEventListener("change", () => renderChannelAt(channelSelect.selectedIndex));
     document.querySelectorAll("[data-channel-option]").forEach((button) => {{
       button.addEventListener("click", () => renderChannelAt(Number(button.dataset.channelIndex)));
     }});
@@ -1874,6 +1912,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
 </body>
 </html>
 """
+    )
 
 
 def write_dashboard_html(payload: dict[str, Any], output_path: Path) -> Path:

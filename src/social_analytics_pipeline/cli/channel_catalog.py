@@ -44,6 +44,25 @@ def rename_channel(catalog_path: Path, channel_id: str, display_name: str) -> Ch
     return updated
 
 
+def set_channel_image(
+    catalog_path: Path,
+    channel_id: str,
+    image_url: str,
+) -> ChannelIdentityConfig:
+    channel = _channel_by_id(list_channels(catalog_path), channel_id)
+    updated = ChannelIdentityConfig(
+        channel.channel_id,
+        channel.display_name,
+        image_url,
+        channel.platforms,
+        channel.schedule,
+    )
+    write_channel_identity_config(
+        catalog_path, update_channel_identity(list_channels(catalog_path), updated)
+    )
+    return updated
+
+
 def remove_channel(catalog_path: Path, channel_id: str) -> None:
     write_channel_identity_config(
         catalog_path, remove_channel_identity(list_channels(catalog_path), channel_id)
@@ -219,9 +238,14 @@ def main(argv: list[str] | None = None) -> int:
     actions.add_argument("--add", metavar="ID")
     actions.add_argument("--rename", metavar="ID")
     actions.add_argument("--remove", metavar="ID")
+    actions.add_argument("--set-image", metavar="ID")
+    actions.add_argument("--reference", nargs=2, metavar=("ID", "PROVIDER"))
+    actions.add_argument("--schedule", nargs=2, metavar=("ID", "SCHEDULE"))
     actions.add_argument("--enable", nargs=2, metavar=("ID", "PROVIDER"))
     actions.add_argument("--disable", nargs=2, metavar=("ID", "PROVIDER"))
     parser.add_argument("--name")
+    parser.add_argument("--image-url")
+    parser.add_argument("--handle")
     args = parser.parse_args(argv)
     if args.list:
         for channel in list_channels(args.catalog):
@@ -235,6 +259,17 @@ def main(argv: list[str] | None = None) -> int:
     elif args.remove:
         remove_channel(args.catalog, args.remove)
         print(f"removed={args.remove}")
+    elif args.set_image:
+        channel = set_channel_image(args.catalog, args.set_image, _required_image_url(args))
+        print(f"image_updated={channel.channel_id}")
+    elif args.reference:
+        channel_id, provider = args.reference
+        set_platform_reference(args.catalog, channel_id, provider, _required_handle(args))
+        print(f"reference_updated={provider} channel={channel_id}")
+    elif args.schedule:
+        channel_id, schedule = args.schedule
+        set_channel_schedule(args.catalog, channel_id, schedule)
+        print(f"schedule={schedule or 'off'} channel={channel_id}")
     else:
         channel_id, provider = args.enable or args.disable
         enabled = args.enable is not None
@@ -247,6 +282,18 @@ def _required_name(args: argparse.Namespace) -> str:
     if not args.name:
         raise RuntimeError("--name is required for this action.")
     return args.name
+
+
+def _required_image_url(args: argparse.Namespace) -> str:
+    if args.image_url is None:
+        raise RuntimeError("--image-url is required for this action.")
+    return args.image_url
+
+
+def _required_handle(args: argparse.Namespace) -> str:
+    if args.handle is None:
+        raise RuntimeError("--handle is required for this action.")
+    return args.handle
 
 
 if __name__ == "__main__":

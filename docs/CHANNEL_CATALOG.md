@@ -39,11 +39,13 @@ The dashboard selects a catalog channel. Platforms are sources within that chann
 
 - The management panel lists monitored channels with their names, images and source coverage.
 - Users can add, edit, enable, disable or remove channels.
+- Users can set a public image URL for each monitored channel.
 - Users can add a public handle or URL for each platform source.
 - Users can set collection intent to off, daily or weekly for each channel.
+- Local CLI commands can update the same image, source reference and schedule fields for bootstrap automation.
 - Source status is `ready` only when the source is enabled and has a public reference.
 - `Collect now` records a local per-source status with last attempt, last success and safe outcome text.
-- Ready YouTube sources can run through the real local YouTube pipeline when local credentials are configured.
+- Ready YouTube and Instagram sources can run through their real local pipelines when local credentials are configured.
 - Unsupported source dispatch is recorded as a safe failed outcome until that provider path is wired.
 - A channel with no collected data remains visible with an explicit source state.
 - Numeric metrics may render as `0` when zero is a valid value. Source coverage explains whether data is connected, unavailable or not monitored.
@@ -56,7 +58,6 @@ The dashboard selects a catalog channel. Platforms are sources within that chann
 
 ## Collection Automation Roadmap
 
-1. Wire Instagram provider dispatch to `Collect now`.
-2. Wire TikTok only after an official analytics path fits this project.
-3. Connect daily or weekly schedule intent to orchestration.
-4. Reuse existing retry, token safety and failure reporting behavior for scheduled runs.
+1. Wire TikTok only after an official analytics path fits this project.
+2. Connect daily or weekly schedule intent to orchestration.
+3. Reuse existing retry, token safety and failure reporting behavior for scheduled runs.

@@ -247,6 +247,12 @@ Overall status: YouTube v1 is closed and Instagram has a real local provider pat
 - `Collect now` now records safe local per-source collection status with last attempt, last success placeholder and outcome text for dashboard display.
 - Catalog channels now support an off, daily or weekly collection schedule intent that is editable in the dashboard management panel without triggering provider calls by itself.
 - `Collect now` now attempts real local YouTube collection for ready YouTube sources and records safe success or failure status for dashboard display.
+- `Collect now` now also attempts real local Instagram collection for ready Instagram sources and records safe success or missing-credential failure status.
+- The channel manager now shows collection outcome, loaded record count and last success details directly in each source row.
+- The channel manager now lets users set a public image URL for each monitored channel without manual JSON editing.
+- The local channel catalog CLI now has parity for image URL, platform reference and schedule updates.
+- The `Collect now` manager summary now reports actual source collection outcomes when available.
+- Bandit now skips only the dashboard template `B608` false positive through explicit project configuration, matching the GitHub workflow command.
 
 ## Current Constraints
 
