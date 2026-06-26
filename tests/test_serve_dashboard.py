@@ -30,6 +30,14 @@ class ServeDashboardTest(unittest.TestCase):
                 catalog_path,
                 {"action": "schedule", "id": "brand", "schedule": "daily"},
             )
+            imaged = _apply_catalog_action(
+                catalog_path,
+                {
+                    "action": "image",
+                    "id": "brand",
+                    "image_url": "https://images.example/brand.png",
+                },
+            )
             referenced = _apply_catalog_action(
                 catalog_path,
                 {
@@ -53,6 +61,7 @@ class ServeDashboardTest(unittest.TestCase):
         self.assertNotIn("handle", added["channels"][0])
         self.assertTrue(enabled["channels"][0]["platforms"]["youtube"]["enabled"])
         self.assertEqual(scheduled["channels"][0]["schedule"], "daily")
+        self.assertEqual(imaged["channels"][0]["image_url"], "https://images.example/brand.png")
         self.assertEqual(
             referenced["channels"][0]["platforms"]["youtube"]["reference"], "@brand"
         )
@@ -106,6 +115,74 @@ class ServeDashboardTest(unittest.TestCase):
         self.assertEqual(
             plan["status"]["sources"]["youtube"]["outcome"],
             "YouTube credentials are missing or invalid",
+        )
+
+    def test_catalog_collect_runs_ready_instagram_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            _apply_catalog_action(
+                catalog_path,
+                {"action": "add", "id": "brand", "name": "Brand Channel"},
+            )
+            _apply_catalog_action(
+                catalog_path,
+                {"action": "enable", "id": "brand", "provider": "instagram"},
+            )
+            _apply_catalog_action(
+                catalog_path,
+                {
+                    "action": "reference",
+                    "id": "brand",
+                    "provider": "instagram",
+                    "reference": "@brand",
+                },
+            )
+
+            with mock.patch(
+                "social_analytics_pipeline.cli.serve_dashboard._run_instagram_catalog_collection",
+                return_value=mock.Mock(result=mock.Mock(loaded_records=5)),
+            ):
+                plan = _apply_catalog_action(
+                    catalog_path,
+                    {"action": "collect", "id": "brand"},
+                    project_root=Path(tmpdir),
+                )
+
+        self.assertEqual(plan["sources"][0]["collection_status"], "ok")
+        self.assertEqual(plan["sources"][0]["outcome"], "Instagram collection completed")
+        self.assertEqual(plan["status"]["sources"]["instagram"]["loaded_records"], 5)
+
+    def test_catalog_collect_records_safe_failure_when_instagram_is_not_configured(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            _apply_catalog_action(
+                catalog_path,
+                {"action": "add", "id": "brand", "name": "Brand Channel"},
+            )
+            _apply_catalog_action(
+                catalog_path,
+                {"action": "enable", "id": "brand", "provider": "instagram"},
+            )
+            _apply_catalog_action(
+                catalog_path,
+                {
+                    "action": "reference",
+                    "id": "brand",
+                    "provider": "instagram",
+                    "reference": "@brand",
+                },
+            )
+
+            plan = _apply_catalog_action(
+                catalog_path,
+                {"action": "collect", "id": "brand"},
+                project_root=Path(tmpdir),
+            )
+
+        self.assertEqual(plan["sources"][0]["collection_status"], "failed")
+        self.assertEqual(
+            plan["status"]["sources"]["instagram"]["outcome"],
+            "Instagram credentials are missing or invalid",
         )
 
     def test_dashboard_url_uses_project_relative_output_path(self) -> None:

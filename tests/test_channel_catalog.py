@@ -7,9 +7,11 @@ from social_analytics_pipeline.cli.channel_catalog import (
     collection_plan,
     list_channels,
     load_collection_status,
+    main,
     record_collection_status,
     remove_channel,
     rename_channel,
+    set_channel_image,
     set_channel_schedule,
     set_platform_enabled,
     set_platform_reference,
@@ -39,6 +41,47 @@ class ChannelCatalogCliTest(unittest.TestCase):
             set_channel_schedule(catalog_path, "brand", "weekly")
             channels = list_channels(catalog_path)
 
+        self.assertEqual(channels[0].schedule, "weekly")
+
+    def test_set_channel_image_persists_public_channel_image_url(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            add_channel(catalog_path, "brand", "Brand")
+            set_channel_image(catalog_path, "brand", "https://images.example/brand.png")
+            channels = list_channels(catalog_path)
+
+        self.assertEqual(channels[0].image_url, "https://images.example/brand.png")
+
+    def test_cli_updates_channel_image_reference_and_schedule(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            main(["--catalog", str(catalog_path), "--add", "brand", "--name", "Brand"])
+            main(
+                [
+                    "--catalog",
+                    str(catalog_path),
+                    "--set-image",
+                    "brand",
+                    "--image-url",
+                    "https://images.example/brand.png",
+                ]
+            )
+            main(
+                [
+                    "--catalog",
+                    str(catalog_path),
+                    "--reference",
+                    "brand",
+                    "youtube",
+                    "--handle",
+                    "@brand",
+                ]
+            )
+            main(["--catalog", str(catalog_path), "--schedule", "brand", "weekly"])
+            channels = list_channels(catalog_path)
+
+        self.assertEqual(channels[0].image_url, "https://images.example/brand.png")
+        self.assertEqual(channels[0].platforms[0].handle, "@brand")
         self.assertEqual(channels[0].schedule, "weekly")
 
     def test_collection_plan_marks_only_enabled_referenced_sources_ready(self) -> None:
