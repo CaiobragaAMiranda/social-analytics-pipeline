@@ -4,6 +4,7 @@
       "id": "example-brand",
       "display_name": "Example Brand Channel",
       "image_url": "https://example.com/channel-image.png",
+      "schedule": "",
       "platforms": {
         "youtube": {
           "channel_id": "UC_EXAMPLE_CHANNEL_ID",

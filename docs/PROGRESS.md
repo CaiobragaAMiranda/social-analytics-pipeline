@@ -2,11 +2,11 @@
 
 ## Current Snapshot
 
-Date: 2026-06-20
+Date: 2026-06-26
 
 Current phase: Local operations and consumption layer
 
-Current task: TASK-258 - Add deliberate collection for catalog channels.
+Current task: Select the next delivery after catalog collection basics.
 
 Overall status: YouTube v1 is closed and Instagram has a real local provider path. The channel-first dashboard accepts report artifacts, has safe fixture-based smoke generation and can run as a healthy optional Docker service. TikTok remains fixture-only. Docker no-smoke mode fails clearly when an expected static dashboard artifact is missing, and Docker can serve a chosen relative dashboard artifact inside the project root.
 
@@ -243,6 +243,10 @@ Overall status: YouTube v1 is closed and Instagram has a real local provider pat
 - The Instagram local operator batch passed full local validation and sensitive-pattern review.
 - The next step is PR review through GitHub Actions and CodeRabbit.
 - `instagram-report` now supports `--json-output-dir` while preserving artifact-based report file names.
+- The dashboard management panel now captures public source handles or URLs, shows ready/pending source status and exposes a safe `Collect now` collection plan before real provider dispatch.
+- `Collect now` now records safe local per-source collection status with last attempt, last success placeholder and outcome text for dashboard display.
+- Catalog channels now support an off, daily or weekly collection schedule intent that is editable in the dashboard management panel without triggering provider calls by itself.
+- `Collect now` now attempts real local YouTube collection for ready YouTube sources and records safe success or failure status for dashboard display.
 
 ## Current Constraints
 

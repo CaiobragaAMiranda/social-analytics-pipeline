@@ -25,6 +25,7 @@ class ChannelConfigTest(unittest.TestCase):
                                 "id": "brand",
                                 "display_name": "Brand Channel",
                                 "image_url": "https://example.com/brand.png",
+                                "schedule": "daily",
                                 "platforms": {
                                     "youtube": {
                                         "channel_id": "UC_EXAMPLE",
@@ -45,6 +46,7 @@ class ChannelConfigTest(unittest.TestCase):
             self.assertEqual(len(channels), 1)
             self.assertEqual(channels[0].channel_id, "brand")
             self.assertEqual(channels[0].display_name, "Brand Channel")
+            self.assertEqual(channels[0].schedule, "daily")
             self.assertEqual(len(channels[0].platforms), 3)
             self.assertTrue(channels[0].platforms[0].enabled)
 
@@ -99,6 +101,29 @@ class ChannelConfigTest(unittest.TestCase):
 
         self.assertEqual(saved[0].channel_id, "brand")
         self.assertTrue(saved[0].platforms[0].enabled)
+        self.assertEqual(saved[0].schedule, "")
+
+    def test_load_channel_identity_config_rejects_invalid_schedule(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "channels.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "channels": [
+                            {
+                                "id": "brand",
+                                "display_name": "Brand Channel",
+                                "schedule": "hourly",
+                                "platforms": {},
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "schedule"):
+                load_channel_identity_config(config_path)
 
     def test_load_channel_identity_config_rejects_duplicate_ids(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

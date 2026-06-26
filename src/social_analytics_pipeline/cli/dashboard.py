@@ -921,6 +921,10 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       min-width: 10rem; padding: 0.45rem; border: 1px solid #33425f;
       background: #0b1220; color: #e6edf7;
     }}
+    .channel-manager select {{
+      min-width: 7rem; padding: 0.45rem; border: 1px solid #33425f;
+      background: #0b1220; color: #e6edf7;
+    }}
     .channel-manager button {{
       padding: 0.45rem 0.65rem; border: 1px solid #3a4a68;
       background: #17243a; color: #d9e6f7; cursor: pointer;
@@ -930,8 +934,35 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       border-top: 1px solid #26334b; flex-wrap: wrap;
     }}
     .channel-manager-row input {{ flex: 1 1 11rem; }}
-    .channel-manager-sources {{ flex-wrap: wrap; }}
+    .channel-manager-sources {{ flex-wrap: wrap; flex: 1 1 100%; }}
     .channel-manager-sources button {{ text-transform: capitalize; }}
+    .channel-manager-source {{
+      border: 1px solid #26334b;
+      border-radius: 8px;
+      display: grid;
+      flex: 1 1 14rem;
+      gap: 0.45rem;
+      min-width: 14rem;
+      padding: 0.55rem;
+    }}
+    .channel-manager-source-header {{
+      align-items: center;
+      display: flex;
+      gap: 0.45rem;
+      justify-content: space-between;
+    }}
+    .channel-manager-source-status {{
+      color: #9eabc0;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }}
+    .channel-manager-source-status.ready {{ color: #54ff8a; }}
+    .channel-manager-source-status.pending {{ color: #ffcc66; }}
+    .channel-manager-source-actions {{
+      display: flex;
+      gap: 0.45rem;
+    }}
+    .channel-manager-source-actions input {{ flex: 1 1 auto; min-width: 7rem; }}
     .nav-list .channel-manager-trigger {{
       width: 100%; border: 0; text-align: left; font: inherit;
       color: inherit; background: transparent;
@@ -1213,7 +1244,7 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
       }});
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Catalog update failed.");
-      return result.channels;
+      return result;
     }};
     const renderCatalog = (catalog) => {{
       managerList.replaceChildren(...catalog.map((channel) => {{
@@ -1238,6 +1269,29 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
             await loadCatalog();
           }} catch (error) {{ setManagerStatus(error.message); }}
         }});
+        const schedule = document.createElement("select");
+        schedule.setAttribute("aria-label", `Collection schedule for ${{channel.name}}`);
+        [
+          ["", "off"],
+          ["daily", "daily"],
+          ["weekly", "weekly"],
+        ].forEach(([value, label]) => {{
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          option.selected = channel.schedule === value;
+          schedule.append(option);
+        }});
+        schedule.addEventListener("change", async () => {{
+          try {{
+            await catalogAction({{
+              action: "schedule",
+              id: channel.id,
+              schedule: schedule.value,
+            }});
+            await loadCatalog();
+          }} catch (error) {{ setManagerStatus(error.message); }}
+        }});
         const remove = document.createElement("button");
         remove.type = "button";
         remove.textContent = "Remove";
@@ -1248,9 +1302,15 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
         const sources = document.createElement("div");
         sources.className = "channel-manager-sources";
         ["youtube", "instagram", "tiktok"].forEach((provider) => {{
+          const platform = channel.platforms[provider] || {{}};
+          const enabled = Boolean(platform.enabled);
+          const ready = Boolean(platform.ready);
+          const source = document.createElement("div");
+          source.className = "channel-manager-source";
+          const sourceHeader = document.createElement("div");
+          sourceHeader.className = "channel-manager-source-header";
           const toggle = document.createElement("button");
           toggle.type = "button";
-          const enabled = Boolean(channel.platforms[provider]?.enabled);
           toggle.textContent = `${{provider}}: ${{enabled ? "on" : "off"}}`;
           toggle.addEventListener("click", async () => {{
             try {{
@@ -1262,9 +1322,52 @@ def build_dashboard_html(payload: dict[str, Any]) -> str:
               await loadCatalog();
             }} catch (error) {{ setManagerStatus(error.message); }}
           }});
-          sources.append(toggle);
+          const status = document.createElement("span");
+          status.className = `channel-manager-source-status ${{ready ? "ready" : "pending"}}`;
+          status.textContent = platform.status?.status || (ready ? "ready" : "pending");
+          status.title = platform.status?.outcome || "";
+          sourceHeader.append(toggle, status);
+          const sourceActions = document.createElement("div");
+          sourceActions.className = "channel-manager-source-actions";
+          const reference = document.createElement("input");
+          reference.value = platform.reference || "";
+          reference.placeholder = `${{provider}} handle or URL`;
+          reference.setAttribute("aria-label", `${{provider}} public handle or URL`);
+          const saveReference = document.createElement("button");
+          saveReference.type = "button";
+          saveReference.textContent = "Set";
+          saveReference.addEventListener("click", async () => {{
+            try {{
+              await catalogAction({{
+                action: "reference",
+                id: channel.id,
+                provider,
+                reference: reference.value,
+              }});
+              await loadCatalog();
+            }} catch (error) {{ setManagerStatus(error.message); }}
+          }});
+          sourceActions.append(reference, saveReference);
+          source.append(sourceHeader, sourceActions);
+          sources.append(source);
         }});
-        row.append(name, save, sources, remove);
+        const collect = document.createElement("button");
+        collect.type = "button";
+        collect.textContent = "Collect now";
+        collect.addEventListener("click", async () => {{
+          try {{
+            const result = await catalogAction({{action: "collect", id: channel.id}});
+            const summary = (result.sources || [])
+              .map((source) => {{
+                const state = source.selected ? "selected" : source.status;
+                return `${{source.provider}}=${{state}}`;
+              }})
+              .join(", ");
+            setManagerStatus(summary || "No configured sources for this channel.");
+            await loadCatalog();
+          }} catch (error) {{ setManagerStatus(error.message); }}
+        }});
+        row.append(name, save, schedule, sources, collect, remove);
         managerList.append(row);
       }}));
     }};

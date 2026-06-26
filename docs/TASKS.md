@@ -435,7 +435,7 @@ Evidence:
 
 ### TASK-258 - Add deliberate collection for catalog channels
 
-Status: In Progress
+Status: Done
 
 Phase: Provider operations
 
@@ -449,9 +449,16 @@ Acceptance criteria:
 - Only enabled, configured provider sources are selected.
 - Output identifies the human channel and source coverage without exposing credentials.
 
+Evidence:
+
+- The dashboard management panel now captures a public handle or URL per source.
+- Source status is shown as ready only when the source is enabled and has a public reference.
+- `Collect now` returns a safe per-source collection plan for the selected human channel.
+- The action does not print credentials, call provider APIs automatically or expose local secrets.
+
 ### TASK-259 - Record catalog collection status
 
-Status: Pending
+Status: Done
 
 Phase: Provider operations
 
@@ -463,9 +470,16 @@ Acceptance criteria:
 - Status never contains credentials, raw payloads or full local paths.
 - Dashboard shows source status and most recent successful sync.
 
+Evidence:
+
+- `Collect now` persists safe per-source status in an ignored local status file.
+- Status includes last attempt, last success placeholder, status and safe outcome text.
+- Dashboard source chips can show the persisted status and outcome.
+- The status file stores no credentials, raw payloads or local paths.
+
 ### TASK-260 - Add configurable channel collection schedules
 
-Status: Pending
+Status: Done
 
 Phase: Orchestration
 
@@ -478,9 +492,16 @@ Acceptance criteria:
 - Schedule choices are visible and editable in the channel management panel.
 - Existing retry and failure behavior remains active for scheduled runs.
 
+Evidence:
+
+- Catalog channels now support an empty, daily or weekly schedule intent.
+- New channels default to no schedule.
+- The dashboard management panel lets users choose off, daily or weekly per channel.
+- The schedule does not trigger provider calls by itself; provider dispatch remains explicit.
+
 ### TASK-261 - Add collection failure visibility
 
-Status: Pending
+Status: Done
 
 Phase: Resilience
 
@@ -491,6 +512,13 @@ Acceptance criteria:
 - Dashboard distinguishes successful, pending, unavailable and failed source states.
 - Failure text is safe for the local UI and excludes secrets.
 - Operators can retry deliberately after resolving local configuration.
+
+Evidence:
+
+- `Collect now` attempts real local YouTube collection for ready YouTube sources.
+- Missing or invalid YouTube credentials are recorded as a safe failed source outcome.
+- Unsupported provider dispatch is recorded as failed without pretending that collection ran.
+- Successful YouTube collection records loaded count and last successful attempt.
 
 ### TASK-100 - Dashboard platform breakdown inside selected channel
 
