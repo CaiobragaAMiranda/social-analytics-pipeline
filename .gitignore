@@ -10,6 +10,7 @@ dist/
 build/
 .env
 config/channels.local.json
+config/collection_status.local.json
 data/raw/
 data/processed/
 data/reports/

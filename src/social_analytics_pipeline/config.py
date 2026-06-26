@@ -37,6 +37,7 @@ class ChannelIdentityConfig:
     display_name: str
     image_url: str
     platforms: tuple[ChannelPlatformIdentity, ...]
+    schedule: str = ""
 
 
 def load_channel_identity_config(config_path: Path) -> tuple[ChannelIdentityConfig, ...]:
@@ -48,6 +49,7 @@ def load_channel_identity_config(config_path: Path) -> tuple[ChannelIdentityConf
         raise RuntimeError("Channel identity config 'channels' must be a list.")
     catalog = tuple(_channel_identity_config(channel) for channel in channels)
     _validate_unique_channel_ids(catalog)
+    _validate_channel_schedules(catalog)
     return catalog
 
 
@@ -56,12 +58,14 @@ def write_channel_identity_config(
     channels: tuple[ChannelIdentityConfig, ...],
 ) -> None:
     _validate_unique_channel_ids(channels)
+    _validate_channel_schedules(channels)
     payload = {
         "channels": [
             {
                 "id": channel.channel_id,
                 "display_name": channel.display_name,
                 "image_url": channel.image_url,
+                "schedule": channel.schedule,
                 "platforms": {
                     platform.provider: {
                         "channel_id": platform.channel_id,
@@ -174,6 +178,7 @@ def _channel_identity_config(payload: object) -> ChannelIdentityConfig:
             _platform_identity(provider, platform_payload)
             for provider, platform_payload in platforms.items()
         ),
+        schedule=str(payload.get("schedule", "")),
     )
 
 
@@ -200,3 +205,10 @@ def _validate_unique_channel_ids(channels: tuple[ChannelIdentityConfig, ...]) ->
     channel_ids = [channel.channel_id.lower() for channel in channels]
     if len(channel_ids) != len(set(channel_ids)):
         raise RuntimeError("Channel identity config cannot contain duplicate IDs.")
+
+
+def _validate_channel_schedules(channels: tuple[ChannelIdentityConfig, ...]) -> None:
+    allowed = {"", "daily", "weekly"}
+    for channel in channels:
+        if channel.schedule not in allowed:
+            raise RuntimeError("Channel identity schedule must be empty, daily or weekly.")

@@ -1,5 +1,8 @@
 import argparse
+import datetime as dt
+import json
 from pathlib import Path
+from typing import Any
 
 from social_analytics_pipeline.config import (
     ChannelIdentityConfig,
@@ -29,7 +32,11 @@ def add_channel(catalog_path: Path, channel_id: str, display_name: str) -> Chann
 def rename_channel(catalog_path: Path, channel_id: str, display_name: str) -> ChannelIdentityConfig:
     channel = _channel_by_id(list_channels(catalog_path), channel_id)
     updated = ChannelIdentityConfig(
-        channel.channel_id, display_name, channel.image_url, channel.platforms
+        channel.channel_id,
+        display_name,
+        channel.image_url,
+        channel.platforms,
+        channel.schedule,
     )
     write_channel_identity_config(
         catalog_path, update_channel_identity(list_channels(catalog_path), updated)
@@ -61,7 +68,11 @@ def set_platform_enabled(
     if not any(item.provider == provider for item in platforms):
         platforms += (ChannelPlatformIdentity(provider, enabled=enabled),)
     updated = ChannelIdentityConfig(
-        channel.channel_id, channel.display_name, channel.image_url, platforms
+        channel.channel_id,
+        channel.display_name,
+        channel.image_url,
+        platforms,
+        channel.schedule,
     )
     write_channel_identity_config(
         catalog_path, update_channel_identity(list_channels(catalog_path), updated)
@@ -87,12 +98,108 @@ def set_platform_reference(
     if not any(item.provider == provider for item in platforms):
         platforms += (ChannelPlatformIdentity(provider, handle=handle, enabled=False),)
     updated = ChannelIdentityConfig(
-        channel.channel_id, channel.display_name, channel.image_url, platforms
+        channel.channel_id,
+        channel.display_name,
+        channel.image_url,
+        platforms,
+        channel.schedule,
     )
     write_channel_identity_config(
         catalog_path, update_channel_identity(list_channels(catalog_path), updated)
     )
     return updated
+
+
+def set_channel_schedule(
+    catalog_path: Path,
+    channel_id: str,
+    schedule: str,
+) -> ChannelIdentityConfig:
+    channel = _channel_by_id(list_channels(catalog_path), channel_id)
+    updated = ChannelIdentityConfig(
+        channel.channel_id,
+        channel.display_name,
+        channel.image_url,
+        channel.platforms,
+        schedule,
+    )
+    write_channel_identity_config(
+        catalog_path, update_channel_identity(list_channels(catalog_path), updated)
+    )
+    return updated
+
+
+def collection_plan(catalog_path: Path, channel_id: str) -> tuple[dict[str, Any], ...]:
+    channel = _channel_by_id(list_channels(catalog_path), channel_id)
+    return tuple(
+        {
+            "provider": platform.provider,
+            "status": "ready" if platform.enabled and platform.handle else "pending",
+            "reference": platform.handle,
+            "selected": bool(platform.enabled and platform.handle),
+        }
+        for platform in channel.platforms
+    )
+
+
+def load_collection_status(status_path: Path) -> dict[str, Any]:
+    if not status_path.exists():
+        return {"channels": {}}
+    payload = json.loads(status_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise RuntimeError("Collection status must contain an object.")
+    channels = payload.setdefault("channels", {})
+    if not isinstance(channels, dict):
+        raise RuntimeError("Collection status 'channels' must contain an object.")
+    return payload
+
+
+def record_collection_status(
+    status_path: Path,
+    channel_id: str,
+    sources: tuple[dict[str, Any], ...] | list[dict[str, Any]],
+    attempted_at: dt.datetime | None = None,
+) -> dict[str, Any]:
+    timestamp = _status_timestamp(attempted_at)
+    payload = load_collection_status(status_path)
+    channels = payload.setdefault("channels", {})
+    channel_status = channels.setdefault(channel_id, {"sources": {}})
+    source_statuses = channel_status.setdefault("sources", {})
+    for source in sources:
+        provider = str(source.get("provider", ""))
+        if not provider:
+            continue
+        selected = bool(source.get("selected"))
+        existing = source_statuses.get(provider, {})
+        status = str(source.get("collection_status", "planned" if selected else "pending"))
+        outcome = str(
+            source.get(
+                "outcome",
+                (
+                    "Ready for provider collection"
+                    if selected
+                    else "Missing enabled public source reference"
+                ),
+            )
+        )
+        source_statuses[provider] = {
+            "last_attempt": timestamp,
+            "last_success": timestamp if status == "ok" else str(existing.get("last_success", "")),
+            "status": status,
+            "outcome": outcome,
+        }
+        if "loaded_records" in source:
+            source_statuses[provider]["loaded_records"] = int(source.get("loaded_records", 0))
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+    status_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return payload
+
+
+def _status_timestamp(value: dt.datetime | None) -> str:
+    timestamp = value or dt.datetime.now(dt.UTC)
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=dt.UTC)
+    return timestamp.astimezone(dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def _channel_by_id(

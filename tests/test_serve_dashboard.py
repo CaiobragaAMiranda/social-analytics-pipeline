@@ -26,10 +26,87 @@ class ServeDashboardTest(unittest.TestCase):
                 catalog_path,
                 {"action": "enable", "id": "brand", "provider": "youtube"},
             )
+            scheduled = _apply_catalog_action(
+                catalog_path,
+                {"action": "schedule", "id": "brand", "schedule": "daily"},
+            )
+            referenced = _apply_catalog_action(
+                catalog_path,
+                {
+                    "action": "reference",
+                    "id": "brand",
+                    "provider": "youtube",
+                    "reference": "@brand",
+                },
+            )
+            with mock.patch(
+                "social_analytics_pipeline.cli.serve_dashboard._run_youtube_catalog_collection",
+                return_value=mock.Mock(result=mock.Mock(loaded_records=7)),
+            ):
+                plan = _apply_catalog_action(
+                    catalog_path,
+                    {"action": "collect", "id": "brand"},
+                    project_root=Path(tmpdir),
+                )
 
         self.assertEqual(added["channels"][0]["name"], "Brand Channel")
         self.assertNotIn("handle", added["channels"][0])
         self.assertTrue(enabled["channels"][0]["platforms"]["youtube"]["enabled"])
+        self.assertEqual(scheduled["channels"][0]["schedule"], "daily")
+        self.assertEqual(
+            referenced["channels"][0]["platforms"]["youtube"]["reference"], "@brand"
+        )
+        self.assertTrue(referenced["channels"][0]["platforms"]["youtube"]["ready"])
+        self.assertEqual(plan["channel_id"], "brand")
+        self.assertEqual(
+            plan["sources"],
+            [
+                {
+                    "provider": "youtube",
+                    "status": "ready",
+                    "reference": "@brand",
+                    "selected": True,
+                    "collection_status": "ok",
+                    "outcome": "YouTube collection completed",
+                    "loaded_records": 7,
+                }
+            ],
+        )
+        self.assertEqual(plan["status"]["sources"]["youtube"]["status"], "ok")
+        self.assertEqual(plan["status"]["sources"]["youtube"]["loaded_records"], 7)
+
+    def test_catalog_collect_records_safe_failure_when_youtube_is_not_configured(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            catalog_path = Path(tmpdir) / "channels.local.json"
+            _apply_catalog_action(
+                catalog_path,
+                {"action": "add", "id": "brand", "name": "Brand Channel"},
+            )
+            _apply_catalog_action(
+                catalog_path,
+                {"action": "enable", "id": "brand", "provider": "youtube"},
+            )
+            _apply_catalog_action(
+                catalog_path,
+                {
+                    "action": "reference",
+                    "id": "brand",
+                    "provider": "youtube",
+                    "reference": "@brand",
+                },
+            )
+
+            plan = _apply_catalog_action(
+                catalog_path,
+                {"action": "collect", "id": "brand"},
+                project_root=Path(tmpdir),
+            )
+
+        self.assertEqual(plan["sources"][0]["collection_status"], "failed")
+        self.assertEqual(
+            plan["status"]["sources"]["youtube"]["outcome"],
+            "YouTube credentials are missing or invalid",
+        )
 
     def test_dashboard_url_uses_project_relative_output_path(self) -> None:
         project_root = Path("project")
