@@ -76,7 +76,9 @@ class DashboardTest(unittest.TestCase):
         self.assertIn('action: "reference"', html)
         self.assertIn('action: "schedule"', html)
         self.assertIn("Collection schedule", html)
-        self.assertIn("handle or URL", html)
+        self.assertIn("YouTube @handle or channel URL", html)
+        self.assertIn("Instagram handle or profile URL", html)
+        self.assertIn("TikTok handle or profile URL", html)
         self.assertIn("Collect now", html)
         self.assertIn('action: "collect"', html)
         self.assertIn("channel-manager-source-status", html)
@@ -444,6 +446,11 @@ class DashboardTest(unittest.TestCase):
             {
                 "source": {"provider": "youtube"},
                 "records": 3,
+                "production": {
+                    "period": "latest_6_months",
+                    "date_source": "all_processed_rows",
+                    "dates_count": 3,
+                },
                 "production_dates": [
                     "2026-05-20T14:30:00+00:00",
                     "2026-05-20T16:30:00+00:00",
@@ -463,6 +470,8 @@ class DashboardTest(unittest.TestCase):
         self.assertIn("data-cadence-average", html)
         self.assertIn("Active days", html)
         self.assertIn("Per active day", html)
+        self.assertIn("data-production-scope", html)
+        self.assertIn("Latest 6 months from all processed content (3 dated item(s))", html)
         self.assertIn(">1.50</strong>", html)
         self.assertIn("3 productions", html)
         self.assertIn("3 productions across 2 day(s)", html)
@@ -748,6 +757,42 @@ class DashboardTest(unittest.TestCase):
         self.assertEqual(channel["top_rows"][0]["content_id"], "yt-1")
         self.assertEqual(channel["top_rows"][0]["provider"], "youtube")
         self.assertEqual(channel["top_content"]["content_id"], "yt-1")
+
+    def test_build_multi_report_dashboard_payload_preserves_complete_production_dates(
+        self,
+    ) -> None:
+        payload = build_multi_report_dashboard_payload(
+            [
+                {
+                    "source": {"provider": "instagram", "channel_handle": "@brand"},
+                    "records": 1,
+                    "production_dates": [
+                        "2026-01-01T10:00:00+00:00",
+                        "2026-01-02T10:00:00+00:00",
+                    ],
+                    "top_rows": [{"content_id": "ig-1", "views": 300}],
+                },
+                {
+                    "source": {"provider": "youtube", "channel_handle": "@brand"},
+                    "records": 1,
+                    "production_dates": ["2026-01-03T10:00:00+00:00"],
+                    "top_rows": [{"content_id": "yt-1", "views": 900}],
+                },
+            ]
+        )
+
+        channel = payload["channels"][0]
+        self.assertEqual(len(channel["top_rows"]), 2)
+        self.assertEqual(
+            channel["production_dates"],
+            [
+                "2026-01-01T10:00:00+00:00",
+                "2026-01-02T10:00:00+00:00",
+                "2026-01-03T10:00:00+00:00",
+            ],
+        )
+        self.assertEqual(channel["production"]["dates_count"], 3)
+        self.assertEqual(channel["production"]["date_source"], "all_processed_rows")
 
     def test_build_dashboard_html_shows_top_content_platform_metadata(self) -> None:
         html = build_dashboard_html(

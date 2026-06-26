@@ -118,6 +118,61 @@ class InstagramReportTest(unittest.TestCase):
         self.assertEqual(saved["generated_at"], "2026-06-13T12:00:00Z")
         self.assertEqual(saved["source"], payload["source"])
 
+    def test_instagram_report_json_keeps_all_production_dates_beyond_top_limit(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            artifact_path = project_root / "data" / "processed" / "instagram" / "instagram.json"
+            artifact_path.parent.mkdir(parents=True)
+            artifact_path.write_text(
+                json.dumps(
+                    [
+                        {
+                            "content_id": "ig-post-1",
+                            "views": 100,
+                            "published_at": "2026-01-01T10:00:00+00:00",
+                        },
+                        {
+                            "content_id": "ig-post-2",
+                            "views": 900,
+                            "published_at": "2026-02-01T10:00:00+00:00",
+                        },
+                        {
+                            "content_id": "ig-post-3",
+                            "views": 50,
+                            "published_at": "2026-03-01T10:00:00+00:00",
+                        },
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            summary = build_instagram_report_summary(
+                artifact_path,
+                top_limit=1,
+                sort_by="views",
+            )
+            payload = build_instagram_report_json_payload(summary, project_root)
+
+        self.assertEqual(len(payload["top_rows"]), 1)
+        self.assertEqual(
+            payload["production_dates"],
+            [
+                "2026-01-01T10:00:00+00:00",
+                "2026-02-01T10:00:00+00:00",
+                "2026-03-01T10:00:00+00:00",
+            ],
+        )
+        self.assertEqual(
+            payload["production"],
+            {
+                "period": "latest_6_months",
+                "date_source": "all_processed_rows",
+                "dates_count": 3,
+            },
+        )
+
     def test_empty_artifact_writes_empty_quality_payload(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_root = Path(tmpdir)

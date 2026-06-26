@@ -271,6 +271,44 @@ class YouTubeProviderTest(unittest.TestCase):
         self.assertEqual(http_client.calls[0][1]["part"], "id")
         self.assertEqual(http_client.calls[0][1]["forHandle"], "public-handle")
 
+    def test_resolve_channel_reference_accepts_public_channel_id_without_http(self) -> None:
+        http_client = FakeHttpJsonClient()
+        provider = YouTubeDataApiProvider(
+            YouTubeApiConfig(api_key="test-api-key"),
+            http_client=http_client,
+        )
+
+        channel_id = provider.resolve_channel_reference("UCresolved123")
+
+        self.assertEqual(channel_id, "UCresolved123")
+        self.assertEqual(http_client.calls, [])
+
+    def test_resolve_channel_reference_accepts_channel_url_without_http(self) -> None:
+        http_client = FakeHttpJsonClient()
+        provider = YouTubeDataApiProvider(
+            YouTubeApiConfig(api_key="test-api-key"),
+            http_client=http_client,
+        )
+
+        channel_id = provider.resolve_channel_reference(
+            "https://www.youtube.com/channel/UCresolved123"
+        )
+
+        self.assertEqual(channel_id, "UCresolved123")
+        self.assertEqual(http_client.calls, [])
+
+    def test_resolve_channel_reference_uses_handle_resolution_when_needed(self) -> None:
+        http_client = FakeHttpJsonClient()
+        provider = YouTubeDataApiProvider(
+            YouTubeApiConfig(api_key="test-api-key"),
+            http_client=http_client,
+        )
+
+        channel_id = provider.resolve_channel_reference("@public-handle")
+
+        self.assertEqual(channel_id, "UCresolved123")
+        self.assertEqual(http_client.calls[0][1]["forHandle"], "public-handle")
+
     def test_real_youtube_payload_normalizes_without_fixture_video_id_field(self) -> None:
         http_client = FakeHttpJsonClient()
         provider = YouTubeDataApiProvider(

@@ -251,6 +251,10 @@ def build_youtube_report_json_payload(
 ) -> dict[str, Any]:
     artifact = _display_path(summary.artifact_path, project_root)
     top_row = summary.top_rows[0] if summary.top_rows else None
+    production_dates = _production_dates(
+        summary.top_rows,
+        load_youtube_report_rows(summary.artifact_path),
+    )
     return {
         "report_schema_version": YOUTUBE_REPORT_SCHEMA_VERSION,
         "generated_at": generated_at or _utc_now_iso(),
@@ -309,10 +313,12 @@ def build_youtube_report_json_payload(
             "metric": summary.sort_by,
             "metric_value": summary.top_metric_value,
         },
-        "production_dates": _production_dates(
-            summary.top_rows,
-            load_youtube_report_rows(summary.artifact_path),
-        ),
+        "production": {
+            "period": "latest_6_months",
+            "date_source": "all_processed_rows",
+            "dates_count": len(production_dates),
+        },
+        "production_dates": production_dates,
         "top_rows": [_report_row(row) for row in summary.top_rows],
     }
 
